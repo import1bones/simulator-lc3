@@ -1,0 +1,4 @@
+#ifndef CONTROL_STORE_H
+#define CONTROL_STORE_H
+
+#endif //CONTROL_STORE_H
