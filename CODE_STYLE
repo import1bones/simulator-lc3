@@ -1,1 +1,8 @@
 CODE STYLE
+
+type_1 var_1;
+type_1 *var_1_ptr = var_1;
+The pointer for a var or array, xxx_ptr is a standard naming convention.
+
+typedef type_basic type_new_t;
+If typedef a new type ,xxx_t is a standard naming convention.
