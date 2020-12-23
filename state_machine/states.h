@@ -80,7 +80,9 @@ void state_63(const micro_instruction_t micro_inst);
 
 typedef void (*state_function_ptr)(const micro_instruction_t micro_inst); 
 
-state_function_ptr state_function_array[64]=
+//define and inital state_function_ptr_array.
+//through a state function and change signa.
+state_function_ptr state_function_ptr_array[64]=
 {
     state_0,
     state_1,

@@ -1,10 +1,19 @@
 #include"states.h"
 
+/*
+function define:
+    [BEN]
+*/
 void state_0(const micro_instruction_t micro_instv)
 {
     //[BEN]
 }
 
+/*
+function define:
+    DR <- SR1 + (SR2 or SEXT[imm5])
+    set CC
+*/
 void state_1(const micro_instruction_t micro_inst)
 {
     uint16_t DRidx = ZEXT((instruction_reg >> 9), 2);
@@ -21,15 +30,26 @@ void state_1(const micro_instruction_t micro_inst)
     SET_CC(reg[DRidx]);
 }
 
+/*
+function define:
+    MAR <- pc + SEXT[offset9]
+    set ACV
+*/
 void state_2(const micro_instruction_t micro_inst)
 {
     mem_addr_reg = pointer_counter + SEXT(instruction_reg, 8);
     SET_ACV();
 }
 
+/*
+function define:
+    MAR <- pc + SEXT[offset9]
+    set ACV
+*/
 void state_3(const micro_instruction_t micro_inst)
 {
-
+    mem_addr_reg = pointer_counter + SEXT(instruction_reg, 8);
+    SET_ACV();
 }
 
 void state_4(const micro_instruction_t micro_inst)
@@ -52,10 +72,26 @@ void state_5(const micro_instruction_t micro_inst)
     }
     SET_CC(reg[DRidx]);
 }
-void state_6(const micro_instruction_t micro_inst);
-void state_7(const micro_instruction_t micro_inst);
-void state_8(const micro_instruction_t micro_inst);
-void state_9(const micro_instruction_t micro_inst);
+
+void state_6(const micro_instruction_t micro_inst)
+{
+
+}
+
+void state_7(const micro_instruction_t micro_inst)
+{
+
+}
+
+void state_8(const micro_instruction_t micro_inst)
+{
+
+}
+
+void state_9(const micro_instruction_t micro_inst)
+{
+
+}
 
 void state_10(const micro_instruction_t micro_inst)
 {
@@ -63,13 +99,46 @@ void state_10(const micro_instruction_t micro_inst)
     SET_ACV();
 }
 
-void state_11(const micro_instruction_t micro_inst);
-void state_12(const micro_instruction_t micro_inst);
-void state_13(const micro_instruction_t micro_inst);
-void state_14(const micro_instruction_t micro_inst);
-void state_15(const micro_instruction_t micro_inst);
-void state_16(const micro_instruction_t micro_inst);
-void state_17(const micro_instruction_t micro_inst);
+void state_11(const micro_instruction_t micro_inst)
+{
+
+}
+
+void state_12(const micro_instruction_t micro_inst)
+{
+    uint16_t BaseRidx = ZEXT((instruction_reg >> 6), 2);
+    pointer_counter = reg[BaseRidx];
+}
+
+void state_13(const micro_instruction_t micro_inst)
+{
+
+}
+void state_14(const micro_instruction_t micro_inst)
+{
+
+}
+
+void state_15(const micro_instruction_t micro_inst)
+{
+
+}
+
+void state_16(const micro_instruction_t micro_inst)
+{
+    do
+    {
+        mem[mem_addr_reg] = mem_data_reg;
+        R = 1;
+    }
+    while(!R);
+}
+
+void state_17(const micro_instruction_t micro_inst)
+{
+
+}
+
 void state_18(const micro_instruction_t micro_inst)
 {
     mem_addr_reg = pointer_counter;
@@ -77,12 +146,41 @@ void state_18(const micro_instruction_t micro_inst)
     SET_ACV();
     //[INT]
 }
-void state_19(const micro_instruction_t micro_inst);
-void state_20(const micro_instruction_t micro_inst);
-void state_21(const micro_instruction_t micro_inst);
-void state_22(const micro_instruction_t micro_inst);
-void state_23(const micro_instruction_t micro_inst);
-void state_24(const micro_instruction_t micro_inst);
+void state_19(const micro_instruction_t micro_inst)
+{
+
+}
+
+void state_20(const micro_instruction_t micro_inst)
+{
+    uint16_t BaseRidx = ZEXT((instruction_reg >> 6), 2);    
+    reg[7] = pointer_counter;
+    pointer_counter = reg[BaseRidx];
+}
+
+void state_21(const micro_instruction_t micro_inst)
+{
+    reg[7] = pointer_counter;
+    pointer_counter = pointer_counter + SEXT(instruction_reg, 10); 
+}
+
+void state_22(const micro_instruction_t micro_inst)
+{
+    pointer_counter = pointer_counter + SEXT(instruction_reg, 8);
+}
+
+void state_23(const micro_instruction_t micro_inst)
+{
+    uint16_t SRidx = ZEXT((instruction_reg >> 9), 2);
+    mem_data_reg = reg[SRidx];
+    //[ACV]
+}
+
+void state_24(const micro_instruction_t micro_inst)
+{
+
+}
+
 void state_25(const micro_instruction_t micro_inst)
 {
     do
@@ -92,7 +190,12 @@ void state_25(const micro_instruction_t micro_inst)
     }
     while(!R);
 }
-void state_26(const micro_instruction_t micro_inst);
+
+void state_26(const micro_instruction_t micro_inst)
+{
+
+}
+
 void state_27(const micro_instruction_t micro_inst)
 {
     
@@ -125,9 +228,7 @@ void state_31(const micro_instruction_t micro_inst)
 
 void state_32(const micro_instruction_t micro_inst)
 {
-    BEN = (instruction_reg & bit_table[11]) + 
-          (instruction_reg & bit_table[10]) +
-          (instruction_reg & bit_table[9]);
+    SET_BEN();
     //[IR[15:12]]
 }
 void state_33(const micro_instruction_t micro_inst)

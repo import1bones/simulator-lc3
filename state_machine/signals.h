@@ -6,7 +6,6 @@
 
 uint8_t INT = 0;
 uint8_t R = 0;
-uint8_t IR_15_11 = 0;
 uint8_t BEN = 0;
 uint8_t PSR_15 = 0;
 uint8_t ACV = 0;
@@ -26,10 +25,16 @@ void SET_CC(const register_t &r)
     if(r == 0)
         Z=1;
     else if(r & bit_table[15])
-        N=0;
+        N=1;
     else
-        P=0;   
-    
+        P=1;   
+}
+
+void SET_BEN()
+{
+        BEN = (instruction_reg & bit_table[11]) + 
+              (instruction_reg & bit_table[10]) +
+              (instruction_reg & bit_table[9]);
 }
 
 #endif //SIGNALS_H
