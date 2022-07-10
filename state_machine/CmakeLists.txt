@@ -1,0 +1,1 @@
+add_library(state_machine ext.h signal.h state_machine.cpp state_machine.h states.cpp states.h)
