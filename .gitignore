@@ -1,8 +1,23 @@
-# Build directories
+# LC-3 Simulator - Git Ignore Configuration
+
+# Build directories and artifacts
 build/
 cmake-build-*/
 dist/
 *.egg-info/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+
+# Compiled binaries and libraries
+*.o
+*.a
+*.so
+*.dll
+*.exe
+lc3-simulator
+simulator
 
 # Auto-generated reports and data files with timestamps
 reports/*_[0-9]*.md
@@ -11,20 +26,25 @@ reports/*_[0-9]*.json
 data/*_[0-9]*.json
 data/*_[0-9]*.csv
 data/*_[0-9]*.xml
+auto-docs/
 
-# Generated coverage reports
+# Auto-generated documentation (exclude from git)
+docs/COMPREHENSIVE_ANALYSIS_SUMMARY.md
+docs/REPORTS_INDEX.md
+reports/enhanced_*.md
+reports/mips_*.md
+reports/isa_*.md
+reports/*_report_*.md
+reports/*_report_*.json
+reports/test_analysis_summary.json
+
+# Generated coverage reports (keep directory structure)
 reports/detailed_coverage/
 reports/python_coverage/
 htmlcov/
-
-# Keep important static reports and documentation
-!reports/README.md
-!reports/COMPREHENSIVE_TEST_COVERAGE_REPORT.md
-!reports/COVERAGE_REPORT.md
-!reports/ISA_COMPREHENSIVE_PERFORMANCE_REPORT.md
-!reports/comprehensive_test_coverage_report.html
-!data/README.md
-!docs/README.md
+.coverage
+.coverage.*
+coverage.xml
 
 # Python cache and compiled files
 __pycache__/
@@ -36,46 +56,18 @@ env/
 venv/
 .venv/
 .env
-
-# Testing and coverage files
-.coverage
-.coverage.*
-coverage.xml
-.tox/
 .pytest_cache/
-.cache/
 
 # IDE and editor files
 .vscode/settings.json
 .vscode/launch.json
 .vscode/tasks.json
-.vscode/.ropeproject
+.idea/
 *.swp
 *.swo
 *~
-.DS_Store
-Thumbs.db
 
-# Logs and temporary files
-*.log
-*.tmp
-*.temp
-*.pid
-*.seed
-*.pid.lock
-
-# Benchmarks and analysis output
-.benchmarks/
-*.benchmark
-analysis_output/
-performance_data/
-
-# Generated documentation builds
-docs/_build/
-docs/html/
-docs/latex/
-
-# OS specific files
+# OS generated files
 .DS_Store
 .DS_Store?
 ._*
@@ -84,32 +76,31 @@ docs/latex/
 ehthumbs.db
 Thumbs.db
 
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+.benchmarks/
+.tox/
+.cache/
+
 # Backup files
 *.bak
 *.backup
-*.orig
+*~
 
-# Generated executables
-lc3-simulator
-lc3-simulator.exe
-*.out
-*.exe
+# Generated documentation (auto-docs should not be committed)
+docs/generated/
+docs/auto/
 
-# CMake generated files (except main CMakeLists.txt)
-CMakeCache.txt
-CMakeFiles/
-cmake_install.cmake
-Makefile.generated
-
-# Temporary script outputs
-scripts/build/
-scripts/reports/
-
-# Keep essential documentation and structure files
-!README.md
-!*/README.md
-!LICENSE
-!CHANGELOG.md
+# Keep important static files (use ! to force include)
+!reports/README.md
+!data/README.md
+!docs/README.md
 !docs/PROJECT_STRUCTURE.md
-!docs/COMPREHENSIVE_ANALYSIS_SUMMARY.md
-!docs/REPORTS_INDEX.md
+!docs/GITHUB_ACTIONS_GUIDE.md
+
+# Keep essential configuration files
+!.github/
+!.vscode/extensions.json
+!.vscode/settings.json.example

@@ -30,7 +30,7 @@ jobs:
         fetch-depth: 0  # Fetch full history for changelog generation
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.9'
 
@@ -237,7 +237,7 @@ jobs:
         zip -r lc3-simulator-${{ steps.version.outputs.version }}-docs.zip ${{ steps.version.outputs.version }}/
 
     - name: Upload release documentation
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: release-documentation-${{ steps.version.outputs.version }}
         path: release-docs/
