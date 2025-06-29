@@ -1,0 +1,264 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build LC-3 Simulator",
+            "type": "shell",
+            "command": "mkdir",
+            "args": ["-p", "build"],
+            "group": "build",
+            "detail": "Create build directory",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "CMake Configure",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S", ".",
+                "-B", "build",
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-DBUILD_PYTHON_BINDINGS=ON"
+            ],
+            "group": "build",
+            "detail": "Configure CMake with debug info and Python bindings",
+            "dependsOn": "Build LC-3 Simulator",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "CMake Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build", "build",
+                "--config", "Debug",
+                "-j", "4"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Build the LC-3 simulator with debug info",
+            "dependsOn": "CMake Configure",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "CMake Clean",
+            "type": "shell",
+            "command": "rm",
+            "args": ["-rf", "build"],
+            "group": "build",
+            "detail": "Clean build directory",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run LC-3 Simulator",
+            "type": "shell",
+            "command": "./build/simulator-lc3",
+            "group": "test",
+            "detail": "Run the compiled LC-3 simulator",
+            "dependsOn": "CMake Build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Python Bindings",
+            "type": "shell",
+            "command": "make",
+            "args": ["python-bindings"],
+            "group": "build",
+            "detail": "Build Python bindings for testing",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "Run All Tests",
+            "type": "shell",
+            "command": "python3",
+            "args": ["run_tests.py"],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "detail": "Run the complete test suite using pytest",
+            "dependsOn": "Build Python Bindings",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Basic Tests",
+            "type": "shell",
+            "command": "python3",
+            "args": ["-m", "pytest", "tests/test_basic.py", "-v"],
+            "group": "test",
+            "detail": "Run basic functionality tests",
+            "dependsOn": "Build Python Bindings",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Memory Tests",
+            "type": "shell",
+            "command": "python3",
+            "args": ["-m", "pytest", "tests/test_memory.py", "-v"],
+            "group": "test",
+            "detail": "Run memory management tests",
+            "dependsOn": "Build Python Bindings",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Instruction Tests",
+            "type": "shell",
+            "command": "python3",
+            "args": ["-m", "pytest", "tests/test_instructions.py", "-v"],
+            "group": "test",
+            "detail": "Run instruction execution tests",
+            "dependsOn": "Build Python Bindings",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Generate Test Coverage",
+            "type": "shell",
+            "command": "python3",
+            "args": ["-m", "pytest", "--cov=.", "--cov-report=html", "tests/"],
+            "group": "test",
+            "detail": "Generate test coverage report",
+            "dependsOn": "Build Python Bindings",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Format C++ Code",
+            "type": "shell",
+            "command": "find",
+            "args": [
+                ".", "-name", "*.cpp", "-o", "-name", "*.h",
+                "|", "xargs", "clang-format", "-i"
+            ],
+            "group": "build",
+            "detail": "Format all C++ source files using clang-format",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        }
+    ]
+}
