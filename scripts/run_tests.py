@@ -51,8 +51,10 @@ def build_simulator(project_root):
         print("Failed to configure project with CMake")
         return False
 
-    # Build
-    build_cmd = ["cmake", "--build", ".", "--config", "Release"]
+    # Build (use parallel jobs for faster builds)
+    import multiprocessing
+    jobs = multiprocessing.cpu_count()
+    build_cmd = ["cmake", "--build", ".", "--config", "Release", "--parallel", str(jobs)]
     if not run_command(build_cmd, cwd=build_dir):
         print("Failed to build project")
         return False
@@ -197,6 +199,29 @@ def run_benchmarks(project_root):
     return run_command(benchmark_cmd)
 
 
+def check_simulator_module(project_root):
+    """Check if the LC-3 simulator module is built and available."""
+    build_dir = project_root / "build" / "python_bindings"
+    
+    # Check if build directory exists
+    if not build_dir.exists():
+        return False
+    
+    # Try to import the module
+    sys.path.insert(0, str(build_dir))
+    try:
+        import lc3_simulator
+        print("✅ LC-3 simulator module is available")
+        return True
+    except ImportError:
+        print("❌ LC-3 simulator module not found or not built")
+        return False
+    finally:
+        # Remove from path to avoid conflicts
+        if str(build_dir) in sys.path:
+            sys.path.remove(str(build_dir))
+
+
 def check_environment():
     """Check if the environment is properly set up."""
     print("Checking environment...")
@@ -209,20 +234,21 @@ def check_environment():
     # Check if cmake is available
     try:
         subprocess.run(["cmake", "--version"], capture_output=True, check=True)
+        print("✅ CMake is available")
     except (subprocess.CalledProcessError, FileNotFoundError):
-        print("Error: CMake is not installed or not in PATH")
+        print("❌ CMake is not installed or not in PATH")
         return False
 
     # Check if a C++ compiler is available
     for compiler in ["g++", "clang++", "cl"]:
         try:
             subprocess.run([compiler, "--version"], capture_output=True, check=True)
-            print(f"Found C++ compiler: {compiler}")
+            print(f"✅ Found C++ compiler: {compiler}")
             break
         except (subprocess.CalledProcessError, FileNotFoundError):
             continue
     else:
-        print("Warning: No C++ compiler found. Build may fail.")
+        print("⚠️ Warning: No C++ compiler found. Build may fail.")
 
     print("Environment check completed.")
     return True
@@ -268,8 +294,18 @@ def main():
 
     # Check environment if requested
     if args.check_env:
-        if not check_environment():
+        env_ok = check_environment()
+        module_ok = check_simulator_module(project_root)
+        
+        if not env_ok:
             return 1
+            
+        if not module_ok:
+            print("\n⚠️ LC-3 simulator module is not built.")
+            print("To build it, run: python3 scripts/run_tests.py --build")
+            print("Or in CI/automated environments, the build should happen first.")
+            
+        return 0 if env_ok else 1
 
     # Install dependencies if requested
     if args.install_deps:

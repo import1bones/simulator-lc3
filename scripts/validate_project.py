@@ -281,19 +281,137 @@ def clean_generated_files():
     """Clean up generated test files."""
     print("\n🧹 Cleaning up generated files...")
 
-    # Remove test-generated files
-    patterns = [
-        "enhanced_*_*.json",
-        "enhanced_*_*.md"
+    # Detect project root
+    current_dir = Path.cwd()
+    if current_dir.name == "scripts":
+        project_root = current_dir.parent
+    else:
+        project_root = current_dir
+
+    # Remove auto-generated files from various locations
+    patterns_and_dirs = [
+        # Reports with timestamps
+        (project_root / "reports", ["enhanced_*_*.md", "enhanced_*_*.json", "*_[0-9]*.md", "*_[0-9]*.json"]),
+        # Data files with timestamps
+        (project_root / "data", ["enhanced_*_*.json", "*_[0-9]*.json", "*_[0-9]*.csv"]),
+        # Auto-generated docs
+        (project_root / "docs", ["COMPREHENSIVE_ANALYSIS_SUMMARY.md", "REPORTS_INDEX.md"]),
+        # Auto-docs directory
+        (project_root, ["auto-docs"]),
+        # Root level generated files
+        (project_root, ["enhanced_*_*.json", "enhanced_*_*.md"]),
     ]
 
-    for pattern in patterns:
-        for file_path in Path(".").glob(pattern):
-            try:
-                file_path.unlink()
-                print(f"🗑️ Removed: {file_path}")
-            except Exception as e:
-                print(f"⚠️ Could not remove {file_path}: {e}")
+    for base_dir, patterns in patterns_and_dirs:
+        if not base_dir.exists():
+            continue
+            
+        for pattern in patterns:
+            if pattern == "auto-docs":
+                # Handle directory
+                auto_docs_dir = base_dir / pattern
+                if auto_docs_dir.exists():
+                    try:
+                        import shutil
+                        shutil.rmtree(auto_docs_dir)
+                        print(f"🗑️ Removed directory: {auto_docs_dir}")
+                    except Exception as e:
+                        print(f"⚠️ Could not remove directory {auto_docs_dir}: {e}")
+            else:
+                # Handle file patterns
+                for file_path in base_dir.glob(pattern):
+                    if file_path.is_file():
+                        try:
+                            file_path.unlink()
+                            print(f"🗑️ Removed: {file_path}")
+                        except Exception as e:
+                            print(f"⚠️ Could not remove {file_path}: {e}")
+
+    print("🧹 Cleanup completed!")
+
+
+def test_git_ignore():
+    """Test that auto-generated files are properly ignored by git."""
+    print("\n🙈 Testing Git Ignore Configuration...")
+
+    # Detect project root
+    current_dir = Path.cwd()
+    if current_dir.name == "scripts":
+        project_root = current_dir.parent
+    else:
+        project_root = current_dir
+
+    success = True
+
+    # Check if .gitignore exists
+    gitignore_path = project_root / ".gitignore"
+    if not gitignore_path.exists():
+        print("❌ .gitignore file not found")
+        return False
+
+    # Read .gitignore content
+    try:
+        with open(gitignore_path, 'r') as f:
+            gitignore_content = f.read()
+    except Exception as e:
+        print(f"❌ Could not read .gitignore: {e}")
+        return False
+
+    # Check for important ignore patterns
+    required_patterns = [
+        "auto-docs/",
+        "reports/*_[0-9]*.md",
+        "reports/*_[0-9]*.json",
+        "data/*_[0-9]*.json",
+        "build/",
+        "__pycache__/",
+        "*.pyc",
+        ".coverage",
+    ]
+
+    missing_patterns = []
+    for pattern in required_patterns:
+        if pattern not in gitignore_content:
+            missing_patterns.append(pattern)
+
+    if missing_patterns:
+        print(f"❌ Missing .gitignore patterns: {missing_patterns}")
+        success = False
+    else:
+        print("✅ All required .gitignore patterns are present")
+
+    # Test if git status is clean (no untracked auto-generated files)
+    try:
+        result = subprocess.run(
+            ["git", "status", "--porcelain"], 
+            cwd=project_root, 
+            capture_output=True, 
+            text=True, 
+            check=True
+        )
+        
+        # Look for problematic untracked files
+        untracked_files = []
+        for line in result.stdout.strip().split('\n'):
+            if line.startswith('??'):
+                file_path = line[3:].strip()
+                # Check if it's an auto-generated file that should be ignored
+                if any(pattern in file_path for pattern in ['enhanced_', '_202', 'auto-docs']):
+                    untracked_files.append(file_path)
+
+        if untracked_files:
+            print(f"⚠️ Auto-generated files not ignored by git: {untracked_files}")
+            print("Consider running: git add .gitignore && git commit -m 'Update gitignore'")
+            # Don't fail for this - it's just a warning
+        else:
+            print("✅ No problematic untracked files found")
+
+    except subprocess.CalledProcessError:
+        print("⚠️ Could not check git status (not a git repository or git not available)")
+    except Exception as e:
+        print(f"⚠️ Error checking git status: {e}")
+
+    return success
 
 
 def main():
@@ -317,6 +435,7 @@ def main():
         ("Utility Scripts", test_utility_scripts),
         ("Report Generation", test_report_generation),
         ("Build System", test_build_system),
+        ("Git Ignore", test_git_ignore),
     ]
 
     results = {}

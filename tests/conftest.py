@@ -6,12 +6,29 @@ import sys
 import os
 
 # Add the build directory to the path to import the compiled module
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'build', 'python_bindings'))
+build_path = os.path.join(os.path.dirname(__file__), '..', 'build', 'python_bindings')
+sys.path.insert(0, build_path)
 
+# Check if the simulator module is available
+simulator_available = False
 try:
     import lc3_simulator
-except ImportError:
-    pytest.skip("LC-3 Simulator module not built. Run 'cmake --build build' first.", allow_module_level=True)
+    simulator_available = True
+except ImportError as e:
+    # More informative error message
+    error_msg = (
+        "LC-3 Simulator module not available. "
+        "This usually means the C++ simulator hasn't been built yet.\n\n"
+        "To build the simulator:\n"
+        "1. Run: python3 scripts/run_tests.py --build\n"
+        "2. Or manually: cd build && cmake -DBUILD_PYTHON_BINDINGS=ON .. && cmake --build .\n\n"
+        "In CI environments, ensure the build step runs before tests.\n"
+        f"Build path checked: {build_path}\n"
+        f"Import error: {e}"
+    )
+    
+    # Skip all tests if running in pytest context
+    pytest.skip(error_msg, allow_module_level=True)
 
 
 @pytest.fixture

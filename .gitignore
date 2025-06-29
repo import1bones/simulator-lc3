@@ -49,6 +49,7 @@ coverage.xml
 # Python cache and compiled files
 __pycache__/
 *.py[cod]
+*.pyc
 *$py.class
 *.so
 .Python
