@@ -1,0 +1,39 @@
+# Core testing and analysis dependencies
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-html>=3.1.0
+pytest-benchmark>=4.0.0
+pytest-xdist>=3.0.0
+
+# Code quality and formatting
+black>=22.0.0
+flake8>=5.0.0
+pylint>=2.15.0
+mypy>=0.990
+
+# Data analysis and reporting
+numpy>=1.21.0
+pandas>=1.5.0
+matplotlib>=3.5.0
+seaborn>=0.11.0
+
+# Documentation generation
+jinja2>=3.1.0
+markdown>=3.4.0
+mkdocs>=1.4.0
+mkdocs-material>=8.5.0
+
+# Utility libraries
+click>=8.0.0
+rich>=12.0.0
+colorama>=0.4.0
+tqdm>=4.64.0
+
+# Development dependencies
+coverage[toml]>=6.0.0
+pre-commit>=2.20.0
+
+# Optional dependencies for enhanced features
+plotly>=5.0.0
+bokeh>=2.4.0
+jupyter>=1.0.0

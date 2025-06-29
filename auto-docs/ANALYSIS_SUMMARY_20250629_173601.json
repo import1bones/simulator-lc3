@@ -1,0 +1,224 @@
+{
+  "metadata": {
+    "generated_at": "2025-06-29T17:36:01.009679",
+    "timestamp": "20250629_173601",
+    "date": "2025-06-29",
+    "version": "main",
+    "commit": "unknown"
+  },
+  "analysis_summary": {
+    "isa": {
+      "file": "enhanced_isa_analysis_20250629_172106.json",
+      "metrics": {
+        "average_cpi_unpipelined": 1.59,
+        "average_cpi_pipelined": 1.339,
+        "ipc_potential": 0.7468259895444361,
+        "throughput_efficiency": 0.15786163522012586,
+        "instruction_density": 0.5,
+        "encoding_efficiency": 0.8566176470588235,
+        "orthogonality_score": 0.8,
+        "memory_bandwidth_utilization": 0.2647058823529412,
+        "locality_friendliness": 0.7,
+        "pipeline_efficiency": 0.15786163522012586,
+        "hazard_frequency": 0.5294117647058824,
+        "branch_penalty": 2.0,
+        "risc_score": 68.16176470588235
+      },
+      "cpi_analysis": {
+        "unpipelined": {
+          "cpi": 1.59,
+          "ipc": 0.6289308176100629,
+          "description": "Current LC-3 implementation"
+        },
+        "ideal_pipelined": {
+          "cpi": 1.0,
+          "ipc": 1.0,
+          "speedup": 1.59,
+          "description": "Perfect pipeline with no hazards"
+        },
+        "realistic_pipelined": {
+          "cpi": 1.339,
+          "ipc": 0.7468259895444361,
+          "speedup": 1.1874533233756535,
+          "description": "Realistic pipeline with hazards and stalls"
+        }
+      },
+      "risc_adherence": {
+        "overall_risc_score": 68.16176470588235,
+        "principle_scores": {
+          "simple_instructions": 35.294117647058826,
+          "uniform_instruction_size": 100,
+          "few_addressing_modes": 75,
+          "load_store_architecture": 85,
+          "large_register_file": 40,
+          "fixed_instruction_format": 60,
+          "pipeline_friendly": 70,
+          "orthogonal_instruction_set": 80
+        },
+        "comparison_to_mips": {
+          "lc3_risc_score": 68.16176470588235,
+          "mips_risc_score": 95,
+          "relative_score": 0.7174922600619195
+        },
+        "recommendations": [
+          "Consider expanding register file (currently 8 registers)",
+          "Simplify addressing modes for better RISC adherence",
+          "Optimize instructions for pipeline efficiency",
+          "Increase proportion of simple arithmetic instructions"
+        ]
+      }
+    },
+    "mips": {
+      "file": "enhanced_mips_benchmark_20250629_172115.json",
+      "summary": {},
+      "benchmarks": [
+        {
+          "name": "Dhrystone",
+          "instructions_executed": 1800,
+          "total_cycles": 1900,
+          "execution_time": 0.0019,
+          "cpi": 1.0555555555555556,
+          "ipc": 0.9473684210526315,
+          "memory_accesses": 0,
+          "cache_hits": 0,
+          "cache_misses": 0,
+          "cache_hit_rate": 0.85,
+          "branch_instructions": 2,
+          "branch_taken": 1,
+          "branch_mispredictions": 0,
+          "branch_prediction_rate": 0.75,
+          "pipeline_stalls": 1,
+          "hazard_stalls": 0,
+          "pipeline_efficiency": 0.9555555555555556,
+          "instruction_mix": {
+            "AND": 7,
+            "ADD": 8,
+            "NOT": 1,
+            "BR": 2
+          },
+          "performance_score": 86.88888888888889
+        },
+        {
+          "name": "Matrix",
+          "instructions_executed": 800,
+          "total_cycles": 1085,
+          "execution_time": 0.001085,
+          "cpi": 1.35625,
+          "ipc": 0.7373271889400922,
+          "memory_accesses": 3,
+          "cache_hits": 2,
+          "cache_misses": 1,
+          "cache_hit_rate": 0.85,
+          "branch_instructions": 3,
+          "branch_taken": 2,
+          "branch_mispredictions": 0,
+          "branch_prediction_rate": 0.75,
+          "pipeline_stalls": 5,
+          "hazard_stalls": 3,
+          "pipeline_efficiency": 0.8687499999999999,
+          "instruction_mix": {
+            "AND": 5,
+            "ADD": 5,
+            "LDR": 2,
+            "STR": 1,
+            "BR": 3
+          },
+          "performance_score": 80.875
+        },
+        {
+          "name": "Branch-Intensive",
+          "instructions_executed": 1200,
+          "total_cycles": 1425,
+          "execution_time": 0.001425,
+          "cpi": 1.1875,
+          "ipc": 0.8421052631578947,
+          "memory_accesses": 0,
+          "cache_hits": 0,
+          "cache_misses": 0,
+          "cache_hit_rate": 0.85,
+          "branch_instructions": 6,
+          "branch_taken": 4,
+          "branch_mispredictions": 1,
+          "branch_prediction_rate": 0.75,
+          "pipeline_stalls": 3,
+          "hazard_stalls": 1,
+          "pipeline_efficiency": 0.85,
+          "instruction_mix": {
+            "AND": 3,
+            "ADD": 7,
+            "BR": 6
+          },
+          "performance_score": 84.25
+        },
+        {
+          "name": "Memory-Pattern",
+          "instructions_executed": 1080,
+          "total_cycles": 1482,
+          "execution_time": 0.001482,
+          "cpi": 1.3722222222222222,
+          "ipc": 0.728744939271255,
+          "memory_accesses": 4,
+          "cache_hits": 3,
+          "cache_misses": 1,
+          "cache_hit_rate": 0.85,
+          "branch_instructions": 3,
+          "branch_taken": 2,
+          "branch_mispredictions": 0,
+          "branch_prediction_rate": 0.75,
+          "pipeline_stalls": 6,
+          "hazard_stalls": 4,
+          "pipeline_efficiency": 0.8666666666666667,
+          "instruction_mix": {
+            "AND": 1,
+            "ADD": 8,
+            "LEA": 2,
+            "LDR": 2,
+            "STR": 2,
+            "BR": 3
+          },
+          "performance_score": 80.55555555555556
+        },
+        {
+          "name": "Mixed-Workload",
+          "instructions_executed": 1360,
+          "total_cycles": 1688,
+          "execution_time": 0.001688,
+          "cpi": 1.2411764705882353,
+          "ipc": 0.8056872037914692,
+          "memory_accesses": 2,
+          "cache_hits": 1,
+          "cache_misses": 1,
+          "cache_hit_rate": 0.85,
+          "branch_instructions": 3,
+          "branch_taken": 2,
+          "branch_mispredictions": 0,
+          "branch_prediction_rate": 0.75,
+          "pipeline_stalls": 4,
+          "hazard_stalls": 2,
+          "pipeline_efficiency": 0.8941176470588236,
+          "instruction_mix": {
+            "AND": 4,
+            "ADD": 6,
+            "LEA": 1,
+            "LDR": 1,
+            "STR": 1,
+            "BR": 3,
+            "NOT": 1
+          },
+          "performance_score": 83.1764705882353
+        }
+      ]
+    }
+  },
+  "performance_metrics": {},
+  "test_results": {},
+  "project_stats": {
+    "total_python_files": 1156,
+    "total_cpp_files": 57,
+    "test_files": 8,
+    "analysis_scripts": 4,
+    "utility_scripts": 7,
+    "report_files": 11,
+    "data_files": 4
+  }
+}

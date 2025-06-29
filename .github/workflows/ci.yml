@@ -1,0 +1,165 @@
+name: CI - Continuous Integration
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Tests and Analysis
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, '3.10', '3.11']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake build-essential
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov pytest-html pytest-benchmark
+        pip install coverage[toml]
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Check environment setup
+      run: |
+        python3 scripts/run_tests.py --check-env
+
+    - name: Build C++ simulator
+      run: |
+        mkdir -p build
+        cd build
+        cmake -DBUILD_PYTHON_BINDINGS=ON ..
+        make -j$(nproc)
+
+    - name: Run comprehensive test suite
+      run: |
+        python3 scripts/run_tests.py --basic --instructions --memory --io --coverage --html-report
+
+    - name: Run ISA analysis
+      run: |
+        python3 analysis/enhanced_isa_analysis.py
+
+    - name: Generate auto-documentation
+      run: |
+        python3 scripts/auto_documentation.py
+
+    - name: Run project validation
+      run: |
+        python3 scripts/validate_project.py
+
+    - name: Generate workflow summary
+      if: always()
+      run: |
+        python3 scripts/github_summary.py
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-python-${{ matrix.python-version }}
+        path: |
+          reports/
+          data/
+          htmlcov/
+          .coverage
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      if: matrix.python-version == '3.9'
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black pylint mypy
+        pip install pytest pytest-cov
+
+    - name: Run linting
+      run: |
+        flake8 scripts/ analysis/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 scripts/ analysis/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Check code formatting
+      run: |
+        black --check scripts/ analysis/ tests/
+
+    - name: Run static type checking
+      continue-on-error: true
+      run: |
+        mypy scripts/ analysis/ || true
+
+  benchmark:
+    name: Performance Benchmarking
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest-benchmark
+        sudo apt-get update
+        sudo apt-get install -y cmake build-essential
+
+    - name: Build simulator
+      run: |
+        mkdir -p build
+        cd build
+        cmake -DBUILD_PYTHON_BINDINGS=ON ..
+        make -j$(nproc)
+
+    - name: Run performance benchmarks
+      run: |
+        python3 scripts/benchmark_programs.py
+        python3 analysis/enhanced_isa_analysis.py
+
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v3
+      with:
+        name: benchmark-results
+        path: |
+          data/enhanced_isa_*.json
+          reports/enhanced_isa_*.md

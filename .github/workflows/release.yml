@@ -1,0 +1,339 @@
+name: Release - Auto Documentation
+
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  generate-docs:
+    name: Generate Release Documentation
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for changelog generation
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov pytest-html pytest-benchmark
+        pip install jinja2 markdown
+        sudo apt-get update
+        sudo apt-get install -y cmake build-essential pandoc
+
+    - name: Get version info
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          VERSION="${GITHUB_REF#refs/tags/}"
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+        echo "timestamp=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_OUTPUT
+
+    - name: Build simulator
+      run: |
+        mkdir -p build
+        cd build
+        cmake -DBUILD_PYTHON_BINDINGS=ON ..
+        make -j$(nproc)
+
+    - name: Run comprehensive test suite
+      run: |
+        python3 scripts/run_tests.py --basic --instructions --memory --io --coverage --html-report
+
+    - name: Generate ISA analysis
+      run: |
+        python3 analysis/enhanced_isa_analysis.py
+        python3 analysis/isa_design_analysis.py
+        python3 analysis/mips_benchmark.py
+
+    - name: Run coverage analysis
+      run: |
+        python3 scripts/analyze_coverage.py --generate-report
+
+    - name: Create release documentation structure
+      run: |
+        mkdir -p release-docs/${{ steps.version.outputs.version }}
+        mkdir -p release-docs/${{ steps.version.outputs.version }}/reports
+        mkdir -p release-docs/${{ steps.version.outputs.version }}/data
+        mkdir -p release-docs/${{ steps.version.outputs.version }}/coverage
+
+    - name: Generate release summary
+      run: |
+        cat > release-docs/${{ steps.version.outputs.version }}/RELEASE_SUMMARY.md << 'EOF'
+        # LC-3 Simulator Release ${{ steps.version.outputs.version }}
+
+        **Release Date:** ${{ steps.version.outputs.date }}
+        **Version:** ${{ steps.version.outputs.version }}
+
+        ## 📊 Performance Analysis Summary
+
+        ### ISA Design Metrics
+        $(python3 -c "
+        import json
+        import glob
+        files = glob.glob('data/enhanced_isa_analysis_*.json')
+        if files:
+            with open(sorted(files)[-1]) as f:
+                data = json.load(f)
+                metrics = data['comprehensive_metrics']
+                print(f'- **Average CPI (Unpipelined):** {metrics[\"average_cpi_unpipelined\"]:.3f}')
+                print(f'- **Average CPI (Pipelined):** {metrics[\"average_cpi_pipelined\"]:.3f}')
+                print(f'- **IPC Potential:** {metrics[\"ipc_potential\"]:.3f}')
+                print(f'- **Encoding Efficiency:** {metrics[\"encoding_efficiency\"]*100:.1f}%')
+                print(f'- **RISC Score:** {metrics[\"risc_score\"]:.1f}/100')
+        ")
+
+        ### MIPS Benchmark Results
+        $(python3 -c "
+        import json
+        import glob
+        files = glob.glob('data/mips_benchmark_*.json')
+        if files:
+            with open(sorted(files)[-1]) as f:
+                data = json.load(f)
+                summary = data.get('performance_summary', {})
+                print(f'- **Average CPI:** {summary.get(\"average_cpi\", 0):.3f}')
+                print(f'- **Performance Score:** {summary.get(\"average_performance_score\", 0):.1f}/100')
+                print(f'- **Efficiency Score:** {summary.get(\"efficiency_score\", 0):.1f}/100')
+                print(f'- **RISC Adherence:** {summary.get(\"risc_adherence_score\", 0):.1f}/100')
+        ")
+
+        ## 🧪 Test Coverage
+
+        $(python3 -c "
+        import re
+        try:
+            with open('reports/COVERAGE_REPORT.md') as f:
+                content = f.read()
+                # Extract key coverage metrics
+                lines = content.split('\n')
+                for line in lines:
+                    if 'Total Coverage:' in line or 'Line Coverage:' in line or 'Branch Coverage:' in line:
+                        print(f'- **{line.strip()}**')
+        except FileNotFoundError:
+            print('- Coverage report not available')
+        ")
+
+        ## 📁 Project Structure
+
+        - **Source Code:** `state_machine/`, `mem/`, `type/`
+        - **Tests:** `tests/` ($(find tests -name "*.py" | wc -l) test files)
+        - **Analysis Tools:** `analysis/` ($(find analysis -name "*.py" | wc -l) analysis scripts)
+        - **Utilities:** `scripts/` ($(find scripts -name "*.py" | wc -l) utility scripts)
+        - **Documentation:** `docs/`, `reports/`
+
+        ## 🔧 Build Information
+
+        - **CMake Version:** $(cmake --version | head -1)
+        - **Python Version:** $(python3 --version)
+        - **Build Date:** ${{ steps.version.outputs.date }}
+
+        ## 📈 Key Improvements in This Release
+
+        - Enhanced ISA analysis with comprehensive metrics
+        - MIPS-style benchmarking capabilities
+        - Improved test coverage and automation
+        - Modular project structure with clear separation of concerns
+        - Comprehensive documentation and reporting
+
+        ## 📋 Files in This Release
+
+        ### Reports
+        $(find reports -name "*.md" -type f | sort | sed 's/^/- /')
+
+        ### Data Files
+        $(find data -name "*.json" -type f | sort | sed 's/^/- /')
+
+        ## 🚀 Getting Started
+
+        1. **Clone the repository:**
+           \`\`\`bash
+           git clone <repository-url>
+           cd simulator-lc3
+           \`\`\`
+
+        2. **Build the simulator:**
+           \`\`\`bash
+           mkdir build && cd build
+           cmake -DBUILD_PYTHON_BINDINGS=ON ..
+           make
+           \`\`\`
+
+        3. **Run tests:**
+           \`\`\`bash
+           python3 scripts/run_tests.py --basic
+           \`\`\`
+
+        4. **Generate analysis:**
+           \`\`\`bash
+           python3 analysis/enhanced_isa_analysis.py
+           python3 analysis/enhanced_mips_benchmark.py
+           \`\`\`
+
+        ---
+
+        *Generated automatically on ${{ steps.version.outputs.date }} for release ${{ steps.version.outputs.version }}*
+        EOF
+
+    - name: Copy documentation files
+      run: |
+        # Copy latest reports and data
+        cp -r reports/* release-docs/${{ steps.version.outputs.version }}/reports/
+        cp -r data/* release-docs/${{ steps.version.outputs.version }}/data/
+
+        # Copy coverage reports if they exist
+        if [ -d "htmlcov" ]; then
+          cp -r htmlcov/* release-docs/${{ steps.version.outputs.version }}/coverage/
+        fi
+
+        # Copy key documentation files
+        cp README.md release-docs/${{ steps.version.outputs.version }}/
+        cp docs/*.md release-docs/${{ steps.version.outputs.version }}/
+
+    - name: Generate changelog
+      run: |
+        cat > release-docs/${{ steps.version.outputs.version }}/CHANGELOG.md << 'EOF'
+        # Changelog for ${{ steps.version.outputs.version }}
+
+        ## Changes since last release
+
+        $(git log --oneline --since="$(git tag --sort=-creatordate | sed -n '2p' | xargs git log -1 --format=%ci)" --until="$(git tag --sort=-creatordate | head -1 | xargs git log -1 --format=%ci)" || echo "No previous release found")
+
+        ## Commits in this release
+
+        $(git log --oneline $(git tag --sort=-creatordate | sed -n '2p')..HEAD 2>/dev/null || git log --oneline)
+
+        EOF
+
+    - name: Create release archive
+      run: |
+        cd release-docs
+        tar -czf lc3-simulator-${{ steps.version.outputs.version }}-docs.tar.gz ${{ steps.version.outputs.version }}/
+        zip -r lc3-simulator-${{ steps.version.outputs.version }}-docs.zip ${{ steps.version.outputs.version }}/
+
+    - name: Upload release documentation
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-documentation-${{ steps.version.outputs.version }}
+        path: release-docs/
+
+    - name: Create GitHub Pages documentation
+      run: |
+        mkdir -p gh-pages
+        cp -r release-docs/${{ steps.version.outputs.version }}/* gh-pages/
+
+        # Create index.html for GitHub Pages
+        cat > gh-pages/index.html << 'EOF'
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>LC-3 Simulator Documentation</title>
+            <meta charset="utf-8">
+            <style>
+                body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+                .header { background: #f0f0f0; padding: 20px; margin-bottom: 20px; border-radius: 5px; }
+                .section { margin: 20px 0; }
+                .file-list { columns: 2; column-gap: 20px; }
+                .file-list li { margin: 5px 0; }
+                a { color: #0066cc; text-decoration: none; }
+                a:hover { text-decoration: underline; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>LC-3 Simulator Release ${{ steps.version.outputs.version }}</h1>
+                <p><strong>Release Date:</strong> ${{ steps.version.outputs.date }}</p>
+                <p><strong>Version:</strong> ${{ steps.version.outputs.version }}</p>
+            </div>
+
+            <div class="section">
+                <h2>📋 Documentation</h2>
+                <ul>
+                    <li><a href="RELEASE_SUMMARY.md">Release Summary</a></li>
+                    <li><a href="CHANGELOG.md">Changelog</a></li>
+                    <li><a href="README.md">Project README</a></li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>📊 Reports</h2>
+                <div class="file-list">
+                    <ul id="reports-list"></ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📈 Coverage</h2>
+                <ul>
+                    <li><a href="coverage/index.html">Test Coverage Report</a></li>
+                </ul>
+            </div>
+
+            <script>
+                // Dynamically populate reports list
+                const reports = [
+        EOF
+
+        # Add report files to the HTML
+        find gh-pages/reports -name "*.md" -type f | sed 's|gh-pages/||' | sed 's/.*/"&",/' >> gh-pages/index.html
+
+        cat >> gh-pages/index.html << 'EOF'
+                ];
+
+                const reportsList = document.getElementById('reports-list');
+                reports.forEach(report => {
+                    if (report.trim()) {
+                        const li = document.createElement('li');
+                        const a = document.createElement('a');
+                        a.href = report.replace(/"/g, '');
+                        a.textContent = report.replace(/"/g, '').split('/').pop().replace('.md', '');
+                        li.appendChild(a);
+                        reportsList.appendChild(li);
+                    }
+                });
+            </script>
+        </body>
+        </html>
+        EOF
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./gh-pages
+
+    - name: Update release with documentation
+      if: github.event_name == 'release'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          release-docs/lc3-simulator-${{ steps.version.outputs.version }}-docs.tar.gz
+          release-docs/lc3-simulator-${{ steps.version.outputs.version }}-docs.zip
+        body_path: release-docs/${{ steps.version.outputs.version }}/RELEASE_SUMMARY.md
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

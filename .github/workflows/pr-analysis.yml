@@ -1,0 +1,299 @@
+name: PR Analysis
+
+on:
+  pull_request:
+    branches: [ main, master, develop ]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr-analysis:
+    name: Pull Request Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout PR code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for comparison
+
+    - name: Checkout base branch
+      run: |
+        git fetch origin ${{ github.base_ref }}:${{ github.base_ref }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov pytest-html pytest-benchmark
+        sudo apt-get update
+        sudo apt-get install -y cmake build-essential
+
+    - name: Build simulator (PR version)
+      run: |
+        mkdir -p build-pr
+        cd build-pr
+        cmake -DBUILD_PYTHON_BINDINGS=ON ..
+        make -j$(nproc)
+
+    - name: Run tests on PR code
+      run: |
+        python3 scripts/run_tests.py --basic --instructions --memory --coverage --html-report
+
+    - name: Run analysis on PR code
+      run: |
+        python3 analysis/enhanced_isa_analysis.py
+
+        # Save PR results
+        mkdir -p pr-results
+        cp -r reports/* pr-results/
+        cp -r data/* pr-results/
+
+    - name: Checkout and analyze base branch
+      run: |
+        git checkout ${{ github.base_ref }}
+
+        # Build base version
+        rm -rf build-pr
+        mkdir -p build-base
+        cd build-base
+        cmake -DBUILD_PYTHON_BINDINGS=ON ..
+        make -j$(nproc)
+        cd ..
+
+        # Run analysis on base
+        python3 analysis/enhanced_isa_analysis.py
+
+        # Save base results
+        mkdir -p base-results
+        cp -r reports/* base-results/
+        cp -r data/* base-results/
+
+    - name: Generate comparison report
+      run: |
+        git checkout ${{ github.head_ref }}
+
+        python3 << 'EOF'
+        import json
+        import glob
+        import os
+        from datetime import datetime
+
+        def load_latest_analysis(directory, pattern):
+            files = glob.glob(f'{directory}/{pattern}')
+            if not files:
+                return None
+            return json.load(open(sorted(files)[-1]))
+
+        # Load PR results
+        pr_isa = load_latest_analysis('pr-results', 'enhanced_isa_analysis_*.json')
+        pr_mips = load_latest_analysis('pr-results', 'mips_benchmark_*.json')
+
+        # Load base results
+        base_isa = load_latest_analysis('base-results', 'enhanced_isa_analysis_*.json')
+        base_mips = load_latest_analysis('base-results', 'mips_benchmark_*.json')
+
+        # Generate comparison
+        with open('PR_ANALYSIS_REPORT.md', 'w') as f:
+            f.write(f"""# Pull Request Analysis Report
+
+        **PR:** #{os.environ.get('GITHUB_PR_NUMBER', 'N/A')}
+        **Base Branch:** {os.environ.get('GITHUB_BASE_REF', 'main')}
+        **Head Branch:** {os.environ.get('GITHUB_HEAD_REF', 'feature')}
+        **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+        ## 📊 Performance Impact Analysis
+
+        ### ISA Design Metrics Comparison
+
+        | Metric | Base | PR | Change | Impact |
+        |--------|------|----|---------| -------|
+        """)
+
+            if pr_isa and base_isa:
+                pr_metrics = pr_isa['comprehensive_metrics']
+                base_metrics = base_isa['comprehensive_metrics']
+
+                metrics_to_compare = [
+                    ('Average CPI (Unpipelined)', 'average_cpi_unpipelined', False),
+                    ('Average CPI (Pipelined)', 'average_cpi_pipelined', False),
+                    ('IPC Potential', 'ipc_potential', True),
+                    ('Encoding Efficiency', 'encoding_efficiency', True),
+                    ('RISC Score', 'risc_score', True),
+                    ('Pipeline Efficiency', 'pipeline_efficiency', True),
+                ]
+
+                for name, key, higher_better in metrics_to_compare:
+                    base_val = base_metrics.get(key, 0)
+                    pr_val = pr_metrics.get(key, 0)
+
+                    if base_val == 0:
+                        continue
+
+                    change = pr_val - base_val
+                    change_pct = (change / base_val) * 100
+
+                    if higher_better:
+                        if change > 0:
+                            impact = f"✅ Improved (+{change_pct:.1f}%)"
+                        elif change < -0.01 * base_val:  # More than 1% regression
+                            impact = f"❌ Regressed ({change_pct:.1f}%)"
+                        else:
+                            impact = f"➖ No significant change ({change_pct:.1f}%)"
+                    else:
+                        if change < 0:
+                            impact = f"✅ Improved ({change_pct:.1f}%)"
+                        elif change > 0.01 * base_val:  # More than 1% regression
+                            impact = f"❌ Regressed (+{change_pct:.1f}%)"
+                        else:
+                            impact = f"➖ No significant change ({change_pct:.1f}%)"
+
+                    f.write(f"| {name} | {base_val:.3f} | {pr_val:.3f} | {change:+.3f} | {impact} |\n")
+
+            f.write("""
+        ### MIPS Benchmark Comparison
+
+        | Benchmark | Base | PR | Change | Impact |
+        |-----------|------|----|---------| -------|
+        """)
+
+            if pr_mips and base_mips:
+                pr_summary = pr_mips['performance_summary']
+                base_summary = base_mips['performance_summary']
+
+                benchmarks = [
+                    ('Average CPI', 'average_cpi', False),
+                    ('Performance Score', 'average_performance_score', True),
+                    ('Efficiency Score', 'efficiency_score', True),
+                    ('RISC Adherence', 'risc_adherence_score', True),
+                ]
+
+                for name, key, higher_better in benchmarks:
+                    base_val = base_summary.get(key, 0)
+                    pr_val = pr_summary.get(key, 0)
+
+                    if base_val == 0:
+                        continue
+
+                    change = pr_val - base_val
+                    change_pct = (change / base_val) * 100 if base_val != 0 else 0
+
+                    if higher_better:
+                        if change > 0.01 * base_val:
+                            impact = f"✅ Improved (+{change_pct:.1f}%)"
+                        elif change < -0.01 * base_val:
+                            impact = f"❌ Regressed ({change_pct:.1f}%)"
+                        else:
+                            impact = f"➖ No significant change ({change_pct:.1f}%)"
+                    else:
+                        if change < -0.01 * base_val:
+                            impact = f"✅ Improved ({change_pct:.1f}%)"
+                        elif change > 0.01 * base_val:
+                            impact = f"❌ Regressed (+{change_pct:.1f}%)"
+                        else:
+                            impact = f"➖ No significant change ({change_pct:.1f}%)"
+
+                    f.write(f"| {name} | {base_val:.3f} | {pr_val:.3f} | {change:+.3f} | {impact} |\n")
+
+            f.write("""
+        ## 🧪 Test Results
+
+        ### Test Coverage Comparison
+
+        (Coverage comparison would be implemented based on coverage reports)
+
+        ## 📝 Recommendations
+
+        """)
+
+            # Add automated recommendations based on changes
+            recommendations = []
+
+            if pr_isa and base_isa:
+                pr_metrics = pr_isa['comprehensive_metrics']
+                base_metrics = base_isa['comprehensive_metrics']
+
+                # Check for significant regressions
+                if pr_metrics.get('average_cpi_unpipelined', 0) > base_metrics.get('average_cpi_unpipelined', 0) * 1.05:
+                    recommendations.append("⚠️ **CPI Regression Detected:** Consider optimizing instruction execution paths")
+
+                if pr_metrics.get('encoding_efficiency', 0) < base_metrics.get('encoding_efficiency', 0) * 0.95:
+                    recommendations.append("⚠️ **Encoding Efficiency Decreased:** Review instruction format changes")
+
+                if pr_metrics.get('risc_score', 0) < base_metrics.get('risc_score', 0) * 0.95:
+                    recommendations.append("⚠️ **RISC Score Decreased:** Ensure changes maintain RISC principles")
+
+            if not recommendations:
+                recommendations.append("✅ No significant performance regressions detected")
+
+            for rec in recommendations:
+                f.write(f"- {rec}\n")
+
+            f.write("""
+        ## 🔗 Detailed Reports
+
+        - [Full ISA Analysis Report](pr-results/)
+        - [Full MIPS Benchmark Report](pr-results/)
+        - [Test Coverage Report](pr-results/)
+
+        ---
+
+        *This report was automatically generated by the PR analysis workflow*
+        """)
+        EOF
+
+    - name: Comment PR with analysis
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+
+          let body = '## 🤖 Automated PR Analysis\n\n';
+
+          try {
+            const report = fs.readFileSync('PR_ANALYSIS_REPORT.md', 'utf8');
+            body += report;
+          } catch (error) {
+            body += '❌ Failed to generate analysis report. Please check the workflow logs.';
+          }
+
+          // Find existing analysis comment
+          const comments = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+
+          const existingComment = comments.data.find(comment =>
+            comment.body.includes('🤖 Automated PR Analysis')
+          );
+
+          if (existingComment) {
+            // Update existing comment
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: existingComment.id,
+              body: body
+            });
+          } else {
+            // Create new comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+          }
+
+    - name: Upload PR analysis results
+      uses: actions/upload-artifact@v3
+      with:
+        name: pr-analysis-${{ github.event.number }}
+        path: |
+          PR_ANALYSIS_REPORT.md
+          pr-results/
+          base-results/
