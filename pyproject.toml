@@ -1,0 +1,23 @@
+[build-system]
+requires = ["pybind11", "cmake", "ninja"]
+
+[project]
+name = "lc3-simulator-tests"
+version = "1.0.0"
+description = "Test suite for LC-3 Simulator"
+dependencies = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-xdist>=3.0",
+    "pytest-html>=3.0",
+    "numpy>=1.20",
+    "pybind11>=2.10"
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "isort",
+    "flake8",
+    "mypy"
+]

@@ -1,0 +1,145 @@
+"""
+Test configuration and fixtures for LC-3 Simulator tests.
+"""
+import pytest
+import sys
+import os
+
+# Add the build directory to the path to import the compiled module
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'build', 'python_bindings'))
+
+try:
+    import lc3_simulator
+except ImportError:
+    pytest.skip("LC-3 Simulator module not built. Run 'cmake --build build' first.", allow_module_level=True)
+
+
+@pytest.fixture
+def simulator():
+    """Create a fresh LC-3 simulator instance for each test."""
+    sim = lc3_simulator.LC3Simulator()
+    sim.reset()
+    return sim
+
+
+@pytest.fixture
+def loaded_simulator():
+    """Create a simulator with a simple test program loaded."""
+    sim = lc3_simulator.LC3Simulator()
+    sim.reset()
+    
+    # Simple test program: ADD R0, R0, #1; HALT
+    program = [
+        0x1021,  # ADD R0, R0, #1
+        0xF025   # TRAP x25 (HALT)
+    ]
+    sim.load_program(program)
+    return sim
+
+
+@pytest.fixture
+def sample_programs():
+    """Dictionary of sample LC-3 programs for testing."""
+    return {
+        'simple_add': [
+            0x1021,  # ADD R0, R0, #1
+            0xF025   # TRAP x25 (HALT)
+        ],
+        'loop_counter': [
+            0x2001,  # LD R0, DATA
+            0x1021,  # ADD R0, R0, #1
+            0x3001,  # ST R0, DATA
+            0xF025,  # TRAP x25 (HALT)
+            0x0005   # DATA: 5
+        ],
+        'conditional_branch': [
+            0x5020,  # AND R0, R0, #0 (clear R0)
+            0x1021,  # ADD R0, R0, #1
+            0x0402,  # BRz +2 (should not branch)
+            0x1021,  # ADD R0, R0, #1
+            0xF025   # TRAP x25 (HALT)
+        ],
+        'subroutine_call': [
+            0x4802,  # JSR SUBROUTINE
+            0xF025,  # TRAP x25 (HALT)
+            0x1021,  # SUBROUTINE: ADD R0, R0, #1
+            0xC1C0   # RET (JMP R7)
+        ]
+    }
+
+
+@pytest.fixture
+def instruction_encodings():
+    """Dictionary of instruction encodings for testing."""
+    return {
+        'ADD_immediate': 0x1000 | (0 << 9) | (0 << 6) | 0x20 | 1,  # ADD R0, R0, #1
+        'ADD_register': 0x1000 | (0 << 9) | (0 << 6) | 1,          # ADD R0, R0, R1
+        'AND_immediate': 0x5000 | (0 << 9) | (0 << 6) | 0x20 | 0,  # AND R0, R0, #0
+        'AND_register': 0x5000 | (0 << 9) | (0 << 6) | 1,          # AND R0, R0, R1
+        'BR_unconditional': 0x0000 | 0x0E00 | 0,                   # BR #0
+        'BRz': 0x0000 | 0x0400 | 0,                                # BRz #0
+        'BRn': 0x0000 | 0x0800 | 0,                                # BRn #0
+        'BRp': 0x0000 | 0x0200 | 0,                                # BRp #0
+        'JMP': 0xC000 | (0 << 6),                                  # JMP R0
+        'JSR': 0x4000 | 0x800 | 0,                                 # JSR #0
+        'JSRR': 0x4000 | (0 << 6),                                 # JSRR R0
+        'LD': 0x2000 | (0 << 9) | 0,                               # LD R0, #0
+        'LDI': 0xA000 | (0 << 9) | 0,                              # LDI R0, #0
+        'LDR': 0x6000 | (0 << 9) | (0 << 6) | 0,                   # LDR R0, R0, #0
+        'LEA': 0xE000 | (0 << 9) | 0,                              # LEA R0, #0
+        'NOT': 0x9000 | (0 << 9) | (0 << 6) | 0x3F,                # NOT R0, R0
+        'ST': 0x3000 | (0 << 9) | 0,                               # ST R0, #0
+        'STI': 0xB000 | (0 << 9) | 0,                              # STI R0, #0
+        'STR': 0x7000 | (0 << 9) | (0 << 6) | 0,                   # STR R0, R0, #0
+        'TRAP_HALT': 0xF000 | 0x25,                                # TRAP x25
+        'TRAP_OUT': 0xF000 | 0x21,                                 # TRAP x21
+        'TRAP_GETC': 0xF000 | 0x20,                                # TRAP x20
+        'TRAP_PUTS': 0xF000 | 0x22,                                # TRAP x22
+    }
+
+
+@pytest.fixture(scope="session")
+def build_simulator():
+    """Build the simulator if it hasn't been built yet."""
+    import subprocess
+    import os
+    
+    # Check if build directory exists
+    build_dir = os.path.join(os.path.dirname(__file__), '..', 'build')
+    if not os.path.exists(build_dir):
+        os.makedirs(build_dir)
+    
+    # Run cmake and build
+    try:
+        subprocess.run(['cmake', '..'], cwd=build_dir, check=True)
+        subprocess.run(['cmake', '--build', '.'], cwd=build_dir, check=True)
+    except subprocess.CalledProcessError:
+        pytest.skip("Failed to build LC-3 Simulator", allow_module_level=True)
+
+
+def pytest_collection_modifyitems(config, items):
+    """Add markers to tests based on their names."""
+    for item in items:
+        # Add markers based on test file names
+        if "test_instructions" in item.nodeid:
+            item.add_marker(pytest.mark.instruction)
+        elif "test_memory" in item.nodeid:
+            item.add_marker(pytest.mark.memory)
+        elif "test_registers" in item.nodeid:
+            item.add_marker(pytest.mark.register)
+        elif "test_io" in item.nodeid:
+            item.add_marker(pytest.mark.io)
+        elif "test_trap" in item.nodeid:
+            item.add_marker(pytest.mark.trap)
+        
+        # Add unit/integration markers based on test names
+        if item.name.startswith("test_unit"):
+            item.add_marker(pytest.mark.unit)
+        elif item.name.startswith("test_integration"):
+            item.add_marker(pytest.mark.integration)
+        elif item.name.startswith("test_functional"):
+            item.add_marker(pytest.mark.functional)
+        
+        # Mark slow tests
+        if "slow" in item.name or "performance" in item.name:
+            item.add_marker(pytest.mark.slow)

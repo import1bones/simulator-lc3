@@ -1,0 +1,35 @@
+; Simple test program binary (hand-assembled)
+; This is a binary representation of basic LC-3 instructions
+
+; .ORIG x3000 (origin address)
+0x3000
+
+; AND R0, R0, #0 (clear R0) - 0x5020
+0x5020
+
+; ADD R0, R0, #5 (R0 = 5) - 0x1025  
+0x1025
+
+; ADD R1, R0, #3 (R1 = 8) - 0x1063
+0x1063
+
+; AND R2, R1, R0 (R2 = R1 & R0) - 0x5080
+0x5080
+
+; NOT R3, R0 (R3 = ~R0) - 0x903F
+0x903F
+
+; ADD R4, R1, R0 (R4 = R1 + R0) - 0x1100
+0x1100
+
+; ADD R0, R0, #0 (set CC) - 0x1020
+0x1020
+
+; BRp x3009 (branch if positive) - 0x0201
+0x0201
+
+; ADD R5, R0, #10 (R5 = R0 + 10) - 0x142A
+0x142A
+
+; HALT (trap x25) - 0xF025
+0xF025

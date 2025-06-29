@@ -3,6 +3,8 @@
 
 #include"../type/type.h"
 #include"../mem/memory.h"
+#include"../mem/register.h"
+#include"ext.h"
 
 uint8_t INT = 0;
 uint8_t R = 0;
@@ -12,7 +14,7 @@ uint8_t ACV = 0;
 
 uint8_t N=0;
 uint8_t Z=0;
-uint8_t P=8;
+uint8_t P=0;
 
 void SET_ACV()
 {
@@ -32,9 +34,9 @@ void SET_CC(const register_t &r)
 
 void SET_BEN()
 {
-        BEN = (instruction_reg & bit_table[11]) + 
-              (instruction_reg & bit_table[10]) +
-              (instruction_reg & bit_table[9]);
+        BEN = (instruction_reg & bit_table[11]) && N + 
+              (instruction_reg & bit_table[10]) && Z +
+              (instruction_reg & bit_table[9]) && P;
 }
 
 #endif //SIGNALS_H

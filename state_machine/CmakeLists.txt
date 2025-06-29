@@ -1,1 +1,2 @@
-add_library(state_machine ext.h signal.h state_machine.cpp state_machine.h states.cpp states.h)
+add_library(state_machine state_machine.cpp states.cpp)
+target_include_directories(state_machine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

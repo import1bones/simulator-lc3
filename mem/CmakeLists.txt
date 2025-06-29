@@ -1,1 +1,2 @@
-add_library(mem control_store.h device_register.h memory.h microsequence.h register.h)
+add_library(mem INTERFACE)
+target_include_directories(mem INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
