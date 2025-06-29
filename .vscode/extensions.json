@@ -6,37 +6,30 @@
         "ms-vscode.cmake-tools",
         "llvm-vs-code-extensions.vscode-clangd",
         "xaver.clang-format",
-        
         // Python Development
         "ms-python.python",
         "ms-python.debugpy",
         "ms-python.pylint",
         "ms-python.black-formatter",
         "ms-python.flake8",
-        
         // Testing
         "littlefoxteam.vscode-python-test-adapter",
         "hbenl.vscode-test-explorer",
-        
         // Git and Version Control
         "eamodio.gitlens",
         "mhutchie.git-graph",
-        
         // General Development
         "ms-vscode.hexeditor",
         "ms-vscode-remote.remote-containers",
         "ms-vscode-remote.remote-ssh",
-        
         // Code Quality
         "streetsidesoftware.code-spell-checker",
         "aaron-bond.better-comments",
         "oderwat.indent-rainbow",
         "bracketpairhighlighter.bracket-pair-highlighter",
-        
         // Markdown and Documentation
         "yzhang.markdown-all-in-one",
         "davidanson.vscode-markdownlint",
-        
         // Theme and UI
         "pkief.material-icon-theme",
         "zhuangtongfa.material-theme"

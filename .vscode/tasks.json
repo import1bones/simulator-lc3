@@ -5,7 +5,10 @@
             "label": "Build LC-3 Simulator",
             "type": "shell",
             "command": "mkdir",
-            "args": ["-p", "build"],
+            "args": [
+                "-p",
+                "build"
+            ],
             "group": "build",
             "detail": "Create build directory",
             "presentation": {
@@ -25,8 +28,10 @@
             "type": "shell",
             "command": "cmake",
             "args": [
-                "-S", ".",
-                "-B", "build",
+                "-S",
+                ".",
+                "-B",
+                "build",
                 "-DCMAKE_BUILD_TYPE=Debug",
                 "-DBUILD_PYTHON_BINDINGS=ON"
             ],
@@ -52,9 +57,12 @@
             "type": "shell",
             "command": "cmake",
             "args": [
-                "--build", "build",
-                "--config", "Debug",
-                "-j", "4"
+                "--build",
+                "build",
+                "--config",
+                "Debug",
+                "-j",
+                "4"
             ],
             "group": {
                 "kind": "build",
@@ -80,7 +88,10 @@
             "label": "CMake Clean",
             "type": "shell",
             "command": "rm",
-            "args": ["-rf", "build"],
+            "args": [
+                "-rf",
+                "build"
+            ],
             "group": "build",
             "detail": "Clean build directory",
             "presentation": {
@@ -118,7 +129,9 @@
             "label": "Build Python Bindings",
             "type": "shell",
             "command": "make",
-            "args": ["python-bindings"],
+            "args": [
+                "python-bindings"
+            ],
             "group": "build",
             "detail": "Build Python bindings for testing",
             "presentation": {
@@ -139,7 +152,9 @@
             "label": "Run All Tests",
             "type": "shell",
             "command": "python3",
-            "args": ["run_tests.py"],
+            "args": [
+                "run_tests.py"
+            ],
             "group": {
                 "kind": "test",
                 "isDefault": true
@@ -162,7 +177,12 @@
             "label": "Run Basic Tests",
             "type": "shell",
             "command": "python3",
-            "args": ["-m", "pytest", "tests/test_basic.py", "-v"],
+            "args": [
+                "-m",
+                "pytest",
+                "tests/test_basic.py",
+                "-v"
+            ],
             "group": "test",
             "detail": "Run basic functionality tests",
             "dependsOn": "Build Python Bindings",
@@ -182,7 +202,12 @@
             "label": "Run Memory Tests",
             "type": "shell",
             "command": "python3",
-            "args": ["-m", "pytest", "tests/test_memory.py", "-v"],
+            "args": [
+                "-m",
+                "pytest",
+                "tests/test_memory.py",
+                "-v"
+            ],
             "group": "test",
             "detail": "Run memory management tests",
             "dependsOn": "Build Python Bindings",
@@ -202,7 +227,12 @@
             "label": "Run Instruction Tests",
             "type": "shell",
             "command": "python3",
-            "args": ["-m", "pytest", "tests/test_instructions.py", "-v"],
+            "args": [
+                "-m",
+                "pytest",
+                "tests/test_instructions.py",
+                "-v"
+            ],
             "group": "test",
             "detail": "Run instruction execution tests",
             "dependsOn": "Build Python Bindings",
@@ -222,7 +252,13 @@
             "label": "Generate Test Coverage",
             "type": "shell",
             "command": "python3",
-            "args": ["-m", "pytest", "--cov=.", "--cov-report=html", "tests/"],
+            "args": [
+                "-m",
+                "pytest",
+                "--cov=.",
+                "--cov-report=html",
+                "tests/"
+            ],
             "group": "test",
             "detail": "Generate test coverage report",
             "dependsOn": "Build Python Bindings",
@@ -243,8 +279,16 @@
             "type": "shell",
             "command": "find",
             "args": [
-                ".", "-name", "*.cpp", "-o", "-name", "*.h",
-                "|", "xargs", "clang-format", "-i"
+                ".",
+                "-name",
+                "*.cpp",
+                "-o",
+                "-name",
+                "*.h",
+                "|",
+                "xargs",
+                "clang-format",
+                "-i"
             ],
             "group": "build",
             "detail": "Format all C++ source files using clang-format",

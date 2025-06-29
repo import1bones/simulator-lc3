@@ -98,7 +98,7 @@ cd build
 
 if cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_PYTHON_BINDINGS=ON &> /dev/null; then
     echo "  ✅ CMake configuration: Success"
-    
+
     if cmake --build . --config Debug &> /dev/null; then
         echo "  ✅ Build: Success"
         BUILD_SUCCESS=1
@@ -129,19 +129,19 @@ if [ -z "$MISSING_TOOLS" ] && [ -z "$MISSING_CONFIG" ] && [ "$BUILD_SUCCESS" ]; 
     echo "📖 See .vscode/README.md for detailed documentation"
 else
     echo "⚠️  Some issues were found. Please address them before proceeding:"
-    
+
     if [ "$MISSING_TOOLS" ]; then
         echo "  • Install missing development tools"
     fi
-    
+
     if [ "$MISSING_CONFIG" ]; then
         echo "  • VS Code configuration files are missing"
     fi
-    
+
     if [ -z "$BUILD_SUCCESS" ]; then
         echo "  • Build failed - check dependencies and configuration"
     fi
-    
+
     echo ""
     echo "📖 Refer to the project README.md for installation instructions"
 fi

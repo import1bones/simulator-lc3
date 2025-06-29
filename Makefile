@@ -1,7 +1,7 @@
 # Makefile for LC-3 Simulator Test Suite
 # Provides convenient targets for building, testing, and maintaining the simulator
 
-.PHONY: help build test test-fast test-all test-unit test-integration test-basic test-instructions test-memory test-io
+.PHONY: help build python-bindings test test-fast test-all test-unit test-integration test-basic test-instructions test-memory test-io
 .PHONY: coverage benchmark clean install-deps check-env lint format setup ci
 
 # Default target
@@ -11,6 +11,7 @@ help:
 	@echo ""
 	@echo "Build targets:"
 	@echo "  build         - Build the LC-3 simulator with Python bindings"
+	@echo "  python-bindings - Build Python bindings only"
 	@echo "  clean         - Clean build artifacts"
 	@echo ""
 	@echo "Setup targets:"
@@ -46,6 +47,11 @@ build:
 	@mkdir -p build
 	@cd build && cmake .. && cmake --build . --config Release
 
+python-bindings:
+	@echo "Building Python bindings only..."
+	@mkdir -p build
+	@cd build && cmake .. -DBUILD_PYTHON_BINDINGS=ON && cmake --build . --target lc3_simulator --config Release
+
 clean:
 	@echo "Cleaning build artifacts..."
 	@rm -rf build/
@@ -66,50 +72,50 @@ check-env:
 	@python3 run_tests.py --check-env
 
 # Test targets
-test:
+test: python-bindings
 	@echo "Running basic test suite..."
 	@python3 run_tests.py --verbose
 
-test-fast:
+test-fast: python-bindings
 	@echo "Running tests in parallel..."
 	@python3 run_tests.py --parallel --verbose
 
-test-all:
+test-all: python-bindings
 	@echo "Running all tests including slow ones..."
 	@python3 run_tests.py --slow --verbose
 
-test-unit:
+test-unit: python-bindings
 	@echo "Running unit tests..."
 	@python3 run_tests.py --unit-only --verbose
 
-test-integration:
+test-integration: python-bindings
 	@echo "Running integration tests..."
 	@python3 run_tests.py --integration-only --verbose
 
 # Specific test categories
-test-basic:
+test-basic: python-bindings
 	@echo "Running basic functionality tests..."
 	@python3 run_tests.py --basic --verbose
 
-test-instructions:
+test-instructions: python-bindings
 	@echo "Running instruction implementation tests..."
 	@python3 run_tests.py --instructions --verbose
 
-test-memory:
+test-memory: python-bindings
 	@echo "Running memory-related tests..."
 	@python3 run_tests.py --memory --verbose
 
-test-io:
+test-io: python-bindings
 	@echo "Running I/O and TRAP tests..."
 	@python3 run_tests.py --io --verbose
 
 # Analysis targets
-coverage:
+coverage: python-bindings
 	@echo "Running tests with coverage analysis..."
 	@python3 run_tests.py --coverage --html-report --verbose
 	@echo "Coverage report available at: reports/coverage/index.html"
 
-benchmark:
+benchmark: python-bindings
 	@echo "Running performance benchmarks..."
 	@python3 run_tests.py --benchmark
 	@echo "Benchmark report available at: reports/benchmark_report.html"
