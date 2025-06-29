@@ -1,7 +1,7 @@
 #ifndef OPCODE_H
 #define OPCODE_H
 
-#include"type.h"
+#include "type.h"
 
 #define BR 0x0000
 #define ADD 0x1000
@@ -24,4 +24,4 @@
 
 #define CAST_TO_OPCODE(instruction) (uint16_t)(instruction & 0xF000)
 
-#endif //OPCODE_H
+#endif // OPCODE_H

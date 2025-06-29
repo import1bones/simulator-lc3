@@ -2,11 +2,11 @@
 
 ## Executive Summary
 
-**Report Generated**: December 29, 2024  
-**Test Framework**: pytest with comprehensive coverage analysis  
-**Total Test Cases**: 90  
-**Passing Tests**: 82/90 (91.1%)  
-**Failing Tests**: 8/90 (8.9%)  
+**Report Generated**: December 29, 2024
+**Test Framework**: pytest with comprehensive coverage analysis
+**Total Test Cases**: 90
+**Passing Tests**: 82/90 (91.1%)
+**Failing Tests**: 8/90 (8.9%)
 **Overall Status**: 🟡 Good with specific issues to address
 
 ---
@@ -123,7 +123,7 @@ Max Cycles:    10,000/test
 - **Root Cause**: Sample program offset calculation incorrect
 - **Code Path**: Integration → Sample Programs → Loop Counter
 
-#### 2. **test_subroutine_call_and_return** 
+#### 2. **test_subroutine_call_and_return**
 - **Issue**: JSR/RET instruction sequence
 - **Expected**: R0 = 1, **Actual**: R0 = 0
 - **Root Cause**: Return address/stack management

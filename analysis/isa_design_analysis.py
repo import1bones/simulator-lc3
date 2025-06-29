@@ -3,7 +3,7 @@
 LC-3 ISA Design Performance Analysis
 
 This module provides comprehensive ISA design analysis focusing on:
-- Instruction format efficiency
+- Instruction format efficiency 
 - Addressing mode performance
 - Pipeline characteristics
 - Instruction mix analysis
@@ -59,12 +59,12 @@ class ISADesignMetrics:
 
 class LC3ISAAnalyzer:
     """Comprehensive LC-3 ISA design analyzer"""
-
+    
     def __init__(self):
         self.simulator = None
         if SIMULATOR_AVAILABLE:
             self.simulator = lc3_simulator.LC3Simulator()
-
+        
         # LC-3 instruction format classification
         self.instruction_formats = {
             # R-type equivalent (register operations)
@@ -76,7 +76,7 @@ class LC3ISAAnalyzer:
             # J-type equivalent (jump operations)
             'JMP': 'J-type', 'JSR': 'J-type', 'JSRR': 'J-type'
         }
-
+        
         # Memory access patterns for each instruction
         self.memory_access_patterns = {
             'ADD_reg': 0, 'ADD_imm': 0, 'AND_reg': 0, 'AND_imm': 0, 'NOT': 0,
@@ -85,7 +85,7 @@ class LC3ISAAnalyzer:
             'BR': 0, 'JMP': 0, 'JSR': 0, 'JSRR': 0,
             'TRAP': 1
         }
-
+        
         # Addressing modes supported
         self.addressing_modes = {
             'immediate': ['ADD_imm', 'AND_imm'],
@@ -95,20 +95,20 @@ class LC3ISAAnalyzer:
             'indirect': ['LDI', 'STI'],
             'register_indirect': ['TRAP']
         }
-
+        
         self.results = {}
         self.instruction_metrics = {}
-
+        
     def run_instruction_format_analysis(self) -> Dict:
         """Analyze instruction format efficiency"""
         print("🔧 Running Instruction Format Analysis...")
-
+        
         format_metrics = {
             'R-type': {'count': 0, 'total_time': 0, 'avg_complexity': 0},
             'I-type': {'count': 0, 'total_time': 0, 'avg_complexity': 0},
             'J-type': {'count': 0, 'total_time': 0, 'avg_complexity': 0}
         }
-
+        
         # Test each instruction type
         test_instructions = {
             'ADD_reg': ([0x1001], 'R-type'),  # ADD R0, R0, R1
@@ -126,7 +126,7 @@ class LC3ISAAnalyzer:
             'JSR': ([0x4001], 'J-type'),      # JSR #1
             'TRAP': ([0xF025], 'I-type')      # TRAP x25
         }
-
+        
         if not self.simulator:
             print("⚠️ Simulator not available, using estimated metrics")
             # Provide estimated metrics based on instruction complexity
@@ -135,7 +135,7 @@ class LC3ISAAnalyzer:
                 format_metrics[format_type]['count'] += 1
                 format_metrics[format_type]['total_time'] += complexity
                 format_metrics[format_type]['avg_complexity'] += complexity
-
+            
             # Calculate averages
             for format_type in format_metrics:
                 if format_metrics[format_type]['count'] > 0:
@@ -149,17 +149,17 @@ class LC3ISAAnalyzer:
                 for _ in range(100):  # Multiple runs for accuracy
                     self.simulator.reset()
                     self.simulator.load_program(program)
-
+                    
                     start_time = time.perf_counter()
                     self.simulator.step()
                     end_time = time.perf_counter()
-
+                    
                     times.append(end_time - start_time)
-
+                
                 avg_time = statistics.mean(times)
                 format_metrics[format_type]['count'] += 1
                 format_metrics[format_type]['total_time'] += avg_time
-
+                
                 # Store individual instruction metrics
                 self.instruction_metrics[inst_name] = InstructionMetrics(
                     opcode=inst_name,
@@ -171,21 +171,21 @@ class LC3ISAAnalyzer:
                     throughput=1.0 / avg_time if avg_time > 0 else 0,
                     utilization=self._estimate_utilization(inst_name)
                 )
-
+            
             # Calculate averages
             for format_type in format_metrics:
                 if format_metrics[format_type]['count'] > 0:
                     format_metrics[format_type]['avg_time'] = \
                         format_metrics[format_type]['total_time'] / format_metrics[format_type]['count']
-
+        
         return format_metrics
-
+    
     def run_addressing_mode_analysis(self) -> Dict:
         """Analyze addressing mode efficiency"""
         print("📍 Running Addressing Mode Analysis...")
-
+        
         addressing_results = {}
-
+        
         # Test programs for each addressing mode
         test_programs = {
             'immediate': {
@@ -209,7 +209,7 @@ class LC3ISAAnalyzer:
                 'description': 'Indirect - address contains pointer to data'
             }
         }
-
+        
         for mode_name, test_data in test_programs.items():
             if not self.simulator:
                 # Estimated performance based on addressing complexity
@@ -227,13 +227,13 @@ class LC3ISAAnalyzer:
                     self.simulator.reset()
                     self.simulator.set_register(1, 0x3003)  # Set base register for base_offset
                     self.simulator.load_program(test_data['program'])
-
+                    
                     start_time = time.perf_counter()
                     self.simulator.step()  # Execute first instruction
                     end_time = time.perf_counter()
-
+                    
                     times.append(end_time - start_time)
-
+                
                 avg_time = statistics.mean(times)
                 addressing_results[mode_name] = {
                     'avg_time': avg_time,
@@ -243,13 +243,13 @@ class LC3ISAAnalyzer:
                     'memory_accesses': self._get_addressing_memory_accesses(mode_name),
                     'cycles_estimate': self._get_addressing_cycles(mode_name)
                 }
-
+        
         return addressing_results
-
+    
     def run_pipeline_analysis(self) -> Dict:
         """Analyze pipeline characteristics and potential"""
         print("⚡ Running Pipeline Analysis...")
-
+        
         # LC-3 pipeline stages analysis
         pipeline_stages = {
             'fetch': 'Instruction fetch from memory',
@@ -258,7 +258,7 @@ class LC3ISAAnalyzer:
             'memory': 'Memory access (if needed)',
             'writeback': 'Write result to register'
         }
-
+        
         # Instruction pipeline requirements
         instruction_pipeline_reqs = {
             'ADD_reg': ['fetch', 'decode', 'execute', 'writeback'],
@@ -268,18 +268,18 @@ class LC3ISAAnalyzer:
             'BR': ['fetch', 'decode', 'execute'],
             'JMP': ['fetch', 'decode', 'execute'],
         }
-
+        
         # Calculate CPI (Cycles Per Instruction) for different scenarios
         cpi_analysis = {}
-
+        
         # Without pipeline (current LC-3)
         base_cpi = {}
         for inst, stages in instruction_pipeline_reqs.items():
             base_cpi[inst] = len(stages)
-
+        
         # With ideal 5-stage pipeline
         ideal_pipeline_cpi = 1.0  # Ideal case
-
+        
         # With realistic pipeline (hazards, stalls)
         realistic_pipeline_cpi = {}
         for inst, stages in instruction_pipeline_reqs.items():
@@ -289,9 +289,9 @@ class LC3ISAAnalyzer:
                 penalty += 1  # Memory access penalty
             if inst.startswith('BR') or inst.startswith('J'):
                 penalty += 2  # Branch penalty
-
+            
             realistic_pipeline_cpi[inst] = 1.0 + (penalty * 0.5)
-
+        
         cpi_analysis = {
             'unpipelined': {
                 'description': 'Current LC-3 implementation',
@@ -310,13 +310,13 @@ class LC3ISAAnalyzer:
                 'throughput_improvement': statistics.mean(base_cpi.values()) / statistics.mean(realistic_pipeline_cpi.values())
             }
         }
-
+        
         return cpi_analysis
-
+    
     def run_instruction_mix_analysis(self) -> Dict:
         """Analyze typical instruction mix and its impact"""
         print("📊 Running Instruction Mix Analysis...")
-
+        
         # Typical instruction mixes for different program types
         instruction_mixes = {
             'scientific': {
@@ -338,10 +338,10 @@ class LC3ISAAnalyzer:
                 'other': 0.15
             }
         }
-
+        
         # Calculate weighted performance for each mix
         mix_performance = {}
-
+        
         # Base instruction times (estimated or measured)
         if self.instruction_metrics:
             instruction_times = {
@@ -370,26 +370,26 @@ class LC3ISAAnalyzer:
                 'control': 45.0,
                 'other': 50.0
             }
-
+        
         for mix_name, mix_ratios in instruction_mixes.items():
             weighted_time = sum(
                 instruction_times[inst_type] * ratio
                 for inst_type, ratio in mix_ratios.items()
             )
-
+            
             mix_performance[mix_name] = {
                 'weighted_avg_time': weighted_time,
                 'instructions_per_second': 1_000_000 / weighted_time,  # Convert μs to IPS
                 'instruction_ratios': mix_ratios,
                 'bottleneck': max(mix_ratios.items(), key=lambda x: x[1] * instruction_times[x[0]])[0]
             }
-
+        
         return mix_performance
-
+    
     def run_memory_hierarchy_analysis(self) -> Dict:
         """Analyze memory hierarchy impact on ISA performance"""
         print("🗄️ Running Memory Hierarchy Analysis...")
-
+        
         # Memory access patterns and their costs
         memory_patterns = {
             'sequential_reads': {
@@ -413,33 +413,33 @@ class LC3ISAAnalyzer:
                 'avg_access_time': 1.3  # cycles
             }
         }
-
+        
         # Calculate impact on different instruction types
         memory_impact = {}
-
+        
         for pattern_name, pattern_data in memory_patterns.items():
             # Calculate effective memory access time
             cache_hit_time = 1.0  # cycles
             cache_miss_penalty = 20.0  # cycles
-
+            
             effective_time = (
                 pattern_data['cache_hit_rate'] * cache_hit_time +
                 (1 - pattern_data['cache_hit_rate']) * (cache_hit_time + cache_miss_penalty)
             )
-
+            
             memory_impact[pattern_name] = {
                 'effective_access_time': effective_time,
                 'cache_hit_rate': pattern_data['cache_hit_rate'],
                 'performance_ratio': cache_hit_time / effective_time,
                 'description': pattern_data['description']
             }
-
+        
         return memory_impact
-
+    
     def run_isa_design_comparison(self) -> Dict:
         """Compare LC-3 ISA design with other architectures"""
         print("🏗️ Running ISA Design Comparison...")
-
+        
         isa_comparison = {
             'LC-3': {
                 'word_size': 16,
@@ -482,10 +482,10 @@ class LC3ISAAnalyzer:
                 'design_philosophy': 'Power efficiency'
             }
         }
-
+        
         # Calculate design efficiency metrics
         design_metrics = {}
-
+        
         for arch_name, arch_data in isa_comparison.items():
             if isinstance(arch_data['instruction_size'], int):
                 instruction_density = arch_data['instruction_size'] / arch_data['word_size']
@@ -493,22 +493,22 @@ class LC3ISAAnalyzer:
             else:
                 instruction_density = 1.0  # Variable size
                 code_density = 0.8  # Estimated for variable length
-
+            
             register_efficiency = arch_data['register_count'] / arch_data['word_size']
             addressing_flexibility = arch_data['addressing_modes'] / 10.0  # Normalized
-
+            
             design_metrics[arch_name] = {
                 'instruction_density': instruction_density,
                 'code_density': code_density,
                 'register_efficiency': register_efficiency,
                 'addressing_flexibility': addressing_flexibility,
-                'overall_score': (instruction_density + code_density +
+                'overall_score': (instruction_density + code_density + 
                                 register_efficiency + addressing_flexibility) / 4,
                 'characteristics': arch_data
             }
-
+        
         return design_metrics
-
+    
     def _estimate_instruction_complexity(self, instruction: str) -> float:
         """Estimate instruction complexity based on operations"""
         complexity_map = {
@@ -523,7 +523,7 @@ class LC3ISAAnalyzer:
             'TRAP': 1.8
         }
         return complexity_map.get(instruction, 1.0)
-
+    
     def _estimate_cycles(self, instruction: str) -> int:
         """Estimate cycle count for instruction"""
         cycle_map = {
@@ -538,7 +538,7 @@ class LC3ISAAnalyzer:
             'TRAP': 3
         }
         return cycle_map.get(instruction, 1)
-
+    
     def _estimate_register_accesses(self, instruction: str) -> int:
         """Estimate number of register accesses"""
         if instruction.endswith('_reg'):
@@ -551,7 +551,7 @@ class LC3ISAAnalyzer:
             return 2  # Base + dest/source
         else:
             return 1
-
+    
     def _estimate_utilization(self, instruction: str) -> float:
         """Estimate functional unit utilization"""
         if instruction.startswith(('ADD', 'AND', 'NOT')):
@@ -560,7 +560,7 @@ class LC3ISAAnalyzer:
             return 0.6  # Memory unit utilization
         else:
             return 0.5  # Other units
-
+    
     def _estimate_addressing_time(self, mode: str) -> float:
         """Estimate addressing mode execution time"""
         time_map = {
@@ -571,7 +571,7 @@ class LC3ISAAnalyzer:
             'indirect': 65.0
         }
         return time_map.get(mode, 50.0)
-
+    
     def _get_addressing_memory_accesses(self, mode: str) -> int:
         """Get memory accesses for addressing mode"""
         access_map = {
@@ -582,7 +582,7 @@ class LC3ISAAnalyzer:
             'indirect': 2
         }
         return access_map.get(mode, 1)
-
+    
     def _get_addressing_cycles(self, mode: str) -> int:
         """Get cycle count for addressing mode"""
         cycle_map = {
@@ -593,10 +593,10 @@ class LC3ISAAnalyzer:
             'indirect': 3
         }
         return cycle_map.get(mode, 2)
-
+    
     def generate_comprehensive_report(self) -> str:
         """Generate comprehensive ISA design analysis report"""
-
+        
         # Run all analyses
         format_analysis = self.run_instruction_format_analysis()
         addressing_analysis = self.run_addressing_mode_analysis()
@@ -604,7 +604,7 @@ class LC3ISAAnalyzer:
         mix_analysis = self.run_instruction_mix_analysis()
         memory_analysis = self.run_memory_hierarchy_analysis()
         design_comparison = self.run_isa_design_comparison()
-
+        
         # Generate report
         report = []
         report.append("# LC-3 ISA Design Performance Analysis")
@@ -614,34 +614,34 @@ class LC3ISAAnalyzer:
         report.append(f"**Analysis Type**: Comprehensive ISA Design Evaluation")
         report.append(f"**Simulator Available**: {SIMULATOR_AVAILABLE}")
         report.append("")
-
+        
         # Executive Summary
         report.append("## Executive Summary")
         report.append("")
-
+        
         if format_analysis:
             avg_r_type = format_analysis['R-type']['avg_time'] if 'avg_time' in format_analysis['R-type'] else format_analysis['R-type']['avg_complexity']
             avg_i_type = format_analysis['I-type']['avg_time'] if 'avg_time' in format_analysis['I-type'] else format_analysis['I-type']['avg_complexity']
             avg_j_type = format_analysis['J-type']['avg_time'] if 'avg_time' in format_analysis['J-type'] else format_analysis['J-type']['avg_complexity']
-
+            
             report.append(f"**Instruction Format Performance**:")
             report.append(f"- R-type (Register): {avg_r_type:.3f}μs average")
             report.append(f"- I-type (Immediate): {avg_i_type:.3f}μs average")
             report.append(f"- J-type (Jump): {avg_j_type:.3f}μs average")
-
+        
         if pipeline_analysis:
             unpipelined_cpi = pipeline_analysis['unpipelined']['average_cpi']
             realistic_cpi = pipeline_analysis['realistic_pipeline']['average_cpi']
             speedup = pipeline_analysis['realistic_pipeline']['throughput_improvement']
-
+            
             report.append(f"")
             report.append(f"**Pipeline Potential**:")
             report.append(f"- Current CPI: {unpipelined_cpi:.2f}")
             report.append(f"- Pipelined CPI: {realistic_cpi:.2f}")
             report.append(f"- Potential Speedup: {speedup:.2f}x")
-
+        
         report.append("")
-
+        
         # Instruction Format Analysis
         report.append("## 1. Instruction Format Analysis")
         report.append("")
@@ -649,19 +649,19 @@ class LC3ISAAnalyzer:
         report.append("")
         report.append("| Format Type | Count | Avg Time (μs) | Relative Performance | Characteristics |")
         report.append("|-------------|-------|---------------|---------------------|-----------------|")
-
+        
         for format_type, data in format_analysis.items():
             avg_time = data.get('avg_time', data.get('avg_complexity', 0))
             rel_perf = avg_time / format_analysis['R-type'].get('avg_time', format_analysis['R-type'].get('avg_complexity', 1))
-
+            
             characteristics = {
                 'R-type': 'Register-register operations',
                 'I-type': 'Immediate/memory operations',
                 'J-type': 'Jump/branch operations'
             }
-
+            
             report.append(f"| **{format_type}** | {data['count']} | {avg_time:.3f} | {rel_perf:.2f}x | {characteristics[format_type]} |")
-
+        
         report.append("")
         report.append("### Format Efficiency Analysis")
         report.append("")
@@ -669,40 +669,40 @@ class LC3ISAAnalyzer:
         report.append("⚠️ **I-type Instructions**: Moderate efficiency, handle immediates and memory")
         report.append("🔄 **J-type Instructions**: Specialized for control flow")
         report.append("")
-
+        
         # Addressing Mode Analysis
         report.append("## 2. Addressing Mode Performance")
         report.append("")
         report.append("| Addressing Mode | Avg Time (μs) | Memory Accesses | Cycles | Relative Cost | Description |")
         report.append("|-----------------|---------------|-----------------|--------|---------------|-------------|")
-
+        
         for mode, data in addressing_analysis.items():
             report.append(f"| **{mode.replace('_', ' ').title()}** | {data['avg_time']:.2f} | {data['memory_accesses']} | {data['cycles_estimate']} | {data['relative_performance']:.2f}x | {data['description']} |")
-
+        
         report.append("")
         report.append("### Addressing Mode Efficiency")
         report.append("")
-
+        
         fastest_mode = min(addressing_analysis.items(), key=lambda x: x[1]['avg_time'])
         slowest_mode = max(addressing_analysis.items(), key=lambda x: x[1]['avg_time'])
-
+        
         report.append(f"🚀 **Fastest**: {fastest_mode[0].replace('_', ' ').title()} ({fastest_mode[1]['avg_time']:.2f}μs)")
         report.append(f"🐌 **Slowest**: {slowest_mode[0].replace('_', ' ').title()} ({slowest_mode[1]['avg_time']:.2f}μs)")
         report.append(f"📊 **Performance Range**: {slowest_mode[1]['avg_time'] / fastest_mode[1]['avg_time']:.2f}x variation")
         report.append("")
-
+        
         # Pipeline Analysis
         report.append("## 3. Pipeline Analysis & CPI Metrics")
         report.append("")
-
+        
         for pipeline_type, data in pipeline_analysis.items():
             report.append(f"### {pipeline_type.replace('_', ' ').title()}")
             report.append(f"**Description**: {data['description']}")
             report.append(f"**Average CPI**: {data['average_cpi']:.2f}")
-
+            
             if 'throughput_improvement' in data:
                 report.append(f"**Throughput Improvement**: {data['throughput_improvement']:.2f}x")
-
+            
             if 'instruction_cpi' in data:
                 report.append("")
                 report.append("| Instruction | CPI | Performance Impact |")
@@ -710,9 +710,9 @@ class LC3ISAAnalyzer:
                 for inst, cpi in data['instruction_cpi'].items():
                     impact = "Low" if cpi <= 1.5 else "Medium" if cpi <= 3.0 else "High"
                     report.append(f"| {inst} | {cpi:.1f} | {impact} |")
-
+            
             report.append("")
-
+        
         # Instruction Mix Analysis
         report.append("## 4. Instruction Mix Analysis")
         report.append("")
@@ -720,7 +720,7 @@ class LC3ISAAnalyzer:
         report.append("")
         report.append("| Workload | Weighted Avg Time (μs) | Instructions/sec | Bottleneck | Optimization Focus |")
         report.append("|----------|------------------------|------------------|------------|-------------------|")
-
+        
         for mix_name, data in mix_analysis.items():
             optimization_focus = {
                 'arithmetic': 'ALU operations',
@@ -728,56 +728,56 @@ class LC3ISAAnalyzer:
                 'control': 'Branch prediction',
                 'other': 'System calls'
             }
-
+            
             report.append(f"| **{mix_name.title()}** | {data['weighted_avg_time']:.2f} | {data['instructions_per_second']:,.0f} | {data['bottleneck'].title()} | {optimization_focus[data['bottleneck']]} |")
-
+        
         report.append("")
-
+        
         # Memory Hierarchy Analysis
         report.append("## 5. Memory Hierarchy Impact")
         report.append("")
         report.append("| Access Pattern | Cache Hit Rate | Effective Time (cycles) | Performance Ratio | Impact |")
         report.append("|----------------|----------------|------------------------|-------------------|--------|")
-
+        
         for pattern, data in memory_analysis.items():
             impact = "Low" if data['performance_ratio'] > 0.8 else "Medium" if data['performance_ratio'] > 0.5 else "High"
             report.append(f"| **{pattern.replace('_', ' ').title()}** | {data['cache_hit_rate']:.1%} | {data['effective_access_time']:.1f} | {data['performance_ratio']:.2f} | {impact} |")
-
+        
         report.append("")
-
+        
         # ISA Design Comparison
         report.append("## 6. ISA Design Comparison")
         report.append("")
         report.append("| Architecture | Word Size | Instruction Size | Registers | Addressing Modes | Design Score |")
         report.append("|--------------|-----------|------------------|-----------|------------------|-------------|")
-
+        
         for arch, data in design_comparison.items():
             chars = data['characteristics']
             inst_size = chars['instruction_size']
             inst_size_str = f"{inst_size}" if isinstance(inst_size, int) else inst_size
-
+            
             report.append(f"| **{arch}** | {chars['word_size']}-bit | {inst_size_str}-bit | {chars['register_count']} | {chars['addressing_modes']} | {data['overall_score']:.2f} |")
-
+        
         report.append("")
-
+        
         # Design Recommendations
         report.append("## 7. ISA Design Recommendations")
         report.append("")
         report.append("### 🚀 Performance Optimizations")
         report.append("")
-
+        
         # Based on analysis results
         if addressing_analysis:
             slowest_addressing = max(addressing_analysis.items(), key=lambda x: x[1]['avg_time'])
             report.append(f"1. **Optimize {slowest_addressing[0].replace('_', ' ')} addressing**: Currently {slowest_addressing[1]['relative_performance']:.1f}x slower than fastest mode")
-
+        
         if pipeline_analysis:
             speedup = pipeline_analysis['realistic_pipeline']['throughput_improvement']
             report.append(f"2. **Implement pipelining**: Potential {speedup:.1f}x performance improvement")
-
+        
         report.append("3. **Cache optimization**: Focus on instruction and data locality")
         report.append("")
-
+        
         report.append("### 🏗️ Architectural Improvements")
         report.append("")
         report.append("1. **Increase register count**: More registers reduce memory traffic")
@@ -785,7 +785,7 @@ class LC3ISAAnalyzer:
         report.append("3. **Implement branch prediction**: Reduce control hazard penalties")
         report.append("4. **Add specialized instructions**: Vector or SIMD operations")
         report.append("")
-
+        
         report.append("### 📊 MIPS Design Principles Applied")
         report.append("")
         report.append("1. **Regularity**: Consistent instruction formats reduce decode complexity")
@@ -793,35 +793,35 @@ class LC3ISAAnalyzer:
         report.append("3. **Common case optimization**: Frequent operations should be fast")
         report.append("4. **Good design demands good compromises**: Balance simplicity vs. performance")
         report.append("")
-
+        
         # Performance Summary
         report.append("## 8. Performance Summary")
         report.append("")
-
+        
         if self.instruction_metrics:
             total_instructions = len(self.instruction_metrics)
             avg_execution_time = statistics.mean([m.execution_time for m in self.instruction_metrics.values()])
             avg_throughput = statistics.mean([m.throughput for m in self.instruction_metrics.values()])
-
+            
             report.append(f"**Instructions Analyzed**: {total_instructions}")
             report.append(f"**Average Execution Time**: {avg_execution_time*1e6:.2f}μs")
             report.append(f"**Average Throughput**: {avg_throughput:,.0f} ops/sec")
-
+        
         if pipeline_analysis:
             current_cpi = pipeline_analysis['unpipelined']['average_cpi']
             optimal_cpi = pipeline_analysis['realistic_pipeline']['average_cpi']
-
+            
             report.append(f"**Current CPI**: {current_cpi:.2f}")
             report.append(f"**Optimized CPI**: {optimal_cpi:.2f}")
             report.append(f"**Performance Potential**: {current_cpi/optimal_cpi:.1f}x improvement")
-
+        
         report.append("")
         report.append("### Overall Assessment")
         report.append("")
-
+        
         lc3_score = design_comparison['LC-3']['overall_score']
         mips_score = design_comparison['MIPS']['overall_score']
-
+        
         if lc3_score >= 0.8:
             assessment = "Excellent"
         elif lc3_score >= 0.6:
@@ -830,14 +830,14 @@ class LC3ISAAnalyzer:
             assessment = "Adequate"
         else:
             assessment = "Needs Improvement"
-
+        
         report.append(f"**LC-3 ISA Rating**: {assessment} ({lc3_score:.2f}/1.0)")
         report.append(f"**Comparison to MIPS**: {lc3_score/mips_score:.2f}x relative efficiency")
         report.append("")
         report.append("The LC-3 ISA demonstrates strong educational value with reasonable performance characteristics.")
         report.append("While optimized for simplicity over performance, it provides excellent learning opportunities")
         report.append("for understanding fundamental computer architecture concepts.")
-
+        
         return "\n".join(report)
 
 
@@ -845,24 +845,24 @@ def main():
     """Main function to run ISA performance analysis"""
     print("🔬 LC-3 ISA Design Performance Analysis")
     print("=" * 50)
-
+    
     analyzer = LC3ISAAnalyzer()
     report = analyzer.generate_comprehensive_report()
-
+    
     # Save report
     timestamp = str(int(time.time()))
     report_file = Path(f"reports/isa_design_analysis_{timestamp}.md")
     report_file.parent.mkdir(exist_ok=True)
-
+    
     with open(report_file, 'w') as f:
         f.write(report)
-
+    
     print(f"✅ ISA Design Analysis completed!")
     print(f"📄 Report saved to: {report_file}")
-
+    
     # Also save as JSON for further analysis
     json_file = report_file.with_suffix('.json')
-
+    
     analysis_data = {
         'timestamp': timestamp,
         'simulator_available': SIMULATOR_AVAILABLE,
@@ -878,12 +878,12 @@ def main():
             for name, metrics in analyzer.instruction_metrics.items()
         }
     }
-
+    
     with open(json_file, 'w') as f:
         json.dump(analysis_data, f, indent=2)
-
+    
     print(f"📊 Analysis data saved to: {json_file}")
-
+    
     return report_file
 
 

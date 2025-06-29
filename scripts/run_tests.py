@@ -263,8 +263,8 @@ def main():
 
     args = parser.parse_args()
 
-    # Get project root directory
-    project_root = Path(__file__).parent
+    # Get project root directory (script is now in scripts/ subdirectory)
+    project_root = Path(__file__).parent.parent
 
     # Check environment if requested
     if args.check_env:

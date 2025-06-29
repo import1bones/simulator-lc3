@@ -3,9 +3,9 @@
 ## Overview
 This report provides a comprehensive analysis of test coverage for the LC-3 simulator project.
 
-**Generated on**: 2025-06-29  
-**Test Framework**: pytest with coverage analysis  
-**Total Tests**: 90 tests  
+**Generated on**: 2025-06-29
+**Test Framework**: pytest with coverage analysis
+**Total Tests**: 90 tests
 **Overall Coverage**: 82%
 
 ## Test Results Summary

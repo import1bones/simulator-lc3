@@ -15,9 +15,9 @@ from collections import defaultdict
 
 def analyze_test_results():
     """Analyze the test results and generate coverage statistics."""
-
+    
     project_root = Path(__file__).parent
-
+    
     # Test categories and their tests
     test_categories = {
         'Basic Functionality': {
@@ -61,7 +61,7 @@ def analyze_test_results():
             'status': 'Needs Work'
         }
     }
-
+    
     # Failed tests details
     failed_tests = [
         {
@@ -129,7 +129,7 @@ def analyze_test_results():
             'root_cause': 'STI instruction implementation'
         }
     ]
-
+    
     # Instruction coverage analysis
     instruction_coverage = {
         'ADD': {'conditions': 8, 'covered': 8, 'rate': 100, 'status': 'Complete'},
@@ -147,15 +147,15 @@ def analyze_test_results():
         'STR': {'conditions': 6, 'covered': 6, 'rate': 100, 'status': 'Complete'},
         'TRAP': {'conditions': 8, 'covered': 8, 'rate': 100, 'status': 'Complete'}
     }
-
+    
     # Calculate overall statistics
     total_tests = sum(cat['total_tests'] for cat in test_categories.values())
     total_passed = sum(cat['passed_tests'] for cat in test_categories.values())
     total_failed = sum(cat['failed_tests'] for cat in test_categories.values())
-
+    
     total_conditions = sum(inst['conditions'] for inst in instruction_coverage.values())
     covered_conditions = sum(inst['covered'] for inst in instruction_coverage.values())
-
+    
     # Generate summary
     summary = {
         'total_tests': total_tests,
@@ -169,15 +169,15 @@ def analyze_test_results():
         'failed_tests': failed_tests,
         'instruction_coverage': instruction_coverage
     }
-
+    
     return summary
 
 
 def generate_condition_coverage_report():
     """Generate a detailed condition coverage report."""
-
+    
     analysis = analyze_test_results()
-
+    
     report = []
     report.append("# LC-3 Simulator Condition Coverage Report")
     report.append("")
@@ -186,39 +186,39 @@ def generate_condition_coverage_report():
     report.append(f"**Failed Tests**: {analysis['failed_tests']}")
     report.append(f"**Condition Coverage**: {analysis['covered_conditions']}/{analysis['total_conditions']} ({analysis['condition_coverage']:.1f}%)")
     report.append("")
-
+    
     # Instruction-level condition coverage
     report.append("## Instruction-Level Condition Coverage")
     report.append("")
     report.append("| Instruction | Conditions | Covered | Rate | Status |")
     report.append("|-------------|------------|---------|------|---------|")
-
+    
     for instruction, data in analysis['instruction_coverage'].items():
         status_emoji = "✅" if data['status'] == 'Complete' else "⚠️" if data['rate'] >= 50 else "❌"
         report.append(f"| **{instruction}** | {data['conditions']} | {data['covered']} | {data['rate']}% | {status_emoji} {data['status']} |")
-
+    
     report.append("")
-
+    
     # Category breakdown
     report.append("## Test Category Coverage")
     report.append("")
     report.append("| Category | Tests | Passed | Failed | Rate | Status |")
     report.append("|----------|-------|--------|--------|------|---------|")
-
+    
     for category, data in analysis['categories'].items():
         rate = (data['passed_tests'] / data['total_tests']) * 100
         status_emoji = "✅" if rate == 100 else "⚠️" if rate >= 80 else "❌"
         report.append(f"| **{category}** | {data['total_tests']} | {data['passed_tests']} | {data['failed_tests']} | {rate:.1f}% | {status_emoji} {data['status']} |")
-
+    
     report.append("")
-
+    
     # Failed tests analysis
     report.append("## Failed Tests by Category")
     report.append("")
-
+    
     integration_failures = [t for t in analysis['failed_tests'] if t['category'] == 'Integration']
     memory_failures = [t for t in analysis['failed_tests'] if t['category'] == 'Memory']
-
+    
     if integration_failures:
         report.append("### Integration Test Failures")
         report.append("")
@@ -229,7 +229,7 @@ def generate_condition_coverage_report():
             report.append(f"- Actual: `{test['actual']}`")
             report.append(f"- Root Cause: {test['root_cause']}")
             report.append("")
-
+    
     if memory_failures:
         report.append("### Memory Test Failures")
         report.append("")
@@ -240,13 +240,13 @@ def generate_condition_coverage_report():
             report.append(f"- Actual: `{test['actual']}`")
             report.append(f"- Root Cause: {test['root_cause']}")
             report.append("")
-
+    
     # Coverage gaps analysis
     report.append("## Coverage Gaps Analysis")
     report.append("")
-
+    
     incomplete_instructions = [inst for inst, data in analysis['instruction_coverage'].items() if data['rate'] < 100]
-
+    
     if incomplete_instructions:
         report.append("### Instructions with Incomplete Condition Coverage")
         report.append("")
@@ -255,7 +255,7 @@ def generate_condition_coverage_report():
             gap = data['conditions'] - data['covered']
             report.append(f"- **{instruction}**: {gap} conditions not tested ({data['rate']}% coverage)")
         report.append("")
-
+    
     # Recommendations
     report.append("## Recommendations")
     report.append("")
@@ -272,37 +272,37 @@ def generate_condition_coverage_report():
     report.append("1. Create simpler integration tests that pass")
     report.append("2. Fix complex program sample code")
     report.append("3. Add more realistic program examples")
-
+    
     return "\n".join(report)
 
 
 def main():
     """Main function to generate the coverage report."""
-
+    
     # Generate the analysis
     print("Analyzing test results and coverage...")
-
+    
     # Generate condition coverage report
     coverage_report = generate_condition_coverage_report()
-
+    
     # Save to file
     reports_dir = Path(__file__).parent / "reports"
     reports_dir.mkdir(exist_ok=True)
-
+    
     report_file = reports_dir / "CONDITION_COVERAGE_ANALYSIS.md"
     with open(report_file, 'w') as f:
         f.write(coverage_report)
-
+    
     print(f"✅ Condition coverage report generated: {report_file}")
-
+    
     # Generate JSON summary for programmatic access
     analysis = analyze_test_results()
     json_file = reports_dir / "test_analysis_summary.json"
     with open(json_file, 'w') as f:
         json.dump(analysis, f, indent=2)
-
+    
     print(f"✅ JSON analysis summary generated: {json_file}")
-
+    
     # Print summary to console
     print("\n" + "="*60)
     print("LC-3 SIMULATOR TEST & COVERAGE SUMMARY")
@@ -312,18 +312,18 @@ def main():
     print(f"Failed: {analysis['failed_tests']}")
     print(f"Condition Coverage: {analysis['covered_conditions']}/{analysis['total_conditions']} ({analysis['condition_coverage']:.1f}%)")
     print("")
-
+    
     print("Test Categories:")
     for category, data in analysis['categories'].items():
         rate = (data['passed_tests'] / data['total_tests']) * 100
         status = "✅" if rate == 100 else "⚠️" if rate >= 80 else "❌"
         print(f"  {status} {category}: {data['passed_tests']}/{data['total_tests']} ({rate:.1f}%)")
-
+    
     print("")
     print("Critical Issues:")
     for test in analysis['failed_tests']:
         print(f"  ❌ {test['name']}: {test['issue']}")
-
+    
     print("")
     print("Reports Generated:")
     print(f"  📄 Markdown: {report_file}")

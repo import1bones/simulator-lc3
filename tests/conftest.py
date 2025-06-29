@@ -27,7 +27,7 @@ def loaded_simulator():
     """Create a simulator with a simple test program loaded."""
     sim = lc3_simulator.LC3Simulator()
     sim.reset()
-    
+
     # Simple test program: ADD R0, R0, #1; HALT
     program = [
         0x1021,  # ADD R0, R0, #1
@@ -47,7 +47,7 @@ def sample_programs():
         ],
         'loop_counter': [
             0x2002,  # LD R0, DATA (PC-relative: when PC=0x3001, PC+offset=0x3001+2=0x3003, so data is at 0x3004)
-            0x1021,  # ADD R0, R0, #1 
+            0x1021,  # ADD R0, R0, #1
             0x3001,  # ST R0, DATA (PC-relative: when PC=0x3002, PC+offset=0x3002+1=0x3003, so data is at 0x3004)
             0xF025,  # TRAP x25 (HALT)
             0x0005   # DATA: 5 (at address 0x3004)
@@ -103,12 +103,12 @@ def build_simulator():
     """Build the simulator if it hasn't been built yet."""
     import subprocess
     import os
-    
+
     # Check if build directory exists
     build_dir = os.path.join(os.path.dirname(__file__), '..', 'build')
     if not os.path.exists(build_dir):
         os.makedirs(build_dir)
-    
+
     # Run cmake and build
     try:
         subprocess.run(['cmake', '..'], cwd=build_dir, check=True)
@@ -131,7 +131,7 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(pytest.mark.io)
         elif "test_trap" in item.nodeid:
             item.add_marker(pytest.mark.trap)
-        
+
         # Add unit/integration markers based on test names
         if item.name.startswith("test_unit"):
             item.add_marker(pytest.mark.unit)
@@ -139,7 +139,7 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(pytest.mark.integration)
         elif item.name.startswith("test_functional"):
             item.add_marker(pytest.mark.functional)
-        
+
         # Mark slow tests
         if "slow" in item.name or "performance" in item.name:
             item.add_marker(pytest.mark.slow)

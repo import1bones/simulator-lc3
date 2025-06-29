@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -83,9 +84,17 @@
             margin-bottom: 0.25rem;
         }
 
-        .summary-card .metric.success { color: var(--success-color); }
-        .summary-card .metric.warning { color: var(--warning-color); }
-        .summary-card .metric.error { color: var(--error-color); }
+        .summary-card .metric.success {
+            color: var(--success-color);
+        }
+
+        .summary-card .metric.warning {
+            color: var(--warning-color);
+        }
+
+        .summary-card .metric.error {
+            color: var(--error-color);
+        }
 
         .card {
             background: var(--card-background);
@@ -140,9 +149,17 @@
             transition: width 0.3s ease;
         }
 
-        .progress-fill.excellent { background-color: var(--success-color); }
-        .progress-fill.good { background-color: var(--warning-color); }
-        .progress-fill.poor { background-color: var(--error-color); }
+        .progress-fill.excellent {
+            background-color: var(--success-color);
+        }
+
+        .progress-fill.good {
+            background-color: var(--warning-color);
+        }
+
+        .progress-fill.poor {
+            background-color: var(--error-color);
+        }
 
         table {
             width: 100%;
@@ -150,7 +167,8 @@
             margin-top: 1rem;
         }
 
-        th, td {
+        th,
+        td {
             padding: 0.75rem;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
@@ -169,8 +187,13 @@
             font-weight: 500;
         }
 
-        .test-result.pass { color: var(--success-color); }
-        .test-result.fail { color: var(--error-color); }
+        .test-result.pass {
+            color: var(--success-color);
+        }
+
+        .test-result.fail {
+            color: var(--error-color);
+        }
 
         .icon {
             width: 1rem;
@@ -271,25 +294,34 @@
             gap: 0.5rem;
         }
 
-        .priority-high { color: var(--error-color); }
-        .priority-medium { color: var(--warning-color); }
-        .priority-low { color: var(--success-color); }
+        .priority-high {
+            color: var(--error-color);
+        }
+
+        .priority-medium {
+            color: var(--warning-color);
+        }
+
+        .priority-low {
+            color: var(--success-color);
+        }
 
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
             }
-            
+
             .summary-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .header h1 {
                 font-size: 2rem;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <!-- Header -->
@@ -410,66 +442,74 @@
         <!-- Failed Tests Analysis -->
         <div class="card">
             <h2>🔴 Failed Test Analysis</h2>
-            
+
             <!-- Integration Test Failures -->
             <h3 style="color: var(--error-color); margin-top: 1.5rem;">Integration Test Failures (5 tests)</h3>
-            
+
             <div class="failure-details">
                 <h4>1. test_loop_with_data</h4>
                 <p><strong>Issue:</strong> PC-relative addressing calculation</p>
-                <p><strong>Expected:</strong> <span class="code">R0 = 6</span>, <strong>Actual:</strong> <span class="code">R0 = 12290</span></p>
+                <p><strong>Expected:</strong> <span class="code">R0 = 6</span>, <strong>Actual:</strong> <span
+                        class="code">R0 = 12290</span></p>
                 <p><strong>Root Cause:</strong> Sample program offset calculation incorrect</p>
             </div>
 
             <div class="failure-details">
                 <h4>2. test_subroutine_call_and_return</h4>
                 <p><strong>Issue:</strong> JSR/RET instruction sequence</p>
-                <p><strong>Expected:</strong> <span class="code">R0 = 1</span>, <strong>Actual:</strong> <span class="code">R0 = 0</span></p>
+                <p><strong>Expected:</strong> <span class="code">R0 = 1</span>, <strong>Actual:</strong> <span
+                        class="code">R0 = 0</span></p>
                 <p><strong>Root Cause:</strong> Return address/stack management</p>
             </div>
 
             <div class="failure-details">
                 <h4>3. test_factorial_program</h4>
                 <p><strong>Issue:</strong> Complex program infinite loop</p>
-                <p><strong>Expected:</strong> <span class="code">Halted = True</span>, <strong>Actual:</strong> <span class="code">Halted = False</span></p>
+                <p><strong>Expected:</strong> <span class="code">Halted = True</span>, <strong>Actual:</strong> <span
+                        class="code">Halted = False</span></p>
                 <p><strong>Root Cause:</strong> Branch instruction addressing</p>
             </div>
 
             <div class="failure-details">
                 <h4>4. test_fibonacci_program</h4>
                 <p><strong>Issue:</strong> Complex program infinite loop</p>
-                <p><strong>Expected:</strong> <span class="code">Halted = True</span>, <strong>Actual:</strong> <span class="code">Halted = False</span></p>
+                <p><strong>Expected:</strong> <span class="code">Halted = True</span>, <strong>Actual:</strong> <span
+                        class="code">Halted = False</span></p>
                 <p><strong>Root Cause:</strong> Branch instruction addressing</p>
             </div>
 
             <div class="failure-details">
                 <h4>5. test_string_processing</h4>
                 <p><strong>Issue:</strong> String processing logic</p>
-                <p><strong>Expected:</strong> <span class="code">R1 = 5</span>, <strong>Actual:</strong> <span class="code">R1 = 0</span></p>
+                <p><strong>Expected:</strong> <span class="code">R1 = 5</span>, <strong>Actual:</strong> <span
+                        class="code">R1 = 0</span></p>
                 <p><strong>Root Cause:</strong> Indirect addressing in string processing</p>
             </div>
 
             <!-- Memory Test Failures -->
             <h3 style="color: var(--error-color); margin-top: 1.5rem;">Memory Test Failures (3 tests)</h3>
-            
+
             <div class="failure-details">
                 <h4>6. test_negative_offset_addressing</h4>
                 <p><strong>Issue:</strong> 2's complement sign extension</p>
-                <p><strong>Expected:</strong> <span class="code">R0 = 0xDEAD</span>, <strong>Actual:</strong> <span class="code">R0 = 0</span></p>
+                <p><strong>Expected:</strong> <span class="code">R0 = 0xDEAD</span>, <strong>Actual:</strong> <span
+                        class="code">R0 = 0</span></p>
                 <p><strong>Root Cause:</strong> Negative offset calculation in LDR</p>
             </div>
 
             <div class="failure-details">
                 <h4>7. test_load_store_cycle</h4>
                 <p><strong>Issue:</strong> PC-relative addressing base</p>
-                <p><strong>Expected:</strong> <span class="code">R0 = 0x1234</span>, <strong>Actual:</strong> <span class="code">R0 = 0</span></p>
+                <p><strong>Expected:</strong> <span class="code">R0 = 0x1234</span>, <strong>Actual:</strong> <span
+                        class="code">R0 = 0</span></p>
                 <p><strong>Root Cause:</strong> PC increment timing in LD/ST</p>
             </div>
 
             <div class="failure-details">
                 <h4>8. test_indirect_load_store</h4>
                 <p><strong>Issue:</strong> Indirect addressing chain</p>
-                <p><strong>Expected:</strong> <span class="code">Memory[0x5000] = 0xBEEF</span>, <strong>Actual:</strong> <span class="code">Memory[0x5000] = 0</span></p>
+                <p><strong>Expected:</strong> <span class="code">Memory[0x5000] = 0xBEEF</span>,
+                    <strong>Actual:</strong> <span class="code">Memory[0x5000] = 0</span></p>
                 <p><strong>Root Cause:</strong> STI instruction implementation</p>
             </div>
         </div>
@@ -700,35 +740,35 @@
                     <div class="matrix-cell header">Memory</div>
                     <div class="matrix-cell header">I/O</div>
                     <div class="matrix-cell header">Integration</div>
-                    
+
                     <div class="matrix-cell"><strong>ADD</strong></div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell partial">⚠️</div>
-                    
+
                     <div class="matrix-cell"><strong>BR</strong></div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell fail">❌</div>
-                    
+
                     <div class="matrix-cell"><strong>LD</strong></div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell fail">❌</div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell fail">❌</div>
-                    
+
                     <div class="matrix-cell"><strong>JSR</strong></div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell fail">❌</div>
-                    
+
                     <div class="matrix-cell"><strong>TRAP</strong></div>
                     <div class="matrix-cell pass">✅</div>
                     <div class="matrix-cell pass">✅</div>
@@ -796,8 +836,10 @@
         <!-- Summary -->
         <div class="card">
             <h2>🏆 Executive Summary</h2>
-            <p>The LC-3 simulator demonstrates <strong>excellent foundational testing</strong> with 100% coverage of basic operations and individual instruction execution. The project has a solid test architecture and comprehensive test suite.</p>
-            
+            <p>The LC-3 simulator demonstrates <strong>excellent foundational testing</strong> with 100% coverage of
+                basic operations and individual instruction execution. The project has a solid test architecture and
+                comprehensive test suite.</p>
+
             <h3 style="color: var(--success-color); margin-top: 1rem;">Strengths:</h3>
             <ul>
                 <li>✅ Complete basic functionality testing</li>
@@ -813,9 +855,11 @@
                 <li>❌ Advanced memory addressing modes</li>
             </ul>
 
-            <div style="margin-top: 1.5rem; padding: 1rem; background-color: #fef3c7; border-radius: 8px; border-left: 4px solid var(--warning-color);">
+            <div
+                style="margin-top: 1.5rem; padding: 1rem; background-color: #fef3c7; border-radius: 8px; border-left: 4px solid var(--warning-color);">
                 <strong>Overall Grade: 🟡 B+ (91.1% passing)</strong><br>
-                With the identified fixes, the simulator should achieve <strong>&gt;95% test pass rate</strong> and be production-ready for educational use.
+                With the identified fixes, the simulator should achieve <strong>&gt;95% test pass rate</strong> and be
+                production-ready for educational use.
             </div>
         </div>
     </div>
@@ -826,18 +870,19 @@
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
-            
+
             // Remove active class from all tabs
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            
+
             // Show selected tab content
             document.getElementById(tabId).classList.add('active');
-            
+
             // Add active class to clicked tab
             event.target.classList.add('active');
         }
     </script>
 </body>
+
 </html>
