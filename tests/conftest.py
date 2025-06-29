@@ -46,11 +46,11 @@ def sample_programs():
             0xF025   # TRAP x25 (HALT)
         ],
         'loop_counter': [
-            0x2001,  # LD R0, DATA
-            0x1021,  # ADD R0, R0, #1
-            0x3001,  # ST R0, DATA
+            0x2002,  # LD R0, DATA (PC-relative: when PC=0x3001, PC+offset=0x3001+2=0x3003, so data is at 0x3004)
+            0x1021,  # ADD R0, R0, #1 
+            0x3001,  # ST R0, DATA (PC-relative: when PC=0x3002, PC+offset=0x3002+1=0x3003, so data is at 0x3004)
             0xF025,  # TRAP x25 (HALT)
-            0x0005   # DATA: 5
+            0x0005   # DATA: 5 (at address 0x3004)
         ],
         'conditional_branch': [
             0x5020,  # AND R0, R0, #0 (clear R0)
@@ -60,10 +60,10 @@ def sample_programs():
             0xF025   # TRAP x25 (HALT)
         ],
         'subroutine_call': [
-            0x4802,  # JSR SUBROUTINE
+            0x4801,  # JSR SUBROUTINE (PC-relative: PC=0x3000, PC+1+1=0x3002, subroutine at 0x3002)
             0xF025,  # TRAP x25 (HALT)
-            0x1021,  # SUBROUTINE: ADD R0, R0, #1
-            0xC1C0   # RET (JMP R7)
+            0x1021,  # SUBROUTINE: ADD R0, R0, #1 (at address 0x3002)
+            0xC1C0   # RET (JMP R7) (at address 0x3003)
         ]
     }
 

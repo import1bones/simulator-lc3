@@ -22,7 +22,7 @@ class LC3Simulator {
 
     void reset() {
         // Initialize memory to zero
-        for (int i = 0; i < UINT16_MAX; i++) {
+        for (int i = 0; i <= UINT16_MAX; i++) {
             memory[i] = 0;
         }
 
@@ -45,7 +45,7 @@ class LC3Simulator {
     void load_program(const std::vector<uint16_t> &program,
                       uint16_t start_address = USER_SPACE_ADDR) {
         for (size_t i = 0; i < program.size(); i++) {
-            if (start_address + i < UINT16_MAX) {
+            if (start_address + i <= UINT16_MAX) {
                 memory[start_address + i] = program[i];
             }
         }

@@ -40,6 +40,7 @@ function define:
 */
 void state_2(const micro_instruction_t micro_inst)
 {
+    // LD: PC-relative addressing using 9-bit offset
     mem_addr_reg = pointer_counter + SEXT(instruction_reg, 8);
     SET_ACV();
 }
@@ -51,6 +52,7 @@ function define:
 */
 void state_3(const micro_instruction_t micro_inst)
 {
+    // ST: PC-relative addressing using 9-bit offset
     mem_addr_reg = pointer_counter + SEXT(instruction_reg, 8);
     SET_ACV();
 }
@@ -84,17 +86,21 @@ void state_5(const micro_instruction_t micro_inst)
 
 void state_6(const micro_instruction_t micro_inst)
 {
-    // LDR: Calculate effective address (BaseR + offset6)
+    // LDR: Calculate effective address (BaseR + SEXT[offset6])
     uint16_t BaseRidx = ZEXT((instruction_reg >> 6), 2);
-    mem_addr_reg = reg[BaseRidx] + SEXT(instruction_reg, 5);
+    // Extract 6-bit offset and sign extend properly
+    uint16_t offset6 = instruction_reg & 0x3F; // Get lower 6 bits
+    mem_addr_reg = reg[BaseRidx] + SEXT(offset6, 5); // Sign extend 6-bit value (bit 5 is sign bit)
     SET_ACV();
 }
 
 void state_7(const micro_instruction_t micro_inst)
 {
-    // STR: Calculate effective address (BaseR + offset6)
+    // STR: Calculate effective address (BaseR + SEXT[offset6])
     uint16_t BaseRidx = ZEXT((instruction_reg >> 6), 2);
-    mem_addr_reg = reg[BaseRidx] + SEXT(instruction_reg, 5);
+    // Extract 6-bit offset and sign extend properly
+    uint16_t offset6 = instruction_reg & 0x3F; // Get lower 6 bits
+    mem_addr_reg = reg[BaseRidx] + SEXT(offset6, 5); // Sign extend 6-bit value (bit 5 is sign bit)
     SET_ACV();
 }
 
@@ -122,16 +128,17 @@ void state_9(const micro_instruction_t micro_inst)
 
 void state_10(const micro_instruction_t micro_inst)
 {
+    // LDI1: Calculate PC + offset for indirect addressing
     mem_addr_reg = pointer_counter + SEXT(instruction_reg, 8);
     SET_ACV();
 }
 
 void state_11(const micro_instruction_t micro_inst)
 {
-    // STI2: Get indirect address
+    // STI2: Get indirect address - read pointer from first location
     do
     {
-        mem_addr_reg = mem[mem_addr_reg];
+        mem_addr_reg = mem[mem_addr_reg]; // Read the pointer from memory
         R = 1;
     }
     while(!R);
@@ -146,10 +153,10 @@ void state_12(const micro_instruction_t micro_inst)
 
 void state_13(const micro_instruction_t micro_inst)
 {
-    // STI3: Write to indirect address
+    // STI3: Write data to the final indirect address
     do
     {
-        mem[mem_addr_reg] = mem_data_reg;
+        mem[mem_addr_reg] = mem_data_reg; // Store data at the indirect address
         R = 1;
     }
     while(!R);
@@ -199,15 +206,19 @@ void state_19(const micro_instruction_t micro_inst)
 
 void state_20(const micro_instruction_t micro_inst)
 {
+    // JSRR: Jump to subroutine register
     uint16_t BaseRidx = ZEXT((instruction_reg >> 6), 2);    
-    reg[7] = pointer_counter;
-    pointer_counter = reg[BaseRidx];
+    reg[7] = pointer_counter; // Save return address
+    pointer_counter = reg[BaseRidx]; // Jump to address in BaseR
 }
 
 void state_21(const micro_instruction_t micro_inst)
 {
-    reg[7] = pointer_counter;
-    pointer_counter = pointer_counter + SEXT(instruction_reg, 10); 
+    // JSR: Jump to subroutine with PC-relative addressing
+    reg[7] = pointer_counter; // Save return address (current PC)
+    // Extract 11-bit offset and sign extend (bit 10 is sign bit)
+    uint16_t offset11 = instruction_reg & 0x7FF; // Get lower 11 bits
+    pointer_counter = pointer_counter + SEXT(offset11, 10); // PC + SEXT[PCoffset11]
 }
 
 void state_22(const micro_instruction_t micro_inst)
@@ -345,10 +356,10 @@ void state_39(const micro_instruction_t micro_inst)
 
 void state_40(const micro_instruction_t micro_inst)
 {
-    // LDI2: Get indirect address
+    // LDI2: Get indirect address - read pointer from first location
     do
     {
-        mem_addr_reg = mem[mem_addr_reg];
+        mem_addr_reg = mem[mem_addr_reg]; // Read the pointer from memory
         R = 1;
     }
     while(!R);

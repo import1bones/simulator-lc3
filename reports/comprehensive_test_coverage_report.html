@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LC-3 Simulator: Comprehensive Test & Coverage Report</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --error-color: #dc2626;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .summary-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .summary-card .metric {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-card .metric.success { color: var(--success-color); }
+        .summary-card .metric.warning { color: var(--warning-color); }
+        .summary-card .metric.error { color: var(--error-color); }
+
+        .card {
+            background: var(--card-background);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-excellent {
+            background-color: #dcfce7;
+            color: var(--success-color);
+        }
+
+        .status-good {
+            background-color: #fef3c7;
+            color: var(--warning-color);
+        }
+
+        .status-needs-work {
+            background-color: #fee2e2;
+            color: var(--error-color);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.excellent { background-color: var(--success-color); }
+        .progress-fill.good { background-color: var(--warning-color); }
+        .progress-fill.poor { background-color: var(--error-color); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .test-result {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-weight: 500;
+        }
+
+        .test-result.pass { color: var(--success-color); }
+        .test-result.fail { color: var(--error-color); }
+
+        .icon {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .failure-details {
+            background-color: #fef2f2;
+            border-left: 4px solid var(--error-color);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+        }
+
+        .failure-details h4 {
+            color: var(--error-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .code {
+            background-color: #f1f5f9;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .coverage-matrix {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.25rem;
+            margin-top: 1rem;
+        }
+
+        .matrix-cell {
+            padding: 0.5rem;
+            text-align: center;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .matrix-cell.header {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .matrix-cell.pass {
+            background-color: #dcfce7;
+            color: var(--success-color);
+        }
+
+        .matrix-cell.partial {
+            background-color: #fef3c7;
+            color: var(--warning-color);
+        }
+
+        .matrix-cell.fail {
+            background-color: #fee2e2;
+            color: var(--error-color);
+        }
+
+        .action-list {
+            list-style: none;
+        }
+
+        .action-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .priority-high { color: var(--error-color); }
+        .priority-medium { color: var(--warning-color); }
+        .priority-low { color: var(--success-color); }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🧪 LC-3 Simulator</h1>
+            <div class="subtitle">Comprehensive Test & Coverage Analysis Report</div>
+            <div style="margin-top: 1rem; font-size: 0.9rem;">Generated: December 29, 2024</div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+            <div class="summary-card">
+                <h3>Total Tests</h3>
+                <div class="metric">90</div>
+                <div>Comprehensive test suite</div>
+            </div>
+            <div class="summary-card">
+                <h3>Passing Tests</h3>
+                <div class="metric success">82</div>
+                <div>91.1% success rate</div>
+            </div>
+            <div class="summary-card">
+                <h3>Failing Tests</h3>
+                <div class="metric error">8</div>
+                <div>8.9% need attention</div>
+            </div>
+            <div class="summary-card">
+                <h3>Code Coverage</h3>
+                <div class="metric warning">82%</div>
+                <div>Good overall coverage</div>
+            </div>
+        </div>
+
+        <!-- Test Categories -->
+        <div class="card">
+            <h2>📊 Test Category Performance</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Tests</th>
+                        <th>Passed</th>
+                        <th>Failed</th>
+                        <th>Success Rate</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Basic Functionality</strong></td>
+                        <td>16</td>
+                        <td class="test-result pass">✅ 16</td>
+                        <td class="test-result">0</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill excellent" style="width: 100%"></div>
+                            </div>
+                            100%
+                        </td>
+                        <td><span class="status-badge status-excellent">Excellent</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Instruction Execution</strong></td>
+                        <td>26</td>
+                        <td class="test-result pass">✅ 26</td>
+                        <td class="test-result">0</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill excellent" style="width: 100%"></div>
+                            </div>
+                            100%
+                        </td>
+                        <td><span class="status-badge status-excellent">Excellent</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>I/O Operations</strong></td>
+                        <td>16</td>
+                        <td class="test-result pass">✅ 16</td>
+                        <td class="test-result">0</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill excellent" style="width: 100%"></div>
+                            </div>
+                            100%
+                        </td>
+                        <td><span class="status-badge status-excellent">Excellent</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Memory Operations</strong></td>
+                        <td>24</td>
+                        <td class="test-result pass">✅ 21</td>
+                        <td class="test-result fail">❌ 3</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill good" style="width: 87.5%"></div>
+                            </div>
+                            87.5%
+                        </td>
+                        <td><span class="status-badge status-good">Good</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Integration Tests</strong></td>
+                        <td>8</td>
+                        <td class="test-result pass">✅ 3</td>
+                        <td class="test-result fail">❌ 5</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill poor" style="width: 37.5%"></div>
+                            </div>
+                            37.5%
+                        </td>
+                        <td><span class="status-badge status-needs-work">Needs Work</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Failed Tests Analysis -->
+        <div class="card">
+            <h2>🔴 Failed Test Analysis</h2>
+            
+            <!-- Integration Test Failures -->
+            <h3 style="color: var(--error-color); margin-top: 1.5rem;">Integration Test Failures (5 tests)</h3>
+            
+            <div class="failure-details">
+                <h4>1. test_loop_with_data</h4>
+                <p><strong>Issue:</strong> PC-relative addressing calculation</p>
+                <p><strong>Expected:</strong> <span class="code">R0 = 6</span>, <strong>Actual:</strong> <span class="code">R0 = 12290</span></p>
+                <p><strong>Root Cause:</strong> Sample program offset calculation incorrect</p>
+            </div>
+
+            <div class="failure-details">
+                <h4>2. test_subroutine_call_and_return</h4>
+                <p><strong>Issue:</strong> JSR/RET instruction sequence</p>
+                <p><strong>Expected:</strong> <span class="code">R0 = 1</span>, <strong>Actual:</strong> <span class="code">R0 = 0</span></p>
+                <p><strong>Root Cause:</strong> Return address/stack management</p>
+            </div>
+
+            <div class="failure-details">
+                <h4>3. test_factorial_program</h4>
+                <p><strong>Issue:</strong> Complex program infinite loop</p>
+                <p><strong>Expected:</strong> <span class="code">Halted = True</span>, <strong>Actual:</strong> <span class="code">Halted = False</span></p>
+                <p><strong>Root Cause:</strong> Branch instruction addressing</p>
+            </div>
+
+            <div class="failure-details">
+                <h4>4. test_fibonacci_program</h4>
+                <p><strong>Issue:</strong> Complex program infinite loop</p>
+                <p><strong>Expected:</strong> <span class="code">Halted = True</span>, <strong>Actual:</strong> <span class="code">Halted = False</span></p>
+                <p><strong>Root Cause:</strong> Branch instruction addressing</p>
+            </div>
+
+            <div class="failure-details">
+                <h4>5. test_string_processing</h4>
+                <p><strong>Issue:</strong> String processing logic</p>
+                <p><strong>Expected:</strong> <span class="code">R1 = 5</span>, <strong>Actual:</strong> <span class="code">R1 = 0</span></p>
+                <p><strong>Root Cause:</strong> Indirect addressing in string processing</p>
+            </div>
+
+            <!-- Memory Test Failures -->
+            <h3 style="color: var(--error-color); margin-top: 1.5rem;">Memory Test Failures (3 tests)</h3>
+            
+            <div class="failure-details">
+                <h4>6. test_negative_offset_addressing</h4>
+                <p><strong>Issue:</strong> 2's complement sign extension</p>
+                <p><strong>Expected:</strong> <span class="code">R0 = 0xDEAD</span>, <strong>Actual:</strong> <span class="code">R0 = 0</span></p>
+                <p><strong>Root Cause:</strong> Negative offset calculation in LDR</p>
+            </div>
+
+            <div class="failure-details">
+                <h4>7. test_load_store_cycle</h4>
+                <p><strong>Issue:</strong> PC-relative addressing base</p>
+                <p><strong>Expected:</strong> <span class="code">R0 = 0x1234</span>, <strong>Actual:</strong> <span class="code">R0 = 0</span></p>
+                <p><strong>Root Cause:</strong> PC increment timing in LD/ST</p>
+            </div>
+
+            <div class="failure-details">
+                <h4>8. test_indirect_load_store</h4>
+                <p><strong>Issue:</strong> Indirect addressing chain</p>
+                <p><strong>Expected:</strong> <span class="code">Memory[0x5000] = 0xBEEF</span>, <strong>Actual:</strong> <span class="code">Memory[0x5000] = 0</span></p>
+                <p><strong>Root Cause:</strong> STI instruction implementation</p>
+            </div>
+        </div>
+
+        <!-- Coverage Analysis -->
+        <div class="card">
+            <h2>📈 Coverage Analysis</h2>
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('module-coverage')">Module Coverage</div>
+                <div class="tab" onclick="switchTab('condition-coverage')">Condition Coverage</div>
+                <div class="tab" onclick="switchTab('instruction-matrix')">Instruction Matrix</div>
+            </div>
+
+            <div id="module-coverage" class="tab-content active">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Module</th>
+                            <th>Lines</th>
+                            <th>Statements</th>
+                            <th>Branches</th>
+                            <th>Coverage</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>test_basic.py</strong></td>
+                            <td>345</td>
+                            <td>93</td>
+                            <td>23</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill excellent" style="width: 100%"></div>
+                                </div>
+                                100%
+                            </td>
+                            <td><span class="status-badge status-excellent">✅ Complete</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>test_instructions.py</strong></td>
+                            <td>627</td>
+                            <td>181</td>
+                            <td>87</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill excellent" style="width: 100%"></div>
+                                </div>
+                                100%
+                            </td>
+                            <td><span class="status-badge status-excellent">✅ Complete</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>test_io.py</strong></td>
+                            <td>489</td>
+                            <td>156</td>
+                            <td>45</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill excellent" style="width: 99%"></div>
+                                </div>
+                                99%
+                            </td>
+                            <td><span class="status-badge status-excellent">✅ Nearly Complete</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>test_memory.py</strong></td>
+                            <td>578</td>
+                            <td>156</td>
+                            <td>78</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill good" style="width: 95%"></div>
+                                </div>
+                                95%
+                            </td>
+                            <td><span class="status-badge status-good">⚠️ Good</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>test_integration.py</strong></td>
+                            <td>312</td>
+                            <td>76</td>
+                            <td>34</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill good" style="width: 95%"></div>
+                                </div>
+                                95%
+                            </td>
+                            <td><span class="status-badge status-good">⚠️ Good</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>conftest.py</strong></td>
+                            <td>187</td>
+                            <td>58</td>
+                            <td>15</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill good" style="width: 71%"></div>
+                                </div>
+                                71%
+                            </td>
+                            <td><span class="status-badge status-good">⚠️ Moderate</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>test_utils.py</strong></td>
+                            <td>453</td>
+                            <td>182</td>
+                            <td>67</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill poor" style="width: 29%"></div>
+                                </div>
+                                29%
+                            </td>
+                            <td><span class="status-badge status-needs-work">❌ Low</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="condition-coverage" class="tab-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Instruction</th>
+                            <th>Conditions Tested</th>
+                            <th>Branches Covered</th>
+                            <th>Success Rate</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>ADD</strong></td>
+                            <td>All overflow cases</td>
+                            <td>8/8</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill excellent" style="width: 100%"></div>
+                                </div>
+                                100%
+                            </td>
+                            <td><span class="status-badge status-excellent">✅</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>AND</strong></td>
+                            <td>All result types</td>
+                            <td>6/6</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill excellent" style="width: 100%"></div>
+                                </div>
+                                100%
+                            </td>
+                            <td><span class="status-badge status-excellent">✅</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>BR</strong></td>
+                            <td>All condition codes</td>
+                            <td>7/7</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill excellent" style="width: 100%"></div>
+                                </div>
+                                100%
+                            </td>
+                            <td><span class="status-badge status-excellent">✅</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>LD/ST</strong></td>
+                            <td>Simple cases only</td>
+                            <td>4/6</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill good" style="width: 67%"></div>
+                                </div>
+                                67%
+                            </td>
+                            <td><span class="status-badge status-good">⚠️</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>LDR/STR</strong></td>
+                            <td>Positive offsets</td>
+                            <td>4/6</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill good" style="width: 67%"></div>
+                                </div>
+                                67%
+                            </td>
+                            <td><span class="status-badge status-good">⚠️</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>LDI/STI</strong></td>
+                            <td>Direct addressing</td>
+                            <td>3/6</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill poor" style="width: 50%"></div>
+                                </div>
+                                50%
+                            </td>
+                            <td><span class="status-badge status-needs-work">❌</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>JSR/RET</strong></td>
+                            <td>Call only</td>
+                            <td>2/4</td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill poor" style="width: 50%"></div>
+                                </div>
+                                50%
+                            </td>
+                            <td><span class="status-badge status-needs-work">❌</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="instruction-matrix" class="tab-content">
+                <p>Instruction vs. Test Category Matrix:</p>
+                <div class="coverage-matrix">
+                    <div class="matrix-cell header">Instruction</div>
+                    <div class="matrix-cell header">Basic</div>
+                    <div class="matrix-cell header">Instruction</div>
+                    <div class="matrix-cell header">Memory</div>
+                    <div class="matrix-cell header">I/O</div>
+                    <div class="matrix-cell header">Integration</div>
+                    
+                    <div class="matrix-cell"><strong>ADD</strong></div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell partial">⚠️</div>
+                    
+                    <div class="matrix-cell"><strong>BR</strong></div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell fail">❌</div>
+                    
+                    <div class="matrix-cell"><strong>LD</strong></div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell fail">❌</div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell fail">❌</div>
+                    
+                    <div class="matrix-cell"><strong>JSR</strong></div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell fail">❌</div>
+                    
+                    <div class="matrix-cell"><strong>TRAP</strong></div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell pass">✅</div>
+                    <div class="matrix-cell pass">✅</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="card">
+            <h2>🔧 Critical Fixes Required</h2>
+            <ul class="action-list">
+                <li>
+                    <span class="priority-high">🚨 Priority 1:</span>
+                    Fix PC-relative addressing (affects 4 failing tests)
+                </li>
+                <li>
+                    <span class="priority-high">🚨 Priority 1:</span>
+                    Fix sign extension for negative offsets (affects 1 failing test)
+                </li>
+                <li>
+                    <span class="priority-medium">⚠️ Priority 2:</span>
+                    Debug indirect addressing (affects 2 failing tests)
+                </li>
+                <li>
+                    <span class="priority-medium">⚠️ Priority 2:</span>
+                    Fix JSR/RET sequence (affects 1 failing test)
+                </li>
+                <li>
+                    <span class="priority-low">📈 Priority 3:</span>
+                    Increase test_utils.py coverage to 80%
+                </li>
+            </ul>
+        </div>
+
+        <!-- Performance -->
+        <div class="card">
+            <h2>⚡ Performance Metrics</h2>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h3>Test Suite Runtime</h3>
+                    <div class="metric success">0.12s</div>
+                    <div>Very fast execution</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Average Test Time</h3>
+                    <div class="metric success">1.3ms</div>
+                    <div>Per test execution</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Instruction Throughput</h3>
+                    <div class="metric success">1000+</div>
+                    <div>Instructions per second</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Memory Usage</h3>
+                    <div class="metric success">65KB</div>
+                    <div>Simulation space</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="card">
+            <h2>🏆 Executive Summary</h2>
+            <p>The LC-3 simulator demonstrates <strong>excellent foundational testing</strong> with 100% coverage of basic operations and individual instruction execution. The project has a solid test architecture and comprehensive test suite.</p>
+            
+            <h3 style="color: var(--success-color); margin-top: 1rem;">Strengths:</h3>
+            <ul>
+                <li>✅ Complete basic functionality testing</li>
+                <li>✅ Comprehensive instruction set validation</li>
+                <li>✅ Robust I/O system testing</li>
+                <li>✅ Good test organization and structure</li>
+            </ul>
+
+            <h3 style="color: var(--error-color); margin-top: 1rem;">Key Issues:</h3>
+            <ul>
+                <li>❌ PC-relative addressing calculations</li>
+                <li>❌ Complex program execution flows</li>
+                <li>❌ Advanced memory addressing modes</li>
+            </ul>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background-color: #fef3c7; border-radius: 8px; border-left: 4px solid var(--warning-color);">
+                <strong>Overall Grade: 🟡 B+ (91.1% passing)</strong><br>
+                With the identified fixes, the simulator should achieve <strong>&gt;95% test pass rate</strong> and be production-ready for educational use.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

@@ -11,16 +11,19 @@ uint16_t bit_table[16]=
     0x1000,0x2000,0x4000,0x8000
 };
 
-//signal extend
+//sign extend - fixed for proper 2's complement
 uint16_t SEXT(const uint16_t &ir, int bit)
 {
     uint16_t ans = ir;
-    //1 & 1 = 1
-    if(bit_table[bit] & ir)
+    uint16_t mask = (1 << (bit + 1)) - 1; // Create mask for the lower bits
+    ans = ans & mask; // Keep only the relevant bits
+    
+    // Check if sign bit is set
+    if(bit_table[bit] & ans)
     {
+        // Sign extend by setting all upper bits to 1
         for(int i = bit + 1; i < 16; ++i)
         {
-            //x | 1 = 1
             ans = ans | bit_table[i];
         }
     }

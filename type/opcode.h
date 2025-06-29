@@ -17,7 +17,7 @@
 #define STI 0xB000
 #define JMP 0xC000
 
-#define none 0xD000
+#define UNUSED_OP 0xD000
 
 #define LEA 0xE000
 #define TRAP 0xF000
