@@ -1,1 +1,115 @@
+# Build directories
 build/
+cmake-build-*/
+dist/
+*.egg-info/
+
+# Auto-generated reports and data files with timestamps
+reports/*_[0-9]*.md
+reports/*_[0-9]*.html
+reports/*_[0-9]*.json
+data/*_[0-9]*.json
+data/*_[0-9]*.csv
+data/*_[0-9]*.xml
+
+# Generated coverage reports
+reports/detailed_coverage/
+reports/python_coverage/
+htmlcov/
+
+# Keep important static reports and documentation
+!reports/README.md
+!reports/COMPREHENSIVE_TEST_COVERAGE_REPORT.md
+!reports/COVERAGE_REPORT.md
+!reports/ISA_COMPREHENSIVE_PERFORMANCE_REPORT.md
+!reports/comprehensive_test_coverage_report.html
+!data/README.md
+!docs/README.md
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+.env
+
+# Testing and coverage files
+.coverage
+.coverage.*
+coverage.xml
+.tox/
+.pytest_cache/
+.cache/
+
+# IDE and editor files
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/.ropeproject
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.pid
+*.seed
+*.pid.lock
+
+# Benchmarks and analysis output
+.benchmarks/
+*.benchmark
+analysis_output/
+performance_data/
+
+# Generated documentation builds
+docs/_build/
+docs/html/
+docs/latex/
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Generated executables
+lc3-simulator
+lc3-simulator.exe
+*.out
+*.exe
+
+# CMake generated files (except main CMakeLists.txt)
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile.generated
+
+# Temporary script outputs
+scripts/build/
+scripts/reports/
+
+# Keep essential documentation and structure files
+!README.md
+!*/README.md
+!LICENSE
+!CHANGELOG.md
+!docs/PROJECT_STRUCTURE.md
+!docs/COMPREHENSIVE_ANALYSIS_SUMMARY.md
+!docs/REPORTS_INDEX.md

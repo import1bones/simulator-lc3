@@ -793,10 +793,10 @@ def main():
 
     # Generate and save report
     report = benchmark.generate_comprehensive_report(results, analysis)
-    report_file = f"reports/enhanced_mips_benchmark_{timestamp}.md"
+    report_file = f"../reports/enhanced_mips_benchmark_{timestamp}.md"
 
     # Ensure reports directory exists
-    Path("reports").mkdir(exist_ok=True)
+    Path("../reports").mkdir(exist_ok=True)
 
     with open(report_file, 'w') as f:
         f.write(report)
