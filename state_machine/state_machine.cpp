@@ -1,5 +1,6 @@
 #include "state_machine.h"
 #include "../type/opcode.h"
+#include "../mem/control_store.h"  // Add pipeline support
 #include "signals.h"
 #include "state_definitions.h"
 #include "states.h"
@@ -23,7 +24,7 @@ void finalize_state_machine(pointer_count_t &pc);
 /**
  * Main state machine execution function
  * Implements the LC-3 processor control unit using microcode-based state
- * machine
+ * machine with optional pipeline simulation
  *
  * @param pc Reference to program counter
  * @param mem Pointer to memory array
@@ -34,6 +35,18 @@ void state_machine(pointer_count_t &pc, word_t *mem, lc3_register_t *reg) {
 
     // Main execution loop
     while (should_continue_execution()) {
+
+        // Pipeline simulation integration
+        if (lc3_pipeline_enabled) {
+            // Issue current instruction to pipeline
+            if (current_state == FETCH1) {
+                lc3_pipeline_issue_instruction(mem[pc], pc);
+            }
+
+            // Advance pipeline one cycle
+            lc3_pipeline_cycle();
+        }
+
         // Execute current state microinstruction
         execute_current_state();
 

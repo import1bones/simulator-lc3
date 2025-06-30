@@ -1,16 +1,41 @@
-# LC-3 Simulator
+# LC-3 Simulator with Integrated Pipeline Extension
 
-A comprehensive implementation of the LC-3 (Little Computer 3) processor simulator with a complete pytest test architecture.
+A comprehensive implementation of the LC-3 (Little Computer 3) processor simulator with **integrated pipeline simulation and performance analysis capabilities**.
 
 ## Overview
 
-This project implements a full LC-3 simulator that can execute LC-3 assembly programs. The simulator includes:
+This project implements a full LC-3 simulator that can execute LC-3 assembly programs with advanced pipeline simulation features. The simulator includes:
 
-- Complete instruction set implementation
+- Complete instruction set implementation with **real-time pipeline analysis**
+- **Integrated custom instruction pipeline configuration**
 - Memory management and addressing modes
 - I/O operations via TRAP instructions
+- **Performance metrics and hazard detection**
 - Comprehensive test suite with pytest
 - Python bindings for testing and automation
+
+## 🚀 New: Integrated Pipeline Extension
+
+### Key Pipeline Features
+- **Directly Integrated**: Pipeline functionality built into the LC-3 core (no external modules)
+- **Real-time Performance Analysis**: CPI, IPC, pipeline efficiency tracking
+- **Configurable Pipeline**: Customizable depth, forwarding, branch prediction
+- **Hazard Detection**: Automatic detection of data, control, and structural hazards
+- **Interactive Analysis**: Command-line interface for pipeline inspection
+
+### Quick Pipeline Demo
+```bash
+# Run with pipeline mode enabled
+./simulator-lc3 --pipeline program.obj
+
+# Interactive mode with pipeline analysis
+./simulator-lc3 --pipeline --interactive
+
+# Available pipeline commands:
+(lc3-sim) pipeline    # Show pipeline status
+(lc3-sim) metrics     # Display performance metrics
+(lc3-sim) config      # Show pipeline configuration
+```
 
 ## Features
 
@@ -20,6 +45,14 @@ This project implements a full LC-3 simulator that can execute LC-3 assembly pro
 - **Register File**: 8 general-purpose registers (R0-R7)
 - **Condition Codes**: N, Z, P flags for conditional operations
 - **I/O Support**: TRAP instructions for input/output operations
+
+### Integrated Pipeline Analysis
+- **Real-time Metrics**: CPI (Cycles Per Instruction), IPC (Instructions Per Cycle)
+- **Hazard Detection**: RAW, WAW, WAR data hazards; control and structural hazards
+- **Pipeline Configuration**: 5-stage default, customizable depth and features
+- **Performance Monitoring**: Stall cycles, memory accesses, branch statistics
+- **Forwarding Control**: Enable/disable data forwarding to study hazard effects
+- **Branch Prediction**: Configurable branch prediction and penalty settings
 
 ### Test Architecture
 - **Comprehensive Test Suite**: 200+ tests covering all simulator functionality
@@ -46,6 +79,17 @@ make test
 mkdir build && cd build
 cmake ..
 cmake --build .
+```
+
+### Pipeline Extensions
+```bash
+# Build with pipeline performance analysis
+cmake -S . -B build -DBUILD_PIPELINE_EXTENSIONS=ON -DBUILD_PYTHON_BINDINGS=ON
+cmake --build build
+
+# Run pipeline performance demo
+pip install matplotlib numpy seaborn
+python pipeline_demo.py
 ```
 
 ### With Python Bindings
@@ -112,20 +156,20 @@ The test suite includes comprehensive utilities:
 int main() {
     // Initialize simulator
     LC3Simulator sim;
-    
+
     // Load a program
     std::vector<uint16_t> program = {
         0x1021,  // ADD R0, R0, #1
         0xF025   // TRAP x25 (HALT)
     };
     sim.load_program(program);
-    
+
     // Run the program
     sim.run();
-    
+
     // Check results
     std::cout << "R0 = " << sim.get_register(0) << std::endl;
-    
+
     return 0;
 }
 ```
@@ -232,3 +276,145 @@ This project is open source. See LICENSE file for details.
 
 - [LC-3 Architecture Specification](https://www.cs.utexas.edu/users/fussell/courses/cs310h/lectures/Lecture_10-310h.pdf)
 - [Introduction to Computing Systems](https://www.mheducation.com/highered/product/introduction-computing-systems-bits-gates-c-beyond-patt-patel/M9780072467505.html)
+
+<task id="shell: Build Python Bindings">
+{
+	"label": "Build Python Bindings",
+	"type": "shell",
+	"command": "cmake",
+	"args": [
+		"--build",
+		".",
+		"--target",
+		"python_bindings"
+	],
+	"group": "build",
+	"detail": "Build Python bindings for LC-3 Simulator",
+	"options": {
+		"cwd": "${workspaceFolder}"
+	}
+}
+</task>
+<task id="shell: Run Pipeline Demo">
+{
+	"label": "Run Pipeline Demo",
+	"type": "shell",
+	"command": "python",
+	"args": [
+		"pipeline_demo.py"
+	],
+	"group": "test",
+	"detail": "Run comprehensive pipeline performance testing demo",
+	"dependsOn": "Build Python Bindings",
+	"options": {
+		"cwd": "${workspaceFolder}"
+	}
+}
+</task>
+<task id="shell: Run Simple Pipeline Example">
+{
+	"label": "Run Simple Pipeline Example",
+	"type": "shell",
+	"command": "python",
+	"args": [
+		"pipeline_simple_example.py"
+	],
+	"group": "test",
+	"detail": "Run simple pipeline testing example",
+	"dependsOn": "Build Python Bindings",
+	"options": {
+		"cwd": "${workspaceFolder}"
+	}
+}
+</task>
+
+## Pipeline Usage and Examples
+
+### Command Line Usage
+
+```bash
+# Basic simulation (traditional mode)
+./simulator-lc3 program.obj
+
+# Pipeline mode - shows real-time performance metrics
+./simulator-lc3 --pipeline program.obj
+
+# Interactive pipeline mode
+./simulator-lc3 --pipeline --interactive
+
+# Verbose pipeline output
+./simulator-lc3 --pipeline --verbose program.obj
+```
+
+### Interactive Pipeline Commands
+
+When in pipeline mode (`--pipeline --interactive`), additional commands are available:
+
+```bash
+(lc3-sim) pipeline    # Show current pipeline status and configuration
+(lc3-sim) metrics     # Display comprehensive performance metrics
+(lc3-sim) config      # Show detailed pipeline configuration
+(lc3-sim) step        # Execute one instruction with pipeline analysis
+```
+
+### Pipeline Configuration Example
+
+```c
+// Example: Customize pipeline settings
+#include "mem/control_store.h"
+
+int main() {
+    // Initialize with default 5-stage pipeline
+    lc3_pipeline_init();
+
+    // Customize configuration
+    lc3_pipeline_config.forwarding_enabled = false;  // Disable forwarding
+    lc3_pipeline_config.branch_penalty = 3;          // 3-cycle branch penalty
+
+    // Issue instructions and analyze performance
+    lc3_pipeline_issue_instruction(0x1220, 0x3000);  // ADD R1, R0, #0
+    lc3_pipeline_issue_instruction(0x1041, 0x3001);  // ADD R2, R1, #1 (RAW hazard!)
+
+    // Execute pipeline cycles
+    for (int i = 0; i < 10; i++) {
+        lc3_pipeline_cycle();
+    }
+
+    // Analyze results
+    lc3_pipeline_metrics_t metrics;
+    lc3_pipeline_get_metrics(&metrics);
+    printf("Performance: CPI=%.3f, Hazards=%llu, Stalls=%llu\n",
+           metrics.cpi, metrics.data_hazards, metrics.stall_cycles);
+
+    return 0;
+}
+```
+
+### Performance Analysis Output
+
+```
+Pipeline Performance Metrics:
+  Total Instructions: 100
+  Total Cycles: 134
+  CPI (Cycles per Instruction): 1.340
+  IPC (Instructions per Cycle): 0.746
+  Pipeline Efficiency: 74.60%
+  Stall Cycles: 29
+  Data Hazards: 12
+  Control Hazards: 8
+  Structural Hazards: 0
+```
+
+## Documentation
+
+### Quick Reference
+- [**PIPELINE_INTEGRATION_GUIDE.md**](PIPELINE_INTEGRATION_GUIDE.md) - Comprehensive pipeline documentation
+- [PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) - Code organization
+- [CODE_STYLE](CODE_STYLE) - Coding standards
+- [Test Reports](reports/) - Test coverage and analysis
+
+### Pipeline Documentation
+For detailed information about the integrated pipeline extension, see:
+- **[Pipeline Integration Guide](PIPELINE_INTEGRATION_GUIDE.md)** - Complete pipeline documentation
+- **[Pipeline Features Summary](PIPELINE_FEATURES.md)** - Feature overview
+- **Pipeline Examples**: `pipeline_demo_integrated.c`, `test_pipeline_integration.c`
