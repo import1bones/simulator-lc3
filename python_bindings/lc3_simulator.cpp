@@ -1,11 +1,18 @@
 #include "../mem/memory.h"
 #include "../mem/register.h"
+#include "../mem/control_store.h"  // Add pipeline support
 #include "../state_machine/state_machine.h"
+#include "../state_machine/signals.h"
 #include "../type/opcode.h"
 #include "../type/trap_vector.h"
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <string>
+#include <map>
+#include <vector>
+#include <cstring>
+#include <tuple>
 
 namespace py = pybind11;
 
@@ -16,6 +23,7 @@ class LC3Simulator {
     uint16_t pc;
     uint8_t condition_codes[3]; // N, Z, P
     bool halted;
+    bool pipeline_enabled;
 
   public:
     LC3Simulator() { reset(); }
@@ -40,6 +48,66 @@ class LC3Simulator {
         condition_codes[2] = 0; // P
 
         halted = false;
+        pipeline_enabled = false;
+        
+        // Initialize signals
+        INIT_SIGNALS();
+    }
+
+    // Pipeline functionality
+    void enable_pipeline(bool enable = true) {
+        pipeline_enabled = enable;
+        if (enable) {
+            lc3_pipeline_init();
+            lc3_pipeline_enabled = true;
+        } else {
+            lc3_pipeline_enabled = false;
+        }
+    }
+
+    void reset_pipeline() {
+        if (pipeline_enabled) {
+            lc3_pipeline_reset();
+        }
+    }
+
+    void configure_pipeline(const std::string& name, int depth, bool forwarding, bool branch_prediction) {
+        if (pipeline_enabled) {
+            lc3_pipeline_config_t config;
+            lc3_pipeline_config_init_default(&config);
+            
+            strncpy(config.name, name.c_str(), sizeof(config.name) - 1);
+            config.name[sizeof(config.name) - 1] = '\0';
+            config.depth = depth;
+            config.forwarding_enabled = forwarding;
+            config.branch_prediction_enabled = branch_prediction;
+            
+            lc3_pipeline_configure(&config);
+        }
+    }
+
+    std::map<std::string, double> get_pipeline_metrics() {
+        std::map<std::string, double> metrics;
+        
+        if (pipeline_enabled) {
+            lc3_pipeline_metrics_t pipeline_metrics;
+            lc3_pipeline_get_metrics(&pipeline_metrics);
+            
+            metrics["total_cycles"] = static_cast<double>(pipeline_metrics.total_cycles);
+            metrics["total_instructions"] = static_cast<double>(pipeline_metrics.total_instructions);
+            metrics["cpi"] = pipeline_metrics.cpi;
+            metrics["ipc"] = pipeline_metrics.ipc;
+            metrics["pipeline_efficiency"] = pipeline_metrics.pipeline_efficiency;
+            metrics["stall_cycles"] = static_cast<double>(pipeline_metrics.stall_cycles);
+            metrics["data_hazards"] = static_cast<double>(pipeline_metrics.data_hazards);
+            metrics["control_hazards"] = static_cast<double>(pipeline_metrics.control_hazards);
+            metrics["structural_hazards"] = static_cast<double>(pipeline_metrics.structural_hazards);
+            metrics["memory_reads"] = static_cast<double>(pipeline_metrics.memory_reads);
+            metrics["memory_writes"] = static_cast<double>(pipeline_metrics.memory_writes);
+            metrics["memory_stall_cycles"] = static_cast<double>(pipeline_metrics.memory_stall_cycles);
+        }
+        
+        return metrics;
     }
 
     void load_program(const std::vector<uint16_t> &program,
@@ -346,7 +414,13 @@ PYBIND11_MODULE(lc3_simulator, m) {
         .def("is_halted", &LC3Simulator::is_halted)
         .def("set_register", &LC3Simulator::set_register)
         .def("set_memory", &LC3Simulator::set_memory)
-        .def("set_pc", &LC3Simulator::set_pc);
+        .def("set_pc", &LC3Simulator::set_pc)
+        // Pipeline methods
+        .def("enable_pipeline", &LC3Simulator::enable_pipeline, py::arg("enable") = true)
+        .def("reset_pipeline", &LC3Simulator::reset_pipeline)
+        .def("configure_pipeline", &LC3Simulator::configure_pipeline,
+             py::arg("name"), py::arg("depth"), py::arg("forwarding"), py::arg("branch_prediction"))
+        .def("get_pipeline_metrics", &LC3Simulator::get_pipeline_metrics);
 
     // Export constants
     m.attr("USER_SPACE_ADDR") = USER_SPACE_ADDR;
