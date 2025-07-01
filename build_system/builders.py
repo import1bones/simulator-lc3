@@ -134,9 +134,34 @@ class CMakeBuilder(BaseBuilder):
             self.run_command(cmake_args)
             self.logger.info("CMake configuration completed successfully")
             return True
-        except BuildException:
-            self.logger.error("CMake configuration failed")
+        except BuildException as e:
+            # Check if this is a compiler not found error
+            error_msg = str(e).lower()
+            if "cmake_c_compiler not set" in error_msg or "cmake_cxx_compiler not set" in error_msg:
+                self.logger.error("CMake configuration failed: C++ compiler not found")
+                self._suggest_compiler_installation()
+            else:
+                self.logger.error("CMake configuration failed")
             return False
+    
+    def _suggest_compiler_installation(self):
+        """Suggest how to install a C++ compiler based on the platform."""
+        from .core import BuildPlatform
+        
+        if self.config.platform == BuildPlatform.WINDOWS:
+            self.logger.info("To fix this issue, install one of the following:")
+            self.logger.info("1. Visual Studio Community (recommended): https://visualstudio.microsoft.com/vs/community/")
+            self.logger.info("2. Visual Studio Build Tools: https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022")
+            self.logger.info("3. MinGW-w64: https://www.mingw-w64.org/downloads/")
+            self.logger.info("4. MSYS2 (includes MinGW): https://www.msys2.org/")
+        elif self.config.platform == BuildPlatform.LINUX:
+            self.logger.info("To fix this issue, install build tools:")
+            self.logger.info("Ubuntu/Debian: sudo apt install build-essential")
+            self.logger.info("CentOS/RHEL: sudo yum groupinstall 'Development Tools'")
+            self.logger.info("Fedora: sudo dnf groupinstall 'Development Tools'")
+        elif self.config.platform == BuildPlatform.MACOS:
+            self.logger.info("To fix this issue, install Xcode Command Line Tools:")
+            self.logger.info("xcode-select --install")
     
     def build(self) -> bool:
         """Build the CMake project."""

@@ -17,6 +17,7 @@ import platform
 import subprocess
 import json
 import logging
+import tempfile
 from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Union, Any
@@ -62,10 +63,7 @@ class BuildConfiguration:
     def __post_init__(self):
         """Set default generator based on platform."""
         if self.generator is None:
-            if self.platform == BuildPlatform.WINDOWS:
-                self.generator = "Visual Studio 17 2022"
-            else:
-                self.generator = "Unix Makefiles"
+            self.generator = PlatformDetector.get_best_cmake_generator()
 
 
 @dataclass
@@ -174,6 +172,97 @@ class PlatformDetector:
                 continue
         
         raise BuildException("Python 3.x not found")
+    
+    @staticmethod
+    def get_best_cmake_generator() -> str:
+        """Detect the best available CMake generator for the current platform."""
+        current_platform = PlatformDetector.get_platform()
+        
+        if current_platform == BuildPlatform.WINDOWS:
+            # Check for compilers in order of preference
+            
+            # First check for Visual Studio installations
+            vs_generators = [
+                "Visual Studio 17 2022",
+                "Visual Studio 16 2019", 
+                "Visual Studio 15 2017"
+            ]
+            
+            for generator in vs_generators:
+                if PlatformDetector._check_vs_generator(generator):
+                    return generator
+            
+            # Check for MinGW/MSYS
+            if PlatformDetector._check_compiler("g++") or PlatformDetector._check_compiler("gcc"):
+                return "MinGW Makefiles"
+            
+            # Check for clang
+            if PlatformDetector._check_compiler("clang++"):
+                return "Unix Makefiles"
+            
+            # Fallback - user will need to install build tools
+            return "Visual Studio 17 2022"
+        
+        elif current_platform == BuildPlatform.LINUX:
+            # Check for Ninja first, then Unix Makefiles
+            try:
+                subprocess.run(["ninja", "--version"], capture_output=True, check=True)
+                return "Ninja"
+            except:
+                return "Unix Makefiles"
+        
+        elif current_platform == BuildPlatform.MACOS:
+            # Check for Ninja first, then Unix Makefiles, then Xcode
+            try:
+                subprocess.run(["ninja", "--version"], capture_output=True, check=True)
+                return "Ninja"
+            except:
+                try:
+                    subprocess.run(["xcodebuild", "-version"], capture_output=True, check=True)
+                    return "Xcode"
+                except:
+                    return "Unix Makefiles"
+        
+        return "Unix Makefiles"  # Universal fallback
+    
+    @staticmethod
+    def _check_compiler(compiler_name: str) -> bool:
+        """Check if a compiler is available in PATH."""
+        try:
+            subprocess.run([compiler_name, "--version"], capture_output=True, check=True)
+            return True
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return False
+    
+    @staticmethod
+    def _check_vs_generator(generator: str) -> bool:
+        """Check if a Visual Studio generator is available."""
+        try:
+            # Check if Visual Studio Build Tools are installed by looking for MSBuild
+            result = subprocess.run(
+                ["where", "msbuild"], 
+                capture_output=True, 
+                text=True
+            )
+            if result.returncode == 0:
+                return True
+            
+            # Also check in common Visual Studio locations
+            import os
+            vs_paths = [
+                r"C:\Program Files\Microsoft Visual Studio\2022",
+                r"C:\Program Files\Microsoft Visual Studio\2019",
+                r"C:\Program Files (x86)\Microsoft Visual Studio\2019",
+                r"C:\Program Files (x86)\Microsoft Visual Studio\2017"
+            ]
+            
+            for vs_path in vs_paths:
+                if os.path.exists(vs_path):
+                    return True
+            
+            return False
+        except:
+            return False
 
 
 class DependencyManager(ABC):

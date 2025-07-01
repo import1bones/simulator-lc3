@@ -19,7 +19,17 @@ python lc3_build.py info --system
 pip install -r requirements.txt
 
 # Initial build and test
-python lc3_build.py full-build --test
+# ✅ Build system is now working! Choose any method:
+
+# Method 1: Modern unified build system (recommended)
+python lc3_build.py build
+
+# Method 2: Legacy Python script (reliable fallback)
+python build_and_test.py --no-test
+
+# Method 3: Direct CMake (manual control)
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_PYTHON_BINDINGS=ON -G "Visual Studio 17 2022" -A x64
+cmake --build build --config Debug
 ```
 
 ### 2. Verify Everything Works
@@ -277,16 +287,65 @@ python lc3_build.py info
 ### Build System Not Working
 
 ```bash
-# 1. Try the legacy build system
+# If python lc3_build.py build hangs or fails:
+
+# 1. Try the legacy build system (most reliable)
 python build_and_test.py
 
-# 2. Or use direct CMake
-mkdir build && cd build
-cmake .. -DBUILD_PYTHON_BINDINGS=ON
-cmake --build .
+# 2. Try skipping dependency installation
+python lc3_build.py build --configure-only
 
-# 3. Check system dependencies
-python lc3_build.py info --system --deps
+# 3. Use direct CMake (Windows - requires Visual Studio or Build Tools)
+rm -rf build  # or rmdir /s build on Windows
+mkdir build
+cd build
+cmake .. -G "Visual Studio 17 2022" -DBUILD_PYTHON_BINDINGS=ON
+cmake --build . --config Debug
+cd ..
+
+# 4. Use direct CMake with MinGW (if MinGW is installed)
+rm -rf build
+mkdir build  
+cd build
+cmake .. -G "MinGW Makefiles" -DBUILD_PYTHON_BINDINGS=ON
+cmake --build .
+cd ..
+
+# 5. Check system dependencies
+python lc3_build.py info --system
+```
+
+### Compiler Not Found Issues
+
+If you see "CMAKE_C_COMPILER not set" or "CMAKE_CXX_COMPILER not set":
+
+**Windows:**
+- Install Visual Studio Community: https://visualstudio.microsoft.com/vs/community/
+- Or install Build Tools for Visual Studio 2022: https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022
+- Or install MinGW-w64: https://www.mingw-w64.org/downloads/
+- Or install MSYS2: https://www.msys2.org/
+
+**Linux:**
+```bash
+# Ubuntu/Debian
+sudo apt install build-essential cmake
+
+# CentOS/RHEL  
+sudo yum groupinstall 'Development Tools'
+sudo yum install cmake
+
+# Fedora
+sudo dnf groupinstall 'Development Tools'  
+sudo dnf install cmake
+```
+
+**macOS:**
+```bash
+# Install Xcode Command Line Tools
+xcode-select --install
+
+# Install CMake via Homebrew (if you have it)
+brew install cmake
 ```
 
 ### Tests All Failing
