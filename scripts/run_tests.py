@@ -60,6 +60,27 @@ def build_simulator(project_root):
         return False
 
     print("Build completed successfully!")
+    
+    # Fix Python bindings path on Windows (copy from Release/Debug to parent directory)
+    try:
+        from pathlib import Path
+        import shutil
+        import glob
+        
+        bindings_dir = build_dir / "python_bindings"
+        if bindings_dir.exists():
+            # Look for built modules in subdirectories
+            patterns = ["Release/*.pyd", "Debug/*.pyd", "Release/*.so", "Debug/*.so"]
+            for pattern in patterns:
+                matches = list(bindings_dir.glob(pattern))
+                for module_path in matches:
+                    target_path = bindings_dir / module_path.name
+                    if not target_path.exists() or not target_path.samefile(module_path):
+                        shutil.copy2(module_path, target_path)
+                        print(f"✅ Fixed Python bindings path: {module_path.name}")
+    except Exception as e:
+        print(f"⚠️ Warning: Could not fix Python bindings path: {e}")
+    
     return True
 
 

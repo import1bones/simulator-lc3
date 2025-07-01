@@ -42,9 +42,23 @@ jobs:
       run: |
         python scripts/run_tests.py --check-env
 
+    - name: Fix CMakeLists.txt case sensitivity (if needed)
+      run: |
+        # Fix case sensitivity issues with CMakeLists.txt files
+        for dir in mem state_machine type; do
+          if [ -f "$dir/CmakeLists.txt" ] && [ ! -f "$dir/CMakeLists.txt" ]; then
+            mv "$dir/CmakeLists.txt" "$dir/CMakeLists.txt"
+            echo "Fixed case sensitivity: $dir/CMakeLists.txt"
+          fi
+        done
+
     - name: Build C++ simulator with Python bindings
       run: |
         python scripts/run_tests.py --build
+
+    - name: Fix Python bindings path (if needed)
+      run: |
+        python scripts/fix_python_bindings.py
 
     - name: Run comprehensive test suite
       run: |

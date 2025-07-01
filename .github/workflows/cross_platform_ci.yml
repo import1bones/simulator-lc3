@@ -77,16 +77,41 @@ jobs:
           ${{ runner.os }}-cmake-${{ matrix.python-version }}-
           ${{ runner.os }}-cmake-
 
+    - name: Fix CMakeLists.txt case sensitivity (Unix)
+      if: matrix.os != 'windows-latest'
+      run: |
+        # Fix case sensitivity issues with CMakeLists.txt files
+        for dir in mem state_machine type; do
+          if [ -f "$dir/CmakeLists.txt" ] && [ ! -f "$dir/CMakeLists.txt" ]; then
+            mv "$dir/CmakeLists.txt" "$dir/CMakeLists.txt"
+            echo "Fixed case sensitivity: $dir/CMakeLists.txt"
+          fi
+        done
+
+    - name: Fix CMakeLists.txt case sensitivity (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        # Fix case sensitivity issues with CMakeLists.txt files on Windows
+        foreach ($dir in @("mem", "state_machine", "type")) {
+          if (Test-Path "$dir\CmakeLists.txt" -and !(Test-Path "$dir\CMakeLists.txt")) {
+            Rename-Item "$dir\CmakeLists.txt" "CMakeLists.txt"
+            Write-Host "Fixed case sensitivity: $dir/CMakeLists.txt"
+          }
+        }
+
     - name: Build and test (Unix)
       if: matrix.os != 'windows-latest'
       run: |
-        chmod +x build_and_test.sh
-        ./build_and_test.sh --verbose --coverage --html-report
+        python scripts/run_tests.py --build
+        python scripts/fix_python_bindings.py
+        python scripts/run_tests.py --basic --instructions --memory --coverage --html-report
 
     - name: Build and test (Windows)
       if: matrix.os == 'windows-latest'
       run: |
-        .\build_and_test.bat --verbose --coverage --html-report
+        python scripts/run_tests.py --build
+        python scripts/fix_python_bindings.py
+        python scripts/run_tests.py --basic --instructions --memory --coverage --html-report
 
     - name: Upload test results
       uses: actions/upload-artifact@v3
