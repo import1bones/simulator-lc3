@@ -95,6 +95,16 @@ def run_tests(project_root, args):
     """Run the test suite with specified options."""
     test_dir = project_root / "tests"
 
+    # Check if simulator module is available (unless building is explicitly requested)
+    if not args.build and not check_simulator_module(project_root):
+        print("\n⚠️ LC-3 simulator module is not available.")
+        print("This means the C++ simulator hasn't been built yet.")
+        print("\nOptions:")
+        print("1. Build first: python scripts/run_tests.py --build")
+        print("2. Run tests anyway (they will be skipped): continue with current command")
+        print("3. Check environment: python scripts/run_tests.py --check-env")
+        print("\nProceeding with tests (simulator-dependent tests will be skipped)...")
+
     # Build pytest command
     pytest_cmd = [sys.executable, "-m", "pytest"]
 

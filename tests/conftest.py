@@ -11,29 +11,31 @@ sys.path.insert(0, build_path)
 
 # Check if the simulator module is available
 simulator_available = False
+lc3_simulator = None
+import_error = None
+
 try:
     import lc3_simulator
     simulator_available = True
 except ImportError as e:
-    # More informative error message
-    error_msg = (
-        "LC-3 Simulator module not available. "
-        "This usually means the C++ simulator hasn't been built yet.\n\n"
-        "To build the simulator:\n"
-        "1. Run: python3 scripts/run_tests.py --build\n"
-        "2. Or manually: cd build && cmake -DBUILD_PYTHON_BINDINGS=ON .. && cmake --build .\n\n"
-        "In CI environments, ensure the build step runs before tests.\n"
-        f"Build path checked: {build_path}\n"
-        f"Import error: {e}"
-    )
+    import_error = e
+    simulator_available = False
+    # Create a mock module for graceful degradation
+    class MockSimulator:
+        def __init__(self):
+            pytest.skip(f"LC-3 Simulator not available: {e}")
     
-    # Skip all tests if running in pytest context
-    pytest.skip(error_msg, allow_module_level=True)
+    class MockModule:
+        LC3Simulator = MockSimulator
+    
+    lc3_simulator = MockModule()
 
 
 @pytest.fixture
 def simulator():
     """Create a fresh LC-3 simulator instance for each test."""
+    if not simulator_available:
+        pytest.skip(f"LC-3 Simulator not available. Build error: {import_error}")
     sim = lc3_simulator.LC3Simulator()
     sim.reset()
     return sim
@@ -42,6 +44,8 @@ def simulator():
 @pytest.fixture
 def loaded_simulator():
     """Create a simulator with a simple test program loaded."""
+    if not simulator_available:
+        pytest.skip(f"LC-3 Simulator not available. Build error: {import_error}")
     sim = lc3_simulator.LC3Simulator()
     sim.reset()
 
@@ -132,6 +136,17 @@ def build_simulator():
         subprocess.run(['cmake', '--build', '.'], cwd=build_dir, check=True)
     except subprocess.CalledProcessError:
         pytest.skip("Failed to build LC-3 Simulator", allow_module_level=True)
+
+
+# Add conditional markers
+requires_simulator = pytest.mark.skipif(
+    not simulator_available, 
+    reason="LC-3 Simulator module not built/available"
+)
+
+def simulator_required(func):
+    """Decorator to skip tests when simulator is not available"""
+    return requires_simulator(func)
 
 
 def pytest_collection_modifyitems(config, items):

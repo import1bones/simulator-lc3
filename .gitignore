@@ -92,10 +92,16 @@ test_summary.json
 # Generated coverage reports (keep directory structure)
 reports/detailed_coverage/
 reports/python_coverage/
+reports/coverage/
 htmlcov/
 .coverage
 .coverage.*
 coverage.xml
+
+# Generated test reports
+reports/test_report.html
+reports/report.html
+reports/benchmark_report.html
 
 # Python cache and compiled files
 __pycache__/
