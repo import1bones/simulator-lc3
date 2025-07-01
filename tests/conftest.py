@@ -23,7 +23,7 @@ except ImportError as e:
     # Create a mock module for graceful degradation
     class MockSimulator:
         def __init__(self):
-            pytest.skip(f"LC-3 Simulator not available: {e}")
+            pytest.skip(f"LC-3 Simulator not available: {import_error}")
     
     class MockModule:
         LC3Simulator = MockSimulator

@@ -170,6 +170,24 @@ If issues arise with the reduced matrix:
    - Windows-specific CMakeLists.txt fix using PowerShell syntax
    - Platform-specific build step conditions
 
+## Latest CI Fixes Applied (July 2, 2025)
+
+### Code Quality Issues Fixed
+7. **Flake8 Linting Errors**
+   - Fixed F821 undefined name 'e' in tests/conftest.py
+   - Variable scope issue in MockSimulator class
+   - Used captured import_error variable instead of out-of-scope 'e'
+
+8. **Unicode Encoding Issues**
+   - Replaced emoji characters (✅, ❌, ⚠️) with ASCII alternatives (✓, ✗, !)
+   - Fixed GBK codec encoding errors on Chinese Windows systems
+   - Updated both run_tests.py and validation scripts
+
+9. **Dependency Installation Loop**
+   - Fixed run_tests.py --install-deps continuing to run tests
+   - Added exit condition when only installing dependencies
+   - CI now properly separates dependency installation from test execution
+
 ## Final Matrix Configuration
 
 ### ci.yml (Main CI)
