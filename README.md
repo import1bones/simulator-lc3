@@ -73,7 +73,7 @@ This project implements a full LC-3 simulator that can execute LC-3 assembly pro
 - **Multiple Test Categories**: Unit, integration, functional, and performance tests
 - **Python Bindings**: pybind11-based interface for automated testing
 - **Coverage Analysis**: Detailed code coverage reporting
-- **CI/CD Ready**: Continuous integration support with automated testing
+- **CI/CD Ready**: Optimized continuous integration with Python 3.9/3.11 support
 
 ## Building
 

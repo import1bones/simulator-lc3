@@ -11,17 +11,17 @@ jobs:
   test:
     name: Test on ${{ matrix.os }} with Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
+    # Optimized matrix to reduce CI resource usage while maintaining cross-platform coverage
+    # Primary testing on Python 3.9 across all platforms, plus Python 3.11 on Ubuntu only
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11']
-        exclude:
-          # Exclude some combinations to reduce CI load
-          - os: macos-latest
-            python-version: '3.8'
-          - os: macos-latest
-            python-version: '3.9'
+        python-version: ['3.9']  # Reduced to single stable version for cross-platform testing
+        include:
+          # Test latest Python only on Ubuntu for efficiency
+          - os: ubuntu-latest
+            python-version: '3.11'
 
     steps:
     - name: Checkout code

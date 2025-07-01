@@ -72,7 +72,7 @@ memory-profiler>=0.60.0       # Memory usage profiling
 # Tools for performance analysis and optimization
 line-profiler>=4.0.0          # Line-by-line profiling
 psutil>=5.9.0                 # System and process utilities
-cProfile-to-json>=1.0.0       # Profile data conversion
+# Note: cProfile data can be analyzed with built-in tools or pstats module
 
 # Platform-Specific Dependencies
 # Dependencies that may be needed on specific platforms
