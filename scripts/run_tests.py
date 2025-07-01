@@ -79,7 +79,7 @@ def build_simulator(project_root):
                         shutil.copy2(module_path, target_path)
                         print(f"✓ Fixed Python bindings path: {module_path.name}")
     except Exception as e:
-        print(f"⚠️ Warning: Could not fix Python bindings path: {e}")
+        print(f"! Warning: Could not fix Python bindings path: {e}")
     
     return True
 
@@ -118,7 +118,7 @@ def run_tests(project_root, args):
 
     # Check if simulator module is available (unless building is explicitly requested)
     if not args.build and not check_simulator_module(project_root):
-        print("\n⚠️ LC-3 simulator module is not available.")
+        print("\n! LC-3 simulator module is not available.")
         print("This means the C++ simulator hasn't been built yet.")
         print("\nOptions:")
         print("1. Build first: python scripts/run_tests.py --build")
@@ -245,7 +245,7 @@ def check_simulator_module(project_root):
         print("✓ LC-3 simulator module is available")
         return True
     except ImportError:
-        print("❌ LC-3 simulator module not found or not built")
+        print("✗ LC-3 simulator module not found or not built")
         return False
     finally:
         # Remove from path to avoid conflicts
@@ -267,7 +267,7 @@ def check_environment():
         subprocess.run(["cmake", "--version"], capture_output=True, check=True)
         print("✓ CMake is available")
     except (subprocess.CalledProcessError, FileNotFoundError):
-        print("❌ CMake is not installed or not in PATH")
+        print("✗ CMake is not installed or not in PATH")
         return False
 
     # Check if a C++ compiler is available
@@ -279,7 +279,7 @@ def check_environment():
         except (subprocess.CalledProcessError, FileNotFoundError):
             continue
     else:
-        print("⚠️ Warning: No C++ compiler found. Build may fail.")
+        print("! Warning: No C++ compiler found. Build may fail.")
 
     print("Environment check completed.")
     return True
@@ -332,7 +332,7 @@ def main():
             return 1
             
         if not module_ok:
-            print("\n⚠️ LC-3 simulator module is not built.")
+            print("\n! LC-3 simulator module is not built.")
             print("To build it, run: python scripts/run_tests.py --build")
             print("Or in CI/automated environments, the build should happen first.")
             
