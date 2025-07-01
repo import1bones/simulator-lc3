@@ -66,6 +66,16 @@ data/*_[0-9]*.csv
 data/*_[0-9]*.xml
 auto-docs/
 
+# Enhanced analysis output files (timestamped)
+enhanced_isa_analysis_*.json
+enhanced_isa_analysis_*.md
+enhanced_mips_benchmark_*.json
+enhanced_mips_benchmark_*.md
+isa_design_analysis_*.json
+isa_design_analysis_*.md
+mips_style_benchmark_*.json
+mips_style_benchmark_*.md
+
 # Auto-generated documentation (exclude from git)
 docs/COMPREHENSIVE_ANALYSIS_SUMMARY.md
 docs/REPORTS_INDEX.md
@@ -75,6 +85,9 @@ reports/isa_*.md
 reports/*_report_*.md
 reports/*_report_*.json
 reports/test_analysis_summary.json
+
+# Test summary files
+test_summary.json
 
 # Generated coverage reports (keep directory structure)
 reports/detailed_coverage/

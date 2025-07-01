@@ -788,7 +788,7 @@ def main():
     }
 
     results_file = f"enhanced_mips_benchmark_{timestamp}.json"
-    with open(results_file, 'w') as f:
+    with open(results_file, 'w', encoding='utf-8') as f:
         json.dump(results_data, f, indent=2, default=str)
 
     # Generate and save report
@@ -798,7 +798,7 @@ def main():
     # Ensure reports directory exists
     Path("../reports").mkdir(exist_ok=True)
 
-    with open(report_file, 'w') as f:
+    with open(report_file, 'w', encoding='utf-8') as f:
         f.write(report)
 
     print(f"\n✅ Benchmark complete!")

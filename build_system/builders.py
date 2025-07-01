@@ -179,12 +179,8 @@ class CMakeBuilder(BaseBuilder):
         ]
         
         # Add parallel build flag
-        if self.config.platform != BuildPlatform.WINDOWS:
-            # For Unix makefiles
-            build_args.extend(["-j", "4"])
-        else:
-            # For Visual Studio
-            build_args.extend(["/m:4"])
+        # Use cmake's standard -j flag for all platforms
+        build_args.extend(["-j", "4"])
         
         try:
             self.run_command(build_args, timeout=600)  # 10 minutes timeout

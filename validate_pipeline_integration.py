@@ -11,6 +11,7 @@ This script validates the pipeline integration by checking:
 import os
 import sys
 import re
+import argparse
 from pathlib import Path
 
 
@@ -236,11 +237,14 @@ def check_pipeline_integration():
     # Check README for pipeline content
     readme_file = project_root / "README.md"
     if readme_file.exists():
-        content = readme_file.read_text()
-        if "pipeline" in content.lower():
-            print("✓ README contains pipeline documentation")
-        else:
-            print("⚠ README may not contain pipeline documentation")
+        try:
+            content = readme_file.read_text(encoding='utf-8')
+            if "pipeline" in content.lower():
+                print("✓ README contains pipeline documentation")
+            else:
+                print("⚠ README may not contain pipeline documentation")
+        except UnicodeDecodeError:
+            print("⚠ README file encoding issue - skipping content check")
     
     print()
     print("=" * 50)
@@ -260,6 +264,16 @@ def main():
     print("LC-3 Pipeline Integration Validator")
     print("=" * 50)
     print()
+    
+    # Argument parser for report options
+    parser = argparse.ArgumentParser(description="LC-3 Pipeline Integration Validator")
+    parser.add_argument(
+        "--report",
+        choices=["text", "json", "xml"],
+        default="text",
+        help="Specify the report format (default: text)"
+    )
+    args = parser.parse_args()
     
     success = check_pipeline_integration()
     

@@ -302,7 +302,7 @@ def main():
             
         if not module_ok:
             print("\n⚠️ LC-3 simulator module is not built.")
-            print("To build it, run: python3 scripts/run_tests.py --build")
+            print("To build it, run: python scripts/run_tests.py --build")
             print("Or in CI/automated environments, the build should happen first.")
             
         return 0 if env_ok else 1

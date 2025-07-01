@@ -656,7 +656,7 @@ def main():
     report_file = Path(f"reports/mips_style_benchmark_{timestamp}.md")
     report_file.parent.mkdir(exist_ok=True)
     
-    with open(report_file, 'w') as f:
+    with open(report_file, 'w', encoding='utf-8') as f:
         f.write(report)
     
     print(f"✅ MIPS-Style Benchmark completed!")
@@ -684,7 +684,7 @@ def main():
         ]
     }
     
-    with open(json_file, 'w') as f:
+    with open(json_file, 'w', encoding='utf-8') as f:
         json.dump(results_data, f, indent=2)
     
     print(f"📊 Benchmark data saved to: {json_file}")

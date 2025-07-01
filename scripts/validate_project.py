@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Comprehensive validation script to ensure all components work after reorganization.
 
@@ -35,7 +36,7 @@ def run_command(cmd, description="", cwd=None):
             print(f"stderr: {e.stderr[:500]}...")
         return False, None
     except Exception as e:
-        print(f"❌ EXCEPTION: {description} - {e}")
+        print(f"�EXCEPTION: {description} - {e}")
         return False, None
 
 
@@ -71,24 +72,24 @@ def test_project_structure():
         if not dir_path.exists():
             missing_dirs.append(dir_name)
         else:
-            print(f"✅ Directory exists: {dir_name}")
+            print(f"�Directory exists: {dir_name}")
 
     for file_name in expected_files:
         file_path = project_root / file_name
         if not file_path.exists():
             missing_files.append(file_name)
         else:
-            print(f"✅ File exists: {file_name}")
+            print(f"�File exists: {file_name}")
 
     if missing_dirs:
-        print(f"❌ Missing directories: {missing_dirs}")
+        print(f"�Missing directories: {missing_dirs}")
         return False
 
     if missing_files:
-        print(f"❌ Missing files: {missing_files}")
+        print(f"�Missing files: {missing_files}")
         return False
 
-    print("✅ All expected directories and files exist")
+    print("�All expected directories and files exist")
     return True
 
 
@@ -106,17 +107,17 @@ def test_test_execution():
     success = True
 
     # Test basic functionality
-    cmd = ["python3", "scripts/run_tests.py", "--basic"]
+    cmd = ["python", "scripts/run_tests.py", "--basic"]
     result, _ = run_command(cmd, "Basic tests execution", cwd=project_root)
     success &= result
 
     # Test specific test category
-    cmd = ["python3", "scripts/run_tests.py", "--instructions"]
+    cmd = ["python", "scripts/run_tests.py", "--instructions"]
     result, _ = run_command(cmd, "Instructions tests execution", cwd=project_root)
     success &= result
 
     # Test help functionality
-    cmd = ["python3", "scripts/run_tests.py", "--help"]
+    cmd = ["python", "scripts/run_tests.py", "--help"]
     result, _ = run_command(cmd, "Test runner help", cwd=project_root)
     success &= result
 
@@ -137,17 +138,17 @@ def test_analysis_scripts():
     success = True
 
     # Test enhanced ISA analysis
-    cmd = ["python3", "analysis/enhanced_isa_analysis.py"]
+    cmd = ["python", "analysis/enhanced_isa_analysis.py"]
     result, _ = run_command(cmd, "Enhanced ISA analysis", cwd=project_root)
     success &= result
 
     # Test original ISA analysis
-    cmd = ["python3", "analysis/isa_design_analysis.py"]
+    cmd = ["python", "analysis/isa_design_analysis.py"]
     result, _ = run_command(cmd, "Original ISA analysis", cwd=project_root)
     success &= result
 
     # Test original MIPS benchmark
-    cmd = ["python3", "analysis/mips_benchmark.py"]
+    cmd = ["python", "analysis/mips_benchmark.py"]
     result, _ = run_command(cmd, "Original MIPS benchmark", cwd=project_root)
     success &= result
 
@@ -156,7 +157,7 @@ def test_analysis_scripts():
 
 def test_utility_scripts():
     """Test utility scripts functionality."""
-    print("\n🛠️ Testing Utility Scripts...")
+    print("\n🛠�Testing Utility Scripts...")
 
     # Detect project root
     current_dir = Path.cwd()
@@ -170,14 +171,14 @@ def test_utility_scripts():
     # Test coverage analysis (if it exists)
     coverage_script = project_root / "scripts/analyze_coverage.py"
     if coverage_script.exists():
-        cmd = ["python3", "scripts/analyze_coverage.py", "--help"]
+        cmd = ["python", "scripts/analyze_coverage.py", "--help"]
         result, _ = run_command(cmd, "Coverage analysis help", cwd=project_root)
         success &= result
 
     # Test benchmark programs
     benchmark_script = project_root / "scripts/benchmark_programs.py"
     if benchmark_script.exists():
-        cmd = ["python3", "scripts/benchmark_programs.py"]
+        cmd = ["python", "scripts/benchmark_programs.py"]
         result, _ = run_command(cmd, "Benchmark programs", cwd=project_root)
         # Don't fail overall if this script has issues
 
@@ -203,7 +204,7 @@ def test_report_generation():
     data_before = len(list(data_dir.glob("*.json"))) if data_dir.exists() else 0
 
     # Run analysis to generate reports
-    cmd = ["python3", "analysis/enhanced_isa_analysis.py"]
+    cmd = ["python", "analysis/enhanced_isa_analysis.py"]
     result, _ = run_command(cmd, "Generate ISA analysis report", cwd=project_root)
 
     if not result:
@@ -218,15 +219,15 @@ def test_report_generation():
 
     # Check that reports exist (don't require new ones)
     if reports_after > 0:
-        print("✅ Report files exist")
+        print("�Report files exist")
         success = True
     else:
-        print("❌ No report files found")
+        print("�No report files found")
         success = False
 
     # For data files, check if any exist or were generated during the test
     if data_after > 0 or data_after >= data_before:
-        print("✅ Data files handling working correctly")
+        print("�Data files handling working correctly")
         success = success and True
     else:
         print("⚠️ No data files found (this may be expected if they're auto-cleaned)")
@@ -316,7 +317,7 @@ def clean_generated_files():
                     try:
                         import shutil
                         shutil.rmtree(auto_docs_dir)
-                        print(f"🗑️ Removed directory: {auto_docs_dir}")
+                        print(f"🗑�Removed directory: {auto_docs_dir}")
                     except Exception as e:
                         print(f"⚠️ Could not remove directory {auto_docs_dir}: {e}")
             else:
@@ -325,7 +326,7 @@ def clean_generated_files():
                     if file_path.is_file():
                         try:
                             file_path.unlink()
-                            print(f"🗑️ Removed: {file_path}")
+                            print(f"🗑�Removed: {file_path}")
                         except Exception as e:
                             print(f"⚠️ Could not remove {file_path}: {e}")
 
@@ -348,7 +349,7 @@ def test_git_ignore():
     # Check if .gitignore exists
     gitignore_path = project_root / ".gitignore"
     if not gitignore_path.exists():
-        print("❌ .gitignore file not found")
+        print("�.gitignore file not found")
         return False
 
     # Read .gitignore content
@@ -356,7 +357,7 @@ def test_git_ignore():
         with open(gitignore_path, 'r') as f:
             gitignore_content = f.read()
     except Exception as e:
-        print(f"❌ Could not read .gitignore: {e}")
+        print(f"�Could not read .gitignore: {e}")
         return False
 
     # Check for important ignore patterns
@@ -377,10 +378,10 @@ def test_git_ignore():
             missing_patterns.append(pattern)
 
     if missing_patterns:
-        print(f"❌ Missing .gitignore patterns: {missing_patterns}")
+        print(f"�Missing .gitignore patterns: {missing_patterns}")
         success = False
     else:
-        print("✅ All required .gitignore patterns are present")
+        print("�All required .gitignore patterns are present")
 
     # Test if git status is clean (no untracked auto-generated files)
     try:
@@ -395,7 +396,7 @@ def test_git_ignore():
         # Look for problematic untracked files
         untracked_files = []
         for line in result.stdout.strip().split('\n'):
-            if line.startswith('??'):
+            if line.startswith(''):
                 file_path = line[3:].strip()
                 # Check if it's an auto-generated file that should be ignored
                 if any(pattern in file_path for pattern in ['enhanced_', '_202', 'auto-docs']):
@@ -406,7 +407,7 @@ def test_git_ignore():
             print("Consider running: git add .gitignore && git commit -m 'Update gitignore'")
             # Don't fail for this - it's just a warning
         else:
-            print("✅ No problematic untracked files found")
+            print("�No problematic untracked files found")
 
     except subprocess.CalledProcessError:
         print("⚠️ Could not check git status (not a git repository or git not available)")
@@ -451,9 +452,9 @@ def main():
             overall_success &= result
 
             if result:
-                print(f"✅ {test_name}: PASSED")
+                print(f"�{test_name}: PASSED")
             else:
-                print(f"❌ {test_name}: FAILED")
+                print(f"�{test_name}: FAILED")
 
         except Exception as e:
             print(f"💥 {test_name}: EXCEPTION - {e}")
@@ -467,7 +468,7 @@ def main():
     print(f"{'='*50}")
 
     for test_name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
+        status = "�PASS" if result else "�FAIL"
         print(f"{test_name:.<30} {status}")
 
     print(f"\n⏱️ Total execution time: {execution_time:.2f} seconds")
