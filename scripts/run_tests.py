@@ -242,7 +242,7 @@ def check_simulator_module(project_root):
     sys.path.insert(0, str(build_dir))
     try:
         import lc3_simulator
-        print("✅ LC-3 simulator module is available")
+        print("✓ LC-3 simulator module is available")
         return True
     except ImportError:
         print("❌ LC-3 simulator module not found or not built")
@@ -274,7 +274,7 @@ def check_environment():
     for compiler in ["g++", "clang++", "cl"]:
         try:
             subprocess.run([compiler, "--version"], capture_output=True, check=True)
-            print(f"✅ Found C++ compiler: {compiler}")
+            print(f"✓ Found C++ compiler: {compiler}")
             break
         except (subprocess.CalledProcessError, FileNotFoundError):
             continue
