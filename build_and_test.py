@@ -2,6 +2,9 @@
 """
 Cross-platform build and test script for LC-3 Simulator
 Supports Windows, Linux, and macOS
+
+This script provides backward compatibility while migrating to the new
+modular build system. It will delegate to the new system when available.
 """
 
 import os
@@ -14,6 +17,13 @@ import json
 from pathlib import Path
 import tempfile
 
+# Try to use the new build system if available
+try:
+    from build_system import create_builder, BuildLogger
+    NEW_BUILD_SYSTEM_AVAILABLE = True
+except ImportError:
+    NEW_BUILD_SYSTEM_AVAILABLE = False
+
 
 class CrossPlatformBuilder:
     def __init__(self, project_root=None):
@@ -24,6 +34,14 @@ class CrossPlatformBuilder:
         self.is_windows = self.platform == "windows"
         self.is_linux = self.platform == "linux"
         self.is_macos = self.platform == "darwin"
+        
+        # Use new build system if available
+        if NEW_BUILD_SYSTEM_AVAILABLE:
+            self.logger = BuildLogger("CrossPlatformBuilder")
+            self.new_builder = create_builder(logger=self.logger)
+            self.logger.info("Using new modular build system")
+        else:
+            self.new_builder = None
         
         # Platform-specific configurations
         self.config = self._get_platform_config()
@@ -320,6 +338,44 @@ class CrossPlatformBuilder:
     def full_build_and_test(self, clean=True, test_categories=None, coverage=False, 
                            html_report=False, parallel=False, verbose=False):
         """Perform complete build and test cycle."""
+        # Use new build system if available
+        if self.new_builder:
+            self.logger.info("Using new build system for full build and test")
+            try:
+                # Clean if requested
+                if clean:
+                    self.new_builder.clean()
+                
+                # Full build
+                if not self.new_builder.full_build(clean_first=False):
+                    return False
+                
+                # Run tests if categories specified
+                if test_categories:
+                    from build_system.testing import TestRunner
+                    test_runner = TestRunner(self.logger, self.new_builder.config.platform)
+                    
+                    kwargs = {
+                        'coverage': coverage,
+                        'parallel': parallel,
+                        'verbose': verbose,
+                        'html_report': html_report
+                    }
+                    
+                    results = test_runner.run_multiple_suites(test_categories, **kwargs)
+                    
+                    # Check if any tests failed
+                    total_failed = sum(r.failed + r.errors for r in results.values())
+                    if total_failed > 0:
+                        self.logger.error(f"Tests failed: {total_failed} failures/errors")
+                        return False
+                
+                return True
+            except Exception as e:
+                self.logger.error(f"New build system failed, falling back to legacy: {e}")
+                # Fall through to legacy system
+        
+        # Legacy build system (existing implementation)
         self.log(f"Starting full build and test on {self.platform}")
         
         try:

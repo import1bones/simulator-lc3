@@ -2,6 +2,20 @@
 
 A comprehensive implementation of the LC-3 (Little Computer 3) processor simulator with **integrated pipeline simulation and performance analysis capabilities**.
 
+## 🧭 Navigation & Quick Start
+
+**New to this project?** Start here:
+- 📍 **[PROJECT_NAVIGATION.md](PROJECT_NAVIGATION.md)** ← **Your complete guide to understanding this project**
+- 🎯 **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** ← Quick start and overview
+- 🗺️ **[VISUAL_PROJECT_MAP.md](VISUAL_PROJECT_MAP.md)** ← Visual directory structure
+- 🔄 **[DEVELOPMENT_WORKFLOW.md](DEVELOPMENT_WORKFLOW.md)** ← Developer workflows
+
+**Want to build right now?**
+```bash
+python lc3_build.py build                    # Modern unified CLI
+./build/simulator-lc3 test_programs/hello.asm
+```
+
 ## Overview
 
 This project implements a full LC-3 simulator that can execute LC-3 assembly programs with advanced pipeline simulation features. The simulator includes:

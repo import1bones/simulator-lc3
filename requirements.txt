@@ -1,39 +1,80 @@
-# Core testing and analysis dependencies
-pytest>=7.0.0
-pytest-cov>=4.0.0
-pytest-html>=3.1.0
-pytest-benchmark>=4.0.0
-pytest-xdist>=3.0.0
+# ============================================================================
+# LC-3 Simulator Project Dependencies
+# ============================================================================
+# This file contains all Python dependencies for the LC-3 simulator project
+# organized by functional area for clarity and maintainability.
 
-# Code quality and formatting
-black>=22.0.0
-flake8>=5.0.0
-pylint>=2.15.0
-mypy>=0.990
+# Build System Core Dependencies
+# Required for the modular build system to function
+pybind11>=2.10.0              # Python-C++ bindings for simulator core
+cmake>=3.12.0                 # Build system (if installing via pip)
+setuptools>=65.0.0            # Python package building
+wheel>=0.38.0                 # Package distribution format
 
-# Data analysis and reporting
-numpy>=1.21.0
-pandas>=1.5.0
-matplotlib>=3.5.0
-seaborn>=0.11.0
+# Testing Framework
+# Comprehensive testing infrastructure with coverage and reporting
+pytest>=7.0.0                 # Core testing framework
+pytest-cov>=4.0.0             # Coverage analysis integration
+pytest-html>=3.1.0            # HTML test reports
+pytest-benchmark>=4.0.0       # Performance benchmarking
+pytest-xdist>=3.0.0           # Parallel test execution
+pytest-timeout>=2.1.0         # Test timeout handling
 
-# Documentation generation
-jinja2>=3.1.0
-markdown>=3.4.0
-mkdocs>=1.4.0
-mkdocs-material>=8.5.0
+# Code Quality and Analysis
+# Tools for maintaining code quality and consistency
+black>=22.0.0                 # Code formatting
+flake8>=5.0.0                 # Linting and style checking
+pylint>=2.15.0                # Advanced static analysis
+mypy>=0.990                   # Type checking
+isort>=5.10.0                 # Import sorting
+bandit>=1.7.0                 # Security analysis
 
-# Utility libraries
-click>=8.0.0
-rich>=12.0.0
-colorama>=0.4.0
-tqdm>=4.64.0
+# Data Analysis and Visualization
+# For performance analysis and debugging visualization
+numpy>=1.21.0                 # Numerical computing
+pandas>=1.5.0                 # Data manipulation and analysis
+matplotlib>=3.5.0             # Basic plotting
+seaborn>=0.11.0               # Statistical visualization
+plotly>=5.0.0                 # Interactive plotting
+bokeh>=2.4.0                  # Web-based visualization
 
-# Development dependencies
-coverage[toml]>=6.0.0
-pre-commit>=2.20.0
+# CI/CD and Automation
+# Dependencies for continuous integration and deployment
+PyYAML>=6.0                   # YAML configuration parsing (GitHub Actions, etc.)
+Jinja2>=3.1.0                 # Template engine for CI generation
+gitpython>=3.1.0              # Git repository interaction
 
-# Optional dependencies for enhanced features
-plotly>=5.0.0
-bokeh>=2.4.0
-jupyter>=1.0.0
+# Documentation Generation
+# Tools for generating project documentation
+mkdocs>=1.4.0                 # Static site generator
+mkdocs-material>=8.5.0        # Material theme for MkDocs
+markdown>=3.4.0               # Markdown processing
+sphinx>=5.0.0                 # Alternative documentation generator
+sphinx-rtd-theme>=1.0.0       # Read the Docs theme
+
+# User Interface and Experience
+# Libraries for enhanced command-line interface
+click>=8.0.0                  # Command-line interface framework
+rich>=12.0.0                  # Rich text and beautiful formatting
+colorama>=0.4.0               # Cross-platform colored terminal text
+tqdm>=4.64.0                  # Progress bars
+tabulate>=0.9.0               # Table formatting
+
+# Development and Debugging Tools
+# Additional tools for development workflow
+coverage[toml]>=6.0.0         # Coverage measurement with TOML support
+pre-commit>=2.20.0            # Git pre-commit hooks
+ipython>=8.0.0                # Enhanced Python REPL
+jupyter>=1.0.0                # Jupyter notebook support
+memory-profiler>=0.60.0       # Memory usage profiling
+
+# Performance and Optimization
+# Tools for performance analysis and optimization
+line-profiler>=4.0.0          # Line-by-line profiling
+psutil>=5.9.0                 # System and process utilities
+cProfile-to-json>=1.0.0       # Profile data conversion
+
+# Platform-Specific Dependencies
+# Dependencies that may be needed on specific platforms
+pywin32>=305; sys_platform == "win32"     # Windows-specific utilities
+termcolor>=2.0.0              # Cross-platform terminal colors
