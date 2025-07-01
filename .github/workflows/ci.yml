@@ -35,7 +35,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        python scripts/run_tests.py --install-deps
+        pip install pytest>=7.0 pytest-cov>=4.0 pytest-xdist>=3.0 pytest-html>=3.0 pytest-benchmark>=4.0 numpy>=1.20 pybind11[global]
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
     - name: Check environment setup

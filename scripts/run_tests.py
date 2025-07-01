@@ -77,7 +77,7 @@ def build_simulator(project_root):
                     target_path = bindings_dir / module_path.name
                     if not target_path.exists() or not target_path.samefile(module_path):
                         shutil.copy2(module_path, target_path)
-                        print(f"✅ Fixed Python bindings path: {module_path.name}")
+                        print(f"✓ Fixed Python bindings path: {module_path.name}")
     except Exception as e:
         print(f"⚠️ Warning: Could not fix Python bindings path: {e}")
     
@@ -265,7 +265,7 @@ def check_environment():
     # Check if cmake is available
     try:
         subprocess.run(["cmake", "--version"], capture_output=True, check=True)
-        print("✅ CMake is available")
+        print("✓ CMake is available")
     except (subprocess.CalledProcessError, FileNotFoundError):
         print("❌ CMake is not installed or not in PATH")
         return False
@@ -343,6 +343,14 @@ def main():
         if not install_dependencies():
             print("Failed to install dependencies")
             return 1
+        
+        # If install-deps was the only action requested, exit successfully
+        test_categories = [args.basic, args.instructions, args.memory, args.io, 
+                          args.integration, args.benchmark, args.test_file]
+        other_actions = [args.build, args.check_env]
+        if not any(test_categories) and not any(other_actions):
+            print("Dependencies installed successfully!")
+            return 0
 
     # Build simulator if requested
     if args.build:
