@@ -133,6 +133,43 @@ If issues arise with the reduced matrix:
    - Test runner expects modules in `build/python_bindings/`
    - Solution: Copy built module to expected location after build
 
+## Critical CI Fixes Applied
+
+### Build System Issues Fixed
+1. **CMakeLists.txt Case Sensitivity**
+   - Fixed `CmakeLists.txt` → `CMakeLists.txt` in all subdirectories
+   - Added CI step to automatically fix case sensitivity issues
+   - Updated test_validation.py to expect correct case
+
+2. **Python Bindings Path Resolution**
+   - Modified build_simulator() to automatically copy bindings from Release/Debug subdirs
+   - Added standalone fix_python_bindings.py script
+   - CI workflows call this script after build to ensure bindings are accessible
+
+3. **Build-Only Execution Logic**
+   - Fixed run_tests.py to exit after build when no test flags specified
+   - Prevents unnecessary test execution when only building
+   - CI now properly separates build and test phases
+
+### Pytest Configuration Issues Fixed  
+4. **Custom Marks Registration**
+   - Updated pytest.ini with correct [pytest] section header
+   - Registered all custom marks: unit, integration, functional, slow, instruction, memory, register, io, trap
+   - Fixed strict-markers configuration
+
+### CI Workflow Improvements
+5. **Proper Step Separation**
+   - Build step now exits cleanly after successful build
+   - Verification step checks simulator module availability
+   - Test step runs only when previous steps succeed
+   - Added proper error handling and status reporting
+
+### Cross-Platform Compatibility
+6. **Windows PowerShell Support**
+   - All python3 commands changed to python
+   - Windows-specific CMakeLists.txt fix using PowerShell syntax
+   - Platform-specific build step conditions
+
 ## Final Matrix Configuration
 
 ### ci.yml (Main CI)

@@ -349,6 +349,13 @@ def main():
         if not build_simulator(project_root):
             print("Failed to build simulator")
             return 1
+        
+        # If build was the only action requested, exit successfully
+        test_categories = [args.basic, args.instructions, args.memory, args.io, 
+                          args.integration, args.benchmark, args.test_file]
+        if not any(test_categories):
+            print("Build completed successfully! Use test flags to run tests.")
+            return 0
 
     # Run benchmarks if requested
     if args.benchmark:

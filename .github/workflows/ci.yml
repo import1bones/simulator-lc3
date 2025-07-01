@@ -60,6 +60,10 @@ jobs:
       run: |
         python scripts/fix_python_bindings.py
 
+    - name: Verify simulator module is available
+      run: |
+        python scripts/run_tests.py --check-env
+
     - name: Run comprehensive test suite
       run: |
         python scripts/run_tests.py --basic --instructions --memory --io --coverage --html-report
