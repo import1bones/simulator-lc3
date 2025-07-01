@@ -69,7 +69,7 @@ def test_build_files_exist():
     
     build_files = [
         "CMakeLists.txt",
-        "mem/CmakeLists.txt",
+        "mem/CMakeLists.txt",
         "Makefile"
     ]
     
@@ -166,9 +166,9 @@ def test_python_bindings_include_pipeline():
 def test_cmake_includes_pipeline():
     """Test that CMake configuration includes pipeline files."""
     project_root = Path(__file__).parent.parent
-    mem_cmake = project_root / "mem" / "CmakeLists.txt"
+    mem_cmake = project_root / "mem" / "CMakeLists.txt"
     
-    assert mem_cmake.exists(), "mem/CmakeLists.txt not found"
+    assert mem_cmake.exists(), "mem/CMakeLists.txt not found"
     
     content = mem_cmake.read_text(encoding='utf-8', errors='ignore')
     
