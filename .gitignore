@@ -2,6 +2,9 @@
 
 # Build directories and artifacts
 build/
+build_win/
+build_linux/
+build_macos/
 cmake-build-*/
 dist/
 *.egg-info/
@@ -9,15 +12,50 @@ CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
 install_manifest.txt
+Makefile
+CPackConfig.cmake
+CPackSourceConfig.cmake
+DartConfiguration.tcl
+
+# Cross-platform build outputs
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+*.suo
+*.user
+Testing/
 
 # Compiled binaries and libraries
 *.o
+*.obj
 *.a
+*.lib
 *.so
+*.so.*
 *.dll
+*.dylib
 *.exe
+*.pdb
+*.exp
+*.ilk
 lc3-simulator
+lc3-simulator.exe
 simulator
+simulator.exe
+
+# Python modules and bindings
+*.pyd
+lc3_simulator.pyd
+lc3_simulator.so
+lc3_simulator*.so
+lc3_simulator*.pyd
+*.cp*-win_amd64.pyd
+*.cp*-linux-*.so
+*.cp*-darwin.so
+
+# Build information
+build_info.json
 
 # Auto-generated reports and data files with timestamps
 reports/*_[0-9]*.md

@@ -103,12 +103,11 @@ class TestPipelineExecution:
         """Test pipeline with multiple instructions."""
         sim = lc3_simulator.LC3Simulator()
         sim.enable_pipeline(True)
-        
-        # Program with multiple ADD instructions
+          # Program with multiple ADD instructions
         program = [
             0x1021,  # ADD R0, R0, #1
-            0x1421,  # ADD R2, R0, #1  
-            0x1842,  # ADD R4, R2, #2
+            0x1421,  # ADD R2, R0, #1
+            0x18A2,  # ADD R4, R2, #2 (corrected encoding)
             0xF025   # HALT
         ]
         sim.load_program(program)
@@ -305,9 +304,9 @@ class TestPipelineIntegration:
         # Program with conditional branch
         program = [
             0x5020,  # AND R0, R0, #0 (clear R0, set Z)
-            0x0402,  # BRz +2 (should branch)
+            0x0401,  # BRz +1 (should branch to ADD R2, R0, #1)
             0x1021,  # ADD R0, R0, #1 (should be skipped)
-            0x1421,  # ADD R2, R0, #1 (branch target)
+            0x1421,  # ADD R2, R0, #1 (branch target) - corrected encoding for immediate mode
             0xF025   # HALT
         ]
         sim.load_program(program)
