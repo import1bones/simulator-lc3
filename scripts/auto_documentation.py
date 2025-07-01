@@ -27,11 +27,11 @@ def run_comprehensive_analysis():
     (project_root / "auto-docs" / "data").mkdir(exist_ok=True)
     (project_root / "auto-docs" / "reports").mkdir(exist_ok=True)
 
-    # Run analysis scripts with quiet mode to avoid generating unnecessary files
+    # Run analysis scripts
     scripts = [
-        "python analysis/enhanced_isa_analysis.py --quiet",
-        "python analysis/isa_design_analysis.py --quiet",
-        "python analysis/mips_benchmark.py --quiet",
+        "python3 analysis/enhanced_isa_analysis.py",
+        "python3 analysis/isa_design_analysis.py",
+        "python3 analysis/mips_benchmark.py",
     ]
 
     results = {}
@@ -90,7 +90,7 @@ def generate_summary_doc():
     # Load ISA analysis
     if isa_files:
         latest_isa = sorted(isa_files)[-1]
-        with open(latest_isa, encoding='utf-8') as f:
+        with open(latest_isa) as f:
             isa_data = json.load(f)
             summary["analysis_summary"]["isa"] = {
                 "file": latest_isa.name,
@@ -102,7 +102,7 @@ def generate_summary_doc():
     # Load MIPS benchmark (traditional)
     if mips_files:
         latest_mips = sorted(mips_files)[-1]
-        with open(latest_mips, encoding='utf-8') as f:
+        with open(latest_mips) as f:
             mips_data = json.load(f)
             summary["analysis_summary"]["mips"] = {
                 "file": latest_mips.name,
@@ -123,13 +123,13 @@ def generate_summary_doc():
 
     # Save summary
     summary_file = Path("auto-docs") / f"ANALYSIS_SUMMARY_{timestamp}.json"
-    with open(summary_file, 'w', encoding='utf-8') as f:
+    with open(summary_file, 'w') as f:
         json.dump(summary, f, indent=2)
 
     # Generate markdown report
     md_report = generate_markdown_summary(summary)
     md_file = Path("auto-docs") / f"ANALYSIS_SUMMARY_{timestamp}.md"
-    with open(md_file, 'w', encoding='utf-8') as f:
+    with open(md_file, 'w') as f:
         f.write(md_report)
 
     print(f"✅ Summary saved to: {summary_file}")
@@ -285,7 +285,7 @@ This directory contains comprehensive analysis reports for the LC-3 simulator.
 *This index is automatically updated by the GitHub Actions workflow.*
 """
 
-        with open(reports_dir / "README.md", 'w', encoding='utf-8') as f:
+        with open(reports_dir / "README.md", 'w') as f:
             f.write(index_content)
 
     # Update data directory index
@@ -322,7 +322,7 @@ This directory contains raw analysis data in JSON format.
 *This index is automatically updated by the GitHub Actions workflow.*
 """
 
-        with open(data_dir / "README.md", 'w', encoding='utf-8') as f:
+        with open(data_dir / "README.md", 'w') as f:
             f.write(data_index)
 
 

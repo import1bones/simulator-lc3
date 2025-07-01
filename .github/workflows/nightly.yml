@@ -27,49 +27,205 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake build-essential
 
-      - name: Fix CMakeLists.txt case sensitivity
-        run: |
-          # Fix case sensitivity issues with CMakeLists.txt files
-          for dir in mem state_machine type; do
-            if [ -f "$dir/CmakeLists.txt" ] && [ ! -f "$dir/CMakeLists.txt" ]; then
-              mv "$dir/CmakeLists.txt" "$dir/CMakeLists.txt"
-              echo "Fixed case sensitivity: $dir/CMakeLists.txt"
-            fi
-          done
-
       - name: Build simulator
         run: |
-          python scripts/run_tests.py --build
-
-      - name: Fix Python bindings path
-        run: |
-          python scripts/fix_python_bindings.py
+          mkdir -p build
+          cd build
+          cmake -DBUILD_PYTHON_BINDINGS=ON ..
+          make -j$(nproc)
 
       - name: Run comprehensive analysis
         run: |
           # Run all analysis scripts
-          python analysis/enhanced_isa_analysis.py
-          python analysis/isa_design_analysis.py
-          python analysis/mips_benchmark.py
+          python3 analysis/enhanced_isa_analysis.py
+          python3 analysis/isa_design_analysis.py
+          python3 analysis/mips_benchmark.py
 
           # Run performance benchmarks
-          python scripts/benchmark_programs.py
+          python3 scripts/benchmark_programs.py
 
           # Run comprehensive tests with coverage
-          python scripts/run_tests.py --basic --instructions --memory --io --coverage --html-report
+          python3 scripts/run_tests.py --basic --instructions --memory --io --coverage --html-report
 
       - name: Generate nightly summary
         run: |
-          echo "✅ Nightly analysis completed successfully"
-          echo "📊 Performance data generated"
-          echo "🎯 Ready for next nightly run"
+          DATE=$(date +'%Y-%m-%d')
+          TIMESTAMP=$(date +'%Y%m%d_%H%M%S')
 
-      - name: Upload nightly artifacts
+          mkdir -p nightly-reports/$DATE
+
+          cat > nightly-reports/$DATE/NIGHTLY_SUMMARY_$TIMESTAMP.md << 'EOF'
+          # Nightly Analysis Report - $DATE
+
+          **Generated:** $(date)
+          **Commit:** ${{ github.sha }}
+          **Branch:** ${{ github.ref_name }}
+
+          ## 📊 Performance Metrics
+
+          ### ISA Analysis Results
+          $(python3 -c "
+          import json
+          import glob
+          files = glob.glob('data/enhanced_isa_analysis_*.json')
+          if files:
+              with open(sorted(files)[-1]) as f:
+                  data = json.load(f)
+                  metrics = data['comprehensive_metrics']
+                  print('| Metric | Value |')
+                  print('|--------|-------|')
+                  print(f'| Average CPI (Unpipelined) | {metrics[\"average_cpi_unpipelined\"]:.3f} |')
+                  print(f'| Average CPI (Pipelined) | {metrics[\"average_cpi_pipelined\"]:.3f} |')
+                  print(f'| IPC Potential | {metrics[\"ipc_potential\"]:.3f} |')
+                  print(f'| Encoding Efficiency | {metrics[\"encoding_efficiency\"]*100:.1f}% |')
+                  print(f'| RISC Score | {metrics[\"risc_score\"]:.1f}/100 |')
+                  print(f'| Pipeline Efficiency | {metrics[\"pipeline_efficiency\"]*100:.1f}% |')
+                  print(f'| Memory Bandwidth Util | {metrics[\"memory_bandwidth_utilization\"]*100:.1f}% |')
+          ")
+
+          ### MIPS Benchmark Results
+          $(python3 -c "
+          import json
+          import glob
+          files = glob.glob('data/mips_benchmark_*.json')
+          if files:
+              with open(sorted(files)[-1]) as f:
+                  data = json.load(f)
+                  summary = data.get('performance_summary', {})
+                  print('| Benchmark | Score |')
+                  print('|-----------|-------|')
+                  print(f'| Average CPI | {summary.get(\"average_cpi\", 0):.3f} |')
+                  print(f'| Performance Score | {summary.get(\"average_performance_score\", 0):.1f}/100 |')
+                  print(f'| Efficiency Score | {summary.get(\"efficiency_score\", 0):.1f}/100 |')
+                  print(f'| RISC Adherence | {summary.get(\"risc_adherence_score\", 0):.1f}/100 |')
+          ")
+
+          ## 🧪 Test Results
+
+          $(python3 -c "
+          import os
+          if os.path.exists('reports/COVERAGE_REPORT.md'):
+              with open('reports/COVERAGE_REPORT.md') as f:
+                  lines = f.readlines()
+                  in_summary = False
+                  for line in lines:
+                      if 'Coverage Summary' in line:
+                          in_summary = True
+                      elif in_summary and line.strip():
+                          if line.startswith('#'):
+                              break
+                          print(line.strip())
+          ")
+
+          ## 📈 Performance Trends
+
+          - **Build Status:** ✅ Success
+          - **All Tests:** $(python3 scripts/run_tests.py --basic > /dev/null 2>&1 && echo "✅ Passed" || echo "❌ Failed")
+          - **Analysis Scripts:** $(python3 scripts/validate_project.py > /dev/null 2>&1 && echo "✅ All Working" || echo "❌ Some Issues")
+
+          ## 🔍 Code Quality
+
+          - **Total Lines of Code:** $(find . -name "*.py" -not -path "./.venv/*" -not -path "./build/*" | xargs wc -l | tail -1 | awk '{print $1}')
+          - **Total Test Files:** $(find tests -name "*.py" | wc -l)
+          - **Total Analysis Scripts:** $(find analysis -name "*.py" | wc -l)
+
+          ## 📁 Generated Files
+
+          ### Reports Generated
+          $(find reports -name "*$(date +'%Y%m%d')*" -type f 2>/dev/null | sort | sed 's/^/- /' || echo "- No reports generated today")
+
+          ### Data Files Generated
+          $(find data -name "*$(date +'%Y%m%d')*" -type f 2>/dev/null | sort | sed 's/^/- /' || echo "- No data files generated today")
+
+          ---
+
+          *Automatically generated by nightly analysis workflow*
+          EOF
+
+      - name: Copy analysis results
+        run: |
+          DATE=$(date +'%Y-%m-%d')
+          cp -r reports/* nightly-reports/$DATE/ 2>/dev/null || true
+          cp -r data/* nightly-reports/$DATE/ 2>/dev/null || true
+
+      - name: Upload nightly results
         uses: actions/upload-artifact@v4
-        if: always()
         with:
-          name: nightly-analysis-results
-          path: |
-            data/
-            reports/
+          name: nightly-analysis-$(date +'%Y-%m-%d')
+          path: nightly-reports/
           retention-days: 30
+
+      - name: Check for performance regressions
+        run: |
+          python3 -c "
+          import json
+          import glob
+          import sys
+
+          # Load latest ISA analysis
+          files = glob.glob('data/enhanced_isa_analysis_*.json')
+          if not files:
+              print('No analysis files found')
+              sys.exit(0)
+
+          with open(sorted(files)[-1]) as f:
+              data = json.load(f)
+              metrics = data['comprehensive_metrics']
+
+          # Define thresholds for performance regression
+          thresholds = {
+              'average_cpi_unpipelined': 2.0,  # CPI should be under 2.0
+              'ipc_potential': 0.5,  # IPC should be above 0.5
+              'encoding_efficiency': 0.7,  # Encoding efficiency should be above 70%
+              'risc_score': 60.0,  # RISC score should be above 60
+          }
+
+          regressions = []
+          for metric, threshold in thresholds.items():
+              value = metrics.get(metric, 0)
+              if metric == 'average_cpi_unpipelined':
+                  if value > threshold:
+                      regressions.append(f'{metric}: {value:.3f} > {threshold}')
+              else:
+                  if value < threshold:
+                      regressions.append(f'{metric}: {value:.3f} < {threshold}')
+
+          if regressions:
+              print('⚠️ Performance regressions detected:')
+              for regression in regressions:
+                  print(f'  - {regression}')
+              sys.exit(1)
+          else:
+              print('✅ No performance regressions detected')
+          "
+
+      - name: Create issue on regression
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Performance Regression Detected - ${new Date().toISOString().split('T')[0]}`,
+              body: `## 🚨 Performance Regression Alert
+
+              The nightly analysis has detected performance regressions in the LC-3 simulator.
+
+              **Date:** ${new Date().toISOString()}
+              **Commit:** ${context.sha}
+              **Workflow:** ${context.workflow}
+
+              Please check the workflow logs for details about which metrics have regressed.
+
+              ### Actions Required:
+              1. Review recent changes that might affect performance
+              2. Run local analysis to confirm the regression
+              3. Investigate and fix the performance issues
+              4. Update tests if the regression is intentional
+
+              ### Logs:
+              [View workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId})
+              `,
+              labels: ['performance', 'regression', 'automated']
+            })

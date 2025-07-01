@@ -60,27 +60,6 @@ def build_simulator(project_root):
         return False
 
     print("Build completed successfully!")
-    
-    # Fix Python bindings path on Windows (copy from Release/Debug to parent directory)
-    try:
-        from pathlib import Path
-        import shutil
-        import glob
-        
-        bindings_dir = build_dir / "python_bindings"
-        if bindings_dir.exists():
-            # Look for built modules in subdirectories
-            patterns = ["Release/*.pyd", "Debug/*.pyd", "Release/*.so", "Debug/*.so"]
-            for pattern in patterns:
-                matches = list(bindings_dir.glob(pattern))
-                for module_path in matches:
-                    target_path = bindings_dir / module_path.name
-                    if not target_path.exists() or not target_path.samefile(module_path):
-                        shutil.copy2(module_path, target_path)
-                        print(f"✓ Fixed Python bindings path: {module_path.name}")
-    except Exception as e:
-        print(f"! Warning: Could not fix Python bindings path: {e}")
-    
     return True
 
 
@@ -115,16 +94,6 @@ def install_dependencies():
 def run_tests(project_root, args):
     """Run the test suite with specified options."""
     test_dir = project_root / "tests"
-
-    # Check if simulator module is available (unless building is explicitly requested)
-    if not args.build and not check_simulator_module(project_root):
-        print("\n! LC-3 simulator module is not available.")
-        print("This means the C++ simulator hasn't been built yet.")
-        print("\nOptions:")
-        print("1. Build first: python scripts/run_tests.py --build")
-        print("2. Run tests anyway (they will be skipped): continue with current command")
-        print("3. Check environment: python scripts/run_tests.py --check-env")
-        print("\nProceeding with tests (simulator-dependent tests will be skipped)...")
 
     # Build pytest command
     pytest_cmd = [sys.executable, "-m", "pytest"]
@@ -242,10 +211,10 @@ def check_simulator_module(project_root):
     sys.path.insert(0, str(build_dir))
     try:
         import lc3_simulator
-        print("✓ LC-3 simulator module is available")
+        print("✅ LC-3 simulator module is available")
         return True
     except ImportError:
-        print("✗ LC-3 simulator module not found or not built")
+        print("❌ LC-3 simulator module not found or not built")
         return False
     finally:
         # Remove from path to avoid conflicts
@@ -265,21 +234,21 @@ def check_environment():
     # Check if cmake is available
     try:
         subprocess.run(["cmake", "--version"], capture_output=True, check=True)
-        print("✓ CMake is available")
+        print("✅ CMake is available")
     except (subprocess.CalledProcessError, FileNotFoundError):
-        print("✗ CMake is not installed or not in PATH")
+        print("❌ CMake is not installed or not in PATH")
         return False
 
     # Check if a C++ compiler is available
     for compiler in ["g++", "clang++", "cl"]:
         try:
             subprocess.run([compiler, "--version"], capture_output=True, check=True)
-            print(f"✓ Found C++ compiler: {compiler}")
+            print(f"✅ Found C++ compiler: {compiler}")
             break
         except (subprocess.CalledProcessError, FileNotFoundError):
             continue
     else:
-        print("! Warning: No C++ compiler found. Build may fail.")
+        print("⚠️ Warning: No C++ compiler found. Build may fail.")
 
     print("Environment check completed.")
     return True
@@ -332,8 +301,8 @@ def main():
             return 1
             
         if not module_ok:
-            print("\n! LC-3 simulator module is not built.")
-            print("To build it, run: python scripts/run_tests.py --build")
+            print("\n⚠️ LC-3 simulator module is not built.")
+            print("To build it, run: python3 scripts/run_tests.py --build")
             print("Or in CI/automated environments, the build should happen first.")
             
         return 0 if env_ok else 1
@@ -343,27 +312,12 @@ def main():
         if not install_dependencies():
             print("Failed to install dependencies")
             return 1
-        
-        # If install-deps was the only action requested, exit successfully
-        test_categories = [args.basic, args.instructions, args.memory, args.io, 
-                          args.integration, args.benchmark, args.test_file]
-        other_actions = [args.build, args.check_env]
-        if not any(test_categories) and not any(other_actions):
-            print("Dependencies installed successfully!")
-            return 0
 
     # Build simulator if requested
     if args.build:
         if not build_simulator(project_root):
             print("Failed to build simulator")
             return 1
-        
-        # If build was the only action requested, exit successfully
-        test_categories = [args.basic, args.instructions, args.memory, args.io, 
-                          args.integration, args.benchmark, args.test_file]
-        if not any(test_categories):
-            print("Build completed successfully! Use test flags to run tests.")
-            return 0
 
     # Run benchmarks if requested
     if args.benchmark:

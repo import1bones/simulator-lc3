@@ -17,7 +17,6 @@ import time
 import sys
 import statistics
 import json
-import argparse
 from pathlib import Path
 from collections import defaultdict, Counter
 from dataclasses import dataclass
@@ -844,61 +843,48 @@ class LC3ISAAnalyzer:
 
 def main():
     """Main function to run ISA performance analysis"""
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description="LC-3 ISA Design Performance Analysis")
-    parser.add_argument("--quiet", action="store_true", help="Run without generating files (for validation)")
-    parser.add_argument("--no-reports", action="store_true", help="Skip report generation")
-    args = parser.parse_args()
-
-    if not args.quiet:
-        print("🔬 LC-3 ISA Design Performance Analysis")
-        print("=" * 50)
+    print("🔬 LC-3 ISA Design Performance Analysis")
+    print("=" * 50)
     
     analyzer = LC3ISAAnalyzer()
     report = analyzer.generate_comprehensive_report()
     
-    # Generate timestamp for data structure (always needed)
+    # Save report
     timestamp = str(int(time.time()))
+    report_file = Path(f"reports/isa_design_analysis_{timestamp}.md")
+    report_file.parent.mkdir(exist_ok=True)
     
-    # Only generate files if not in quiet mode
-    if not args.quiet and not args.no_reports:
-        # Save report
-        report_file = Path(f"reports/isa_design_analysis_{timestamp}.md")
-        report_file.parent.mkdir(exist_ok=True)
-        
-        with open(report_file, 'w', encoding='utf-8') as f:
-            f.write(report)
-        
-        if not args.quiet:
-            print(f"✅ ISA Design Analysis completed!")
-            print(f"📄 Report saved to: {report_file}")
-        
-        # Also save as JSON for further analysis
-        json_file = report_file.with_suffix('.json')
-        
-        analysis_data = {
-            'timestamp': timestamp,
-            'simulator_available': SIMULATOR_AVAILABLE,
-            'instruction_metrics': {
-                name: {
-                    'opcode': metrics.opcode,
-                    'format_type': metrics.format_type,
-                    'cycles': metrics.cycles,
-                    'memory_accesses': metrics.memory_accesses,
-                    'execution_time': metrics.execution_time,
-                    'throughput': metrics.throughput
-                }
-                for name, metrics in analyzer.instruction_metrics.items()
+    with open(report_file, 'w') as f:
+        f.write(report)
+    
+    print(f"✅ ISA Design Analysis completed!")
+    print(f"📄 Report saved to: {report_file}")
+    
+    # Also save as JSON for further analysis
+    json_file = report_file.with_suffix('.json')
+    
+    analysis_data = {
+        'timestamp': timestamp,
+        'simulator_available': SIMULATOR_AVAILABLE,
+        'instruction_metrics': {
+            name: {
+                'opcode': metrics.opcode,
+                'format_type': metrics.format_type,
+                'cycles': metrics.cycles,
+                'memory_accesses': metrics.memory_accesses,
+                'execution_time': metrics.execution_time,
+                'throughput': metrics.throughput
             }
+            for name, metrics in analyzer.instruction_metrics.items()
         }
-        
-        with open(json_file, 'w', encoding='utf-8') as f:
-            json.dump(analysis_data, f, indent=2)
-        
-        if not args.quiet:
-            print(f"📊 Analysis data saved to: {json_file}")
+    }
     
-    return report
+    with open(json_file, 'w') as f:
+        json.dump(analysis_data, f, indent=2)
+    
+    print(f"📊 Analysis data saved to: {json_file}")
+    
+    return report_file
 
 
 if __name__ == "__main__":

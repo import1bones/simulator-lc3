@@ -21,7 +21,7 @@ if(NOT pybind11_FOUND)
     endif()
 endif()
 
-# Create the Python module
+# Create the Python module (simplified to avoid linking issues)
 pybind11_add_module(lc3_simulator lc3_simulator.cpp)
 
 # Include directories

@@ -3,12 +3,12 @@
 
 #include"../type/type.h"
 typedef uint16_t word_t;
+word_t mem[UINT16_MAX];
 
-// Memory declarations - actual definitions should be in one .cpp file
-extern word_t mem[UINT16_MAX];
-extern word_t *mem_ptr;
-extern word_t mem_addr_reg;
-extern word_t mem_data_reg;
+word_t *mem_ptr = mem;
+
+word_t mem_addr_reg;
+word_t mem_data_reg;
 
 #define SYSTEM_SPACE_ADDR 0x0000
 #define SYSTEM_SPACE_LIMIT 0x2FFF

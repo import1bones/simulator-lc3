@@ -16,7 +16,6 @@ import sys
 import statistics
 import json
 import math
-import argparse
 from pathlib import Path
 from collections import defaultdict, Counter
 from dataclasses import dataclass, asdict
@@ -713,66 +712,54 @@ The LC-3 uses 16-bit instructions with the following efficiency characteristics:
 
 def main():
     """Main execution function"""
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description="Enhanced LC-3 ISA Design Analysis")
-    parser.add_argument("--quiet", action="store_true", help="Run without generating files (for validation)")
-    parser.add_argument("--no-reports", action="store_true", help="Skip report generation")
-    args = parser.parse_args()
-
-    if not args.quiet:
-        print("🚀 Enhanced LC-3 ISA Design Analysis")
-        print("=" * 50)
+    print("🚀 Enhanced LC-3 ISA Design Analysis")
+    print("=" * 50)
 
     analyzer = EnhancedLC3Analyzer()
 
     # Run complete analysis
     results = analyzer.run_complete_analysis()
 
-    # Only generate files if not in quiet mode
-    if not args.quiet and not args.no_reports:
-        # Generate timestamp for unique filenames
-        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    # Generate timestamp for unique filenames
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        # Save results to JSON
-        results_file = f"enhanced_isa_analysis_{timestamp}.json"
-        # Convert dataclass objects to dictionaries for JSON serialization
-        json_results = {}
-        for key, value in results.items():
-            if key == 'instruction_characteristics':
-                json_results[key] = {k: asdict(v) for k, v in value.items()}
-            elif key == 'comprehensive_metrics':
-                json_results[key] = asdict(value)
-            else:
-                json_results[key] = value
+    # Save results to JSON
+    results_file = f"enhanced_isa_analysis_{timestamp}.json"
+    # Convert dataclass objects to dictionaries for JSON serialization
+    json_results = {}
+    for key, value in results.items():
+        if key == 'instruction_characteristics':
+            json_results[key] = {k: asdict(v) for k, v in value.items()}
+        elif key == 'comprehensive_metrics':
+            json_results[key] = asdict(value)
+        else:
+            json_results[key] = value
 
-        with open(results_file, 'w', encoding='utf-8') as f:
-            json.dump(json_results, f, indent=2, default=str)
+    with open(results_file, 'w') as f:
+        json.dump(json_results, f, indent=2, default=str)
 
-        # Generate and save markdown report
-        report = analyzer.generate_markdown_report(results)
-        report_file = f"../reports/enhanced_isa_analysis_{timestamp}.md"
+    # Generate and save markdown report
+    report = analyzer.generate_markdown_report(results)
+    report_file = f"../reports/enhanced_isa_analysis_{timestamp}.md"
 
-        # Ensure reports directory exists
-        Path("../reports").mkdir(exist_ok=True)
+    # Ensure reports directory exists
+    Path("../reports").mkdir(exist_ok=True)
 
-        with open(report_file, 'w', encoding='utf-8') as f:
-            f.write(report)
+    with open(report_file, 'w') as f:
+        f.write(report)
 
-        print(f"\n✅ Analysis complete!")
-        print(f"📊 Results saved to: {results_file}")
-        print(f"📋 Report saved to: {report_file}")
+    print(f"\n✅ Analysis complete!")
+    print(f"📊 Results saved to: {results_file}")
+    print(f"📋 Report saved to: {report_file}")
 
-    # Print summary (always show unless quiet)
-    if not args.quiet:
-        metrics = results['comprehensive_metrics']
-        print(f"\n📈 Key Metrics Summary:")
-        print(f"   CPI (Current): {metrics.average_cpi_unpipelined:.3f}")
-        print(f"   CPI (Pipelined): {metrics.average_cpi_pipelined:.3f}")
-        print(f"   IPC Potential: {metrics.ipc_potential:.3f}")
-        print(f"   RISC Score: {metrics.risc_score:.1f}/100")
-        print(f"   Encoding Efficiency: {metrics.encoding_efficiency:.1%}")
-
-    return results
+    # Print summary
+    metrics = results['comprehensive_metrics']
+    print(f"\n📈 Key Metrics Summary:")
+    print(f"   CPI (Current): {metrics.average_cpi_unpipelined:.3f}")
+    print(f"   CPI (Pipelined): {metrics.average_cpi_pipelined:.3f}")
+    print(f"   IPC Potential: {metrics.ipc_potential:.3f}")
+    print(f"   RISC Score: {metrics.risc_score:.1f}/100")
+    print(f"   Encoding Efficiency: {metrics.encoding_efficiency:.1%}")
 
 
 if __name__ == "__main__":

@@ -1,18 +1,11 @@
 #include "../mem/memory.h"
 #include "../mem/register.h"
-// #include "../mem/control_store.h"  // Disabled to avoid linking issues
 #include "../state_machine/state_machine.h"
-// #include "../state_machine/signals.h"  // Disabled to avoid linking issues
 #include "../type/opcode.h"
 #include "../type/trap_vector.h"
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <string>
-#include <map>
-#include <vector>
-#include <cstring>
-#include <tuple>
 
 namespace py = pybind11;
 
@@ -23,12 +16,6 @@ class LC3Simulator {
     uint16_t pc;
     uint8_t condition_codes[3]; // N, Z, P
     bool halted;
-    bool pipeline_enabled;
-    
-    // Pipeline metrics tracking
-    uint64_t total_cycles;
-    uint64_t total_instructions;
-    uint64_t stall_cycles;
 
   public:
     LC3Simulator() { reset(); }
@@ -53,78 +40,6 @@ class LC3Simulator {
         condition_codes[2] = 0; // P
 
         halted = false;
-        pipeline_enabled = false;
-        
-        // Initialize pipeline metrics
-        total_cycles = 0;
-        total_instructions = 0;
-        stall_cycles = 0;
-        
-        // Initialize signals - disabled to avoid linking issues
-        // INIT_SIGNALS();
-    }
-
-    // Pipeline functionality
-    void enable_pipeline(bool enable = true) {
-        pipeline_enabled = enable;
-        // For now, just set the flag - actual pipeline logic will be added later
-        // when linking issues are resolved
-    }
-
-    void reset_pipeline() {
-        // Pipeline reset logic - placeholder for now
-        if (pipeline_enabled) {
-            // Reset pipeline state when properly implemented
-        }
-    }
-
-    void configure_pipeline(const std::string& name, int depth, bool forwarding, bool branch_prediction) {
-        // Pipeline configuration - placeholder for now
-        if (pipeline_enabled) {
-            // Store configuration when properly implemented
-        }
-    }
-
-    std::map<std::string, double> get_pipeline_metrics() {
-        std::map<std::string, double> metrics;
-        
-        if (pipeline_enabled) {
-            // When pipeline is enabled, return realistic metrics based on execution
-            double instructions = static_cast<double>(total_instructions);
-            double cycles = static_cast<double>(total_cycles);
-            
-            metrics["total_cycles"] = cycles;
-            metrics["total_instructions"] = instructions;
-            metrics["cpi"] = (instructions > 0) ? cycles / instructions : 1.0;
-            metrics["ipc"] = (cycles > 0) ? instructions / cycles : 1.0;
-            metrics["pipeline_efficiency"] = (cycles > 0) ? std::min(1.0, instructions / cycles) : 1.0;
-            metrics["stall_cycles"] = static_cast<double>(stall_cycles);
-            metrics["data_hazards"] = std::max(0.0, cycles - instructions - stall_cycles) * 0.3;
-            metrics["control_hazards"] = std::max(0.0, cycles - instructions - stall_cycles) * 0.5;
-            metrics["structural_hazards"] = std::max(0.0, cycles - instructions - stall_cycles) * 0.2;
-            metrics["memory_reads"] = instructions * 0.4;  // Estimate
-            metrics["memory_writes"] = instructions * 0.2;  // Estimate
-            metrics["memory_stall_cycles"] = static_cast<double>(stall_cycles);
-        } else {
-            // When disabled, return basic metrics for compatibility
-            double instructions = static_cast<double>(total_instructions);
-            double cycles = static_cast<double>(total_cycles);
-            
-            metrics["total_cycles"] = cycles;
-            metrics["total_instructions"] = instructions;
-            metrics["cpi"] = 1.0;
-            metrics["ipc"] = 1.0;
-            metrics["pipeline_efficiency"] = 1.0;
-            metrics["stall_cycles"] = 0.0;
-            metrics["data_hazards"] = 0.0;
-            metrics["control_hazards"] = 0.0;
-            metrics["structural_hazards"] = 0.0;
-            metrics["memory_reads"] = 0.0;
-            metrics["memory_writes"] = 0.0;
-            metrics["memory_stall_cycles"] = 0.0;
-        }
-        
-        return metrics;
     }
 
     void load_program(const std::vector<uint16_t> &program,
@@ -141,9 +56,6 @@ class LC3Simulator {
         if (halted)
             return;
 
-        // Increment cycle counter
-        total_cycles++;
-
         // Fetch instruction
         uint16_t instruction = memory[pc];
         pc++;
@@ -151,11 +63,6 @@ class LC3Simulator {
         // Decode and execute
         uint16_t opcode = CAST_TO_OPCODE(instruction);
         execute_instruction(instruction, opcode);
-        
-        // Increment instruction counter if not halted
-        if (!halted) {
-            total_instructions++;
-        }
     }
 
     void run(int max_cycles = 10000) {
@@ -439,13 +346,7 @@ PYBIND11_MODULE(lc3_simulator, m) {
         .def("is_halted", &LC3Simulator::is_halted)
         .def("set_register", &LC3Simulator::set_register)
         .def("set_memory", &LC3Simulator::set_memory)
-        .def("set_pc", &LC3Simulator::set_pc)
-        // Pipeline methods
-        .def("enable_pipeline", &LC3Simulator::enable_pipeline, py::arg("enable") = true)
-        .def("reset_pipeline", &LC3Simulator::reset_pipeline)
-        .def("configure_pipeline", &LC3Simulator::configure_pipeline,
-             py::arg("name"), py::arg("depth"), py::arg("forwarding"), py::arg("branch_prediction"))
-        .def("get_pipeline_metrics", &LC3Simulator::get_pipeline_metrics);
+        .def("set_pc", &LC3Simulator::set_pc);
 
     // Export constants
     m.attr("USER_SPACE_ADDR") = USER_SPACE_ADDR;

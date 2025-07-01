@@ -290,7 +290,7 @@ def main():
     reports_dir.mkdir(exist_ok=True)
     
     report_file = reports_dir / "CONDITION_COVERAGE_ANALYSIS.md"
-    with open(report_file, 'w', encoding='utf-8') as f:
+    with open(report_file, 'w') as f:
         f.write(coverage_report)
     
     print(f"✅ Condition coverage report generated: {report_file}")
@@ -298,7 +298,7 @@ def main():
     # Generate JSON summary for programmatic access
     analysis = analyze_test_results()
     json_file = reports_dir / "test_analysis_summary.json"
-    with open(json_file, 'w', encoding='utf-8') as f:
+    with open(json_file, 'w') as f:
         json.dump(analysis, f, indent=2)
     
     print(f"✅ JSON analysis summary generated: {json_file}")
