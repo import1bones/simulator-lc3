@@ -1,5 +1,5 @@
 #include "control_store.h"
-#include "../type/opcode.h"
+#include "../types/opcode.h"
 #include <string.h>
 
 // Global control store variables

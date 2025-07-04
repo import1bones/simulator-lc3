@@ -1,7 +1,7 @@
 #include "pipeline_config.h"
-#include "../mem/memory.h"
-#include "../mem/register.h"
-#include "../type/opcode.h"
+#include "../memory/memory.h"
+#include "../memory/register.h"
+#include "../types/opcode.h"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>

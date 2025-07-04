@@ -1,11 +1,11 @@
 #ifndef STATE_MACHINE_H
 #define STATE_MACHINE_H
 
-#include "../mem/control_store.h"
-#include "../mem/device_register.h"
-#include "../mem/memory.h"
-#include "../mem/register.h"
-#include "../type/type.h"
+#include "../memory/control_store.h"
+#include "../memory/device_register.h"
+#include "../memory/memory.h"
+#include "../memory/register.h"
+#include "../types/type.h"
 #include "state_definitions.h"
 
 typedef uint16_t instruction_t;

@@ -1,9 +1,13 @@
 #ifndef CONTROL_STORE_H
 #define CONTROL_STORE_H
 
-#include"../type/type.h"
+#include "../types/type.h"
 #include <stdint.h>
 #include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef uint64_t micro_instruction_t;
 
@@ -151,5 +155,9 @@ void lc3_pipeline_get_metrics(lc3_pipeline_metrics_t *metrics);
 void lc3_pipeline_config_init_default(lc3_pipeline_config_t *config);
 void lc3_pipeline_metrics_reset(lc3_pipeline_metrics_t *metrics);
 void lc3_instruction_packet_init(lc3_instruction_packet_t *packet);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //CONTROL_STORE_H

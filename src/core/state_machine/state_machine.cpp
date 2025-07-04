@@ -1,6 +1,6 @@
 #include "state_machine.h"
-#include "../type/opcode.h"
-#include "../mem/control_store.h"  // Add pipeline support
+#include "../types/opcode.h"
+#include "../memory/control_store.h"  // Add pipeline support
 #include "signals.h"
 #include "state_definitions.h"
 #include "states.h"

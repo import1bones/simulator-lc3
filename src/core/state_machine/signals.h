@@ -1,9 +1,9 @@
 #ifndef SIGNALS_H
 #define SIGNALS_H
 
-#include "../mem/memory.h"
-#include "../mem/register.h"
-#include "../type/type.h"
+#include "../memory/memory.h"
+#include "../memory/register.h"
+#include "../types/type.h"
 #include "ext.h"
 
 /**

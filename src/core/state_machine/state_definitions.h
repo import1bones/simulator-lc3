@@ -1,7 +1,7 @@
 #ifndef STATE_DEFINITIONS_H
 #define STATE_DEFINITIONS_H
 
-#include "../type/type.h"
+#include "../types/type.h"
 
 // State machine state definitions
 // These correspond to the microcode control store addresses

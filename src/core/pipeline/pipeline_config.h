@@ -1,7 +1,7 @@
 #ifndef PIPELINE_CONFIG_H
 #define PIPELINE_CONFIG_H
 
-#include "../type/type.h"
+#include "../types/type.h"
 #include <stdint.h>
 #include <stdbool.h>
 

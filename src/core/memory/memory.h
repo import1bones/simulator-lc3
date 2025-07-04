@@ -1,14 +1,19 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
-#include"../type/type.h"
+#include "../types/type.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef uint16_t word_t;
-word_t mem[UINT16_MAX];
+extern word_t mem[UINT16_MAX];
 
-word_t *mem_ptr = mem;
+extern word_t *mem_ptr;
 
-word_t mem_addr_reg;
-word_t mem_data_reg;
+extern word_t mem_addr_reg;
+extern word_t mem_data_reg;
 
 #define SYSTEM_SPACE_ADDR 0x0000
 #define SYSTEM_SPACE_LIMIT 0x2FFF
@@ -24,5 +29,9 @@ word_t mem_data_reg;
 
 #define DEVICE_REGISTER_ADDR 0xFE00
 #define DEVICE_REGSITER_LIMIT 0xFFFF
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //MEMORY_H

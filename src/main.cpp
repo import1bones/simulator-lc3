@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "state_machine/state_machine.h"
-#include "state_machine/signals.h"
-#include "mem/memory.h"
-#include "mem/register.h"
-#include "mem/device_register.h"
-#include "mem/control_store.h"  // Add pipeline support
-#include "type/trap_vector.h"
+#include "core/state_machine/state_machine.h"
+#include "core/state_machine/signals.h"
+#include "core/memory/memory.h"
+#include "core/memory/register.h"
+#include "core/memory/device_register.h"
+#include "core/memory/control_store.h"  // Add pipeline support
+#include "core/types/trap_vector.h"
 
 // Pipeline mode flag
 bool pipeline_mode = false;

@@ -1,14 +1,22 @@
 #ifndef REGISTER_H
 #define REGISTER_H
-#include "../type/type.h"
+#include "../types/type.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef uint16_t lc3_register_t;
-lc3_register_t reg[0x8];
+extern lc3_register_t reg[0x8];
 
-lc3_register_t *reg_ptr = reg;
+extern lc3_register_t *reg_ptr;
 
-lc3_register_t pointer_counter;
+extern lc3_register_t pointer_counter;
 
-lc3_register_t instruction_reg;
+extern lc3_register_t instruction_reg;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

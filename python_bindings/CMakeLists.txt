@@ -25,7 +25,10 @@ endif()
 pybind11_add_module(lc3_simulator lc3_simulator.cpp)
 
 # Include directories
-target_include_directories(lc3_simulator PRIVATE ..)
+target_include_directories(lc3_simulator PRIVATE .. ../src/core)
+
+# Link with our libraries
+target_link_libraries(lc3_simulator PRIVATE mem state_machine type)
 
 # Compiler-specific options
 target_compile_definitions(lc3_simulator PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})

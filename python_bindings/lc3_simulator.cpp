@@ -1,8 +1,10 @@
-#include "../mem/memory.h"
-#include "../mem/register.h"
-#include "../state_machine/state_machine.h"
-#include "../type/opcode.h"
-#include "../type/trap_vector.h"
+#include "src/core/memory/memory.h"
+#include "src/core/memory/register.h"
+#include "src/core/state_machine/state_machine.h"
+#include "src/core/types/opcode.h"
+#include "src/core/types/type.h"  
+#include "src/core/types/trap_vector.h"
+#include <stdint.h>  // For uint16_t, uint8_t
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
