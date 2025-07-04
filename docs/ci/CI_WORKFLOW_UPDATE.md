@@ -33,8 +33,8 @@ The CI workflows are implemented in `build_system/ci_commands.py` and provide th
 
 The default workflow:
 1. Installs dependencies
-2. Builds the simulator with Python bindings and pipeline extensions
-3. Runs tests with code coverage reporting
+1. Builds the simulator with Python bindings and pipeline extensions
+2. Runs tests with code coverage reporting
 
 ### Nightly Workflow
 

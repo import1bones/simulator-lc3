@@ -1,9 +1,9 @@
 /**
  * @file main.cpp
  * @brief Main entry point for the LC-3 simulator
- * 
+ *
  * LC-3 Simulator with Pipeline Extensions
- * 
+ *
  * MIT License
  * Copyright (c) 2025 LC-3 Simulator Project Contributors
  */
@@ -22,26 +22,26 @@ void initialize_simulator() {
     for(int i = 0; i < 8; i++) {
         reg[i] = 0;
     }
-    
+
     // Initialize memory
     for(int i = 0; i < UINT16_MAX; i++) {
         mem[i] = 0;
     }
-    
+
     // Set up initial state
     pointer_counter = USER_SPACE_ADDR; // Start at user space
     instruction_reg = 0;
     mem_addr_reg = 0;
     mem_data_reg = 0;
-    
+
     // Initialize device registers
     mem[KBSR] = 0x0000; // Keyboard status register
-    mem[KBDR] = 0x0000; // Keyboard data register  
+    mem[KBDR] = 0x0000; // Keyboard data register
     mem[DSR] = 0x8000;  // Display status register (ready)
     mem[DDR] = 0x0000;  // Display data register
     mem[PSR] = 0x8002;  // Processor status register (supervisor mode, positive CC)
     mem[MCR] = 0x8000;  // Machine control register (clock enabled)
-    
+
     // Set up trap vectors
     mem[GETC] = 0x3000;  // Example trap service routine addresses
     mem[OUT] = 0x3100;
@@ -57,7 +57,7 @@ void load_program(const char* filename) {
         printf("Error: Cannot open file %s\n", filename);
         return;
     }
-    
+
     // Read origin address
     uint16_t origin;
     if(fread(&origin, sizeof(uint16_t), 1, file) != 1) {
@@ -65,13 +65,13 @@ void load_program(const char* filename) {
         fclose(file);
         return;
     }
-    
+
     // Convert from little-endian if necessary
     origin = ((origin & 0xFF) << 8) | ((origin >> 8) & 0xFF);
-    
+
     printf("Loading program at address 0x%04X\n", origin);
     pointer_counter = origin;
-    
+
     // Load program into memory
     uint16_t address = origin;
     uint16_t instruction;
@@ -80,7 +80,7 @@ void load_program(const char* filename) {
         instruction = ((instruction & 0xFF) << 8) | ((instruction >> 8) & 0xFF);
         mem[address++] = instruction;
     }
-    
+
     fclose(file);
     printf("Program loaded successfully\n");
 }
@@ -102,14 +102,14 @@ void run_interactive() {
     char command[100];
     printf("LC-3 Simulator Interactive Mode\n");
     printf("Commands: step, run, reg, mem <addr>, load <file>, reset, quit\n");
-    
+
     while(1) {
         printf("(lc3-sim) ");
         if(!fgets(command, sizeof(command), stdin)) break;
-        
+
         // Remove newline
         command[strcspn(command, "\n")] = 0;
-        
+
         if(strcmp(command, "quit") == 0 || strcmp(command, "q") == 0) {
             break;
         }
@@ -159,14 +159,14 @@ int main(int argc, char *argv[])
 {
     printf("LC-3 Simulator v1.0\n");
     printf("Initializing...\n");
-    
+
     // Initialize the simulator
     initialize_simulator();
-    
+
     if(argc > 1) {
         // Load program from command line argument
         load_program(argv[1]);
-        
+
         if(argc > 2 && strcmp(argv[2], "-i") == 0) {
             // Interactive mode
             run_interactive();
@@ -182,6 +182,6 @@ int main(int argc, char *argv[])
         printf("No program specified. Starting in interactive mode.\n");
         run_interactive();
     }
-    
+
     return 0;
 }

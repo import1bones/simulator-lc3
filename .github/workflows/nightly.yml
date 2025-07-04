@@ -34,7 +34,7 @@ jobs:
         run: |
           # Run all analysis scripts using the unified interface
           python ./build.py run-script --script analysis/enhanced_isa_analysis.py
-          python ./build.py run-script --script analysis/isa_design_analysis.py 
+          python ./build.py run-script --script analysis/isa_design_analysis.py
           python ./build.py run-script --script analysis/mips_benchmark.py
 
           # Run performance benchmarks

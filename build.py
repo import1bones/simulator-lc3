@@ -100,9 +100,11 @@ def parse_args():
     ci_parser.add_argument(
         "--workflow", type=str, default="default", help="Specify workflow to run"
     )
-    
+
     # Run script command
-    script_parser = subparsers.add_parser("run-script", help="Run a script with the build environment")
+    script_parser = subparsers.add_parser(
+        "run-script", help="Run a script with the build environment"
+    )
     script_parser.add_argument(
         "--script", type=str, required=True, help="Path to the script to run"
     )
@@ -142,7 +144,7 @@ def main():
             return run_ci(args)
         elif args.command == "run-script":
             from build_system.script_commands import run_script
-            
+
             return run_script(args)
         else:
             print(f"Unknown command: {args.command}")
