@@ -1,0 +1,47 @@
+name: Cross-Platform CI
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: [3.9]
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python ./build.py setup --deps
+          
+      - name: Build simulator
+        run: |
+          python ./build.py build --python-bindings --pipeline
+          
+      - name: Run basic tests
+        run: |
+          python ./build.py test --fast
+          
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: simulator-${{ matrix.os }}
+          path: |
+            build/simulator-lc3*
+            build/*.so
+            build/*.dll
+            build/*.dylib

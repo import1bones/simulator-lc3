@@ -30,23 +30,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake build-essential
 
-      - name: Install Python dependencies
+      - name: Set up the environment
         run: |
           python -m pip install --upgrade pip
-          python3 scripts/run_tests.py --install-deps
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python ./build.py setup --deps
 
-      - name: Check environment setup
+      - name: Build the simulator
         run: |
-          python3 scripts/run_tests.py --check-env
+          python ./build.py build --python-bindings --pipeline
 
-      - name: Build C++ simulator with Python bindings
+      - name: Run test suite
         run: |
-          python3 scripts/run_tests.py --build
-
-      - name: Run comprehensive test suite
-        run: |
-          python3 scripts/run_tests.py --basic --instructions --memory --io --coverage --html-report
+          python ./build.py test --fast --coverage
 
       - name: Run ISA analysis
         run: |
