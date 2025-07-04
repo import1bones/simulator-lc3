@@ -35,25 +35,22 @@ jobs:
           python -m pip install --upgrade pip
           python ./build.py setup --deps
 
-      - name: Build the simulator
+      - name: Run CI workflow
         run: |
-          python ./build.py build --python-bindings --pipeline
-
-      - name: Run test suite
-        run: |
-          python ./build.py test --fast --coverage
+          python ./build.py ci --workflow default
 
       - name: Run ISA analysis
         run: |
-          python3 analysis/enhanced_isa_analysis.py
+          # Run ISA analysis using the enhanced version
+          python ./build.py run-script --script analysis/enhanced_isa_analysis.py
 
       - name: Generate auto-documentation
         run: |
-          python3 scripts/auto_documentation.py
+          python ./build.py run-script --script scripts/auto_documentation.py
 
       - name: Run project validation
         run: |
-          python3 scripts/validate_project.py
+          python ./build.py run-script --script scripts/validate_project.py
 
       - name: Generate workflow summary
         if: always()
