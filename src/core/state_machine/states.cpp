@@ -1,3 +1,13 @@
+/**
+ * @file states.cpp
+ * @brief States implementation
+ * 
+ * LC-3 Simulator with Pipeline Extensions
+ * 
+ * MIT License
+ * Copyright (c) 2025 LC-3 Simulator Project Contributors
+ */
+
 #include "states.h"
 
 // Define the state function pointer array

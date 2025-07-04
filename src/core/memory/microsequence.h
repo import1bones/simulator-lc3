@@ -1,3 +1,13 @@
+/**
+ * @file microsequence.h
+ * @brief Microsequence implementation
+ * 
+ * LC-3 Simulator with Pipeline Extensions
+ * 
+ * MIT License
+ * Copyright (c) 2025 LC-3 Simulator Project Contributors
+ */
+
 #ifndef MICROSEQUENCE_H
 #define MICROSEQUENCE_H
 

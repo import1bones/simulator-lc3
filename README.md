@@ -78,6 +78,12 @@ The project uses a unified build system for testing:
 
 See [tests/README.md](tests/README.md) for more details on the test structure.
 
+## Contributing
+
+Contributions to this project are welcome! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to contribute.
+
+All contributors are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## License
 
-[License information]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -1,4 +1,13 @@
 """
+Setup Commands implementation
+
+LC-3 Simulator with Pipeline Extensions
+
+MIT License
+Copyright (c) 2025 LC-3 Simulator Project Contributors
+"""
+
+"""
 Setup commands for the LC-3 Simulator.
 
 This module implements the 'setup' command functionality.

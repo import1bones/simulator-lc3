@@ -1,3 +1,12 @@
+"""
+Validate Project implementation
+
+LC-3 Simulator with Pipeline Extensions
+
+MIT License
+Copyright (c) 2025 LC-3 Simulator Project Contributors
+"""
+
 #!/usr/bin/env python3
 """
 Comprehensive validation script to ensure all components work after reorganization.

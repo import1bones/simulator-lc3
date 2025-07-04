@@ -1,3 +1,13 @@
+/**
+ * @file main.cpp
+ * @brief Main implementation
+ * 
+ * LC-3 Simulator with Pipeline Extensions
+ * 
+ * MIT License
+ * Copyright (c) 2025 LC-3 Simulator Project Contributors
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

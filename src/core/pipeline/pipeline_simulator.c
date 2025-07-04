@@ -1,3 +1,13 @@
+/**
+ * @file pipeline_simulator.c
+ * @brief Pipeline Simulator implementation
+ * 
+ * LC-3 Simulator with Pipeline Extensions
+ * 
+ * MIT License
+ * Copyright (c) 2025 LC-3 Simulator Project Contributors
+ */
+
 #include "pipeline_config.h"
 #include "../memory/memory.h"
 #include "../memory/register.h"

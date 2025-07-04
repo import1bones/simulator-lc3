@@ -1,4 +1,13 @@
 """
+Test Runner implementation
+
+LC-3 Simulator with Pipeline Extensions
+
+MIT License
+Copyright (c) 2025 LC-3 Simulator Project Contributors
+"""
+
+"""
 LC-3 Simulator Test Runner
 
 This module provides functions for running the LC-3 simulator test suite.

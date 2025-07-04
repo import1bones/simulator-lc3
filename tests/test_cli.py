@@ -1,4 +1,13 @@
 """
+Test Cli implementation
+
+LC-3 Simulator with Pipeline Extensions
+
+MIT License
+Copyright (c) 2025 LC-3 Simulator Project Contributors
+"""
+
+"""
 Test suite for the simulator-lc3 command-line interface.
 
 This module provides tests for verifying the functionality of the simulator-lc3 binary

@@ -1,3 +1,12 @@
+"""
+Clean Project implementation
+
+LC-3 Simulator with Pipeline Extensions
+
+MIT License
+Copyright (c) 2025 LC-3 Simulator Project Contributors
+"""
+
 #!/usr/bin/env python3
 """
 Clean up auto-generated files from the LC-3 simulator project.

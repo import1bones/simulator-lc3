@@ -1,3 +1,13 @@
+/**
+ * @file pipeline_config.h
+ * @brief Pipeline Config implementation
+ * 
+ * LC-3 Simulator with Pipeline Extensions
+ * 
+ * MIT License
+ * Copyright (c) 2025 LC-3 Simulator Project Contributors
+ */
+
 #ifndef PIPELINE_CONFIG_H
 #define PIPELINE_CONFIG_H
 

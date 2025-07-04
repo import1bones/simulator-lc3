@@ -1,3 +1,13 @@
+/**
+ * @file state_machine.cpp
+ * @brief State Machine implementation
+ * 
+ * LC-3 Simulator with Pipeline Extensions
+ * 
+ * MIT License
+ * Copyright (c) 2025 LC-3 Simulator Project Contributors
+ */
+
 #include "state_machine.h"
 #include "../types/opcode.h"
 #include "../memory/control_store.h"  // Add pipeline support

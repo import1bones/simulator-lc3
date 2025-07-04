@@ -1,4 +1,13 @@
 """
+Test Environment Setup implementation
+
+LC-3 Simulator with Pipeline Extensions
+
+MIT License
+Copyright (c) 2025 LC-3 Simulator Project Contributors
+"""
+
+"""
 LC-3 Simulator Test Environment Configuration
 
 This module handles test environment setup, verification, and configuration.

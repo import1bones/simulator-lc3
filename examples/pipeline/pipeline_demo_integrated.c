@@ -1,4 +1,14 @@
 /**
+ * @file pipeline_demo_integrated.c
+ * @brief Pipeline Demo Integrated implementation
+ * 
+ * LC-3 Simulator with Pipeline Extensions
+ * 
+ * MIT License
+ * Copyright (c) 2025 LC-3 Simulator Project Contributors
+ */
+
+/**
  * LC-3 Pipeline Demo Program
  * Shows how to use the integrated pipeline functionality
  */

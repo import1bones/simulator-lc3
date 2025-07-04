@@ -1,3 +1,13 @@
+/**
+ * @file control_store.h
+ * @brief Control Store implementation
+ * 
+ * LC-3 Simulator with Pipeline Extensions
+ * 
+ * MIT License
+ * Copyright (c) 2025 LC-3 Simulator Project Contributors
+ */
+
 #ifndef CONTROL_STORE_H
 #define CONTROL_STORE_H
 

@@ -1,3 +1,13 @@
+/**
+ * @file state_machine_utils.cpp
+ * @brief State Machine Utils implementation
+ * 
+ * LC-3 Simulator with Pipeline Extensions
+ * 
+ * MIT License
+ * Copyright (c) 2025 LC-3 Simulator Project Contributors
+ */
+
 #include "state_machine.h"
 #include "state_definitions.h"
 #include <iostream>

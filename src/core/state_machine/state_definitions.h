@@ -1,3 +1,13 @@
+/**
+ * @file state_definitions.h
+ * @brief State Definitions implementation
+ * 
+ * LC-3 Simulator with Pipeline Extensions
+ * 
+ * MIT License
+ * Copyright (c) 2025 LC-3 Simulator Project Contributors
+ */
+
 #ifndef STATE_DEFINITIONS_H
 #define STATE_DEFINITIONS_H
 

@@ -1,3 +1,12 @@
+"""
+Mips Benchmark implementation
+
+LC-3 Simulator with Pipeline Extensions
+
+MIT License
+Copyright (c) 2025 LC-3 Simulator Project Contributors
+"""
+
 #!/usr/bin/env python3
 """
 MIPS-Style Architectural Benchmark for LC-3

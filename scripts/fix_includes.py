@@ -1,3 +1,12 @@
+"""
+Fix Includes implementation
+
+LC-3 Simulator with Pipeline Extensions
+
+MIT License
+Copyright (c) 2025 LC-3 Simulator Project Contributors
+"""
+
 #!/usr/bin/env python3
 """
 Script to fix include paths in source files after directory reorganization.

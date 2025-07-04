@@ -1,3 +1,13 @@
+/**
+ * @file lc3_simulator.cpp
+ * @brief Lc3 Simulator implementation
+ * 
+ * LC-3 Simulator with Pipeline Extensions
+ * 
+ * MIT License
+ * Copyright (c) 2025 LC-3 Simulator Project Contributors
+ */
+
 #include "src/core/memory/memory.h"
 #include "src/core/memory/register.h"
 #include "src/core/state_machine/state_machine.h"

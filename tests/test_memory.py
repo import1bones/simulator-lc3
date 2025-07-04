@@ -1,4 +1,13 @@
 """
+Test Memory implementation
+
+LC-3 Simulator with Pipeline Extensions
+
+MIT License
+Copyright (c) 2025 LC-3 Simulator Project Contributors
+"""
+
+"""
 Tests for memory management and memory-related functionality.
 """
 import pytest

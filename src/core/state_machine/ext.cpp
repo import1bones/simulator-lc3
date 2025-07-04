@@ -1,3 +1,13 @@
+/**
+ * @file ext.cpp
+ * @brief Ext implementation
+ * 
+ * LC-3 Simulator with Pipeline Extensions
+ * 
+ * MIT License
+ * Copyright (c) 2025 LC-3 Simulator Project Contributors
+ */
+
 #include "ext.h"
 
 uint16_t bit_table[16] = {0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020,

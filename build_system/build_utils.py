@@ -1,4 +1,13 @@
 """
+Build Utils implementation
+
+LC-3 Simulator with Pipeline Extensions
+
+MIT License
+Copyright (c) 2025 LC-3 Simulator Project Contributors
+"""
+
+"""
 Utility functions for the build system.
 
 This module provides common functionality for build, test, and CI operations.

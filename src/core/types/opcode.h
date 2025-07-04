@@ -1,3 +1,13 @@
+/**
+ * @file opcode.h
+ * @brief Opcode implementation
+ * 
+ * LC-3 Simulator with Pipeline Extensions
+ * 
+ * MIT License
+ * Copyright (c) 2025 LC-3 Simulator Project Contributors
+ */
+
 #ifndef OPCODE_H
 #define OPCODE_H
 

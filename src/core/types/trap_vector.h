@@ -1,3 +1,13 @@
+/**
+ * @file trap_vector.h
+ * @brief Trap Vector implementation
+ * 
+ * LC-3 Simulator with Pipeline Extensions
+ * 
+ * MIT License
+ * Copyright (c) 2025 LC-3 Simulator Project Contributors
+ */
+
 #ifndef TRAP_VECTOR_H
 #define TRAP_VECTOR_H
 
