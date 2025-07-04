@@ -1,8 +1,15 @@
 # LC-3 Simulator Test Architecture
 
-This directory contains a comprehensive pytest test suite for the LC-3 simulator. The test architecture is designed to thoroughly validate all aspects of the simulator functionality.
+This directory contains a comprehensive pytest test suite for the LC-3 simulator. All test-related functionality is now centralized in this directory.
 
-## Test Structure
+## Test Organization
+
+### Core Test Modules
+
+- **test_runner.py** - Central test runner used by the build system
+- **test_environment_setup.py** - Environment setup and verification
+- **test_utils.py** - Common test utilities and helper functions
+- **conftest.py** - pytest configuration and fixtures
 
 ### Test Categories
 

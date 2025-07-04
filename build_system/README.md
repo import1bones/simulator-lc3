@@ -79,15 +79,19 @@ Options:
 
 ## Structure
 
-- `build.py`: Main entry point
+- `build.py`: Main entry point in project root
 - `build_system/`: Core build system modules
   - `build_utils.py`: Utility functions
   - `build_commands.py`: Build command implementation
-  - `test_commands.py`: Test command implementation
+  - `test_commands.py`: Test command dispatcher (delegates to tests/test_runner.py)
   - `clean_commands.py`: Clean command implementation
   - `setup_commands.py`: Setup command implementation
   - `ci_commands.py`: CI command implementation
   - `init.sh`: Initialization script
+- `tests/`: Test-related modules
+  - `test_runner.py`: Main test runner implementation
+  - `test_environment_setup.py`: Test environment configuration
+  - `test_utils.py`: Test utilities and helpers
 
 ## Integration with CI
 

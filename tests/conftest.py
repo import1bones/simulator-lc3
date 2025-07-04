@@ -4,10 +4,13 @@ Test configuration and fixtures for LC-3 Simulator tests.
 import pytest
 import sys
 import os
+from pathlib import Path
 
-# Add the build directory to the path to import the compiled module
-build_path = os.path.join(os.path.dirname(__file__), '..', 'build', 'python_bindings')
-sys.path.insert(0, build_path)
+# Import test environment setup
+from test_environment_setup import setup_test_environment, verify_test_environment
+
+# Set up the test environment
+setup_test_environment()
 
 # Check if the simulator module is available
 simulator_available = False
@@ -20,10 +23,9 @@ except ImportError as e:
         "LC-3 Simulator module not available. "
         "This usually means the C++ simulator hasn't been built yet.\n\n"
         "To build the simulator:\n"
-        "1. Run: python3 scripts/run_tests.py --build\n"
+        "1. Run: ./build.py build --python-bindings\n"
         "2. Or manually: cd build && cmake -DBUILD_PYTHON_BINDINGS=ON .. && cmake --build .\n\n"
         "In CI environments, ensure the build step runs before tests.\n"
-        f"Build path checked: {build_path}\n"
         f"Import error: {e}"
     )
     

@@ -30,10 +30,9 @@ sys.path.insert(0, str(SCRIPT_DIR / "build_system"))
 
 # Import build system modules
 try:
-    from build_utils import run_command, get_project_root
-    from test_runner import run_tests
-    from ci_runner import run_ci_workflow
-    from setup_utils import setup_environment
+    # Only importing from build_system directory now
+    # Test runner is imported dynamically when needed from tests directory
+    from build_system.build_utils import run_command, get_project_root
 except ImportError as e:
     print(f"Error: Failed to import build system modules: {e}")
     print("Make sure you're running this script from the project root directory.")
@@ -87,19 +86,19 @@ def main():
     try:
         # Execute the requested command
         if args.command == "build":
-            from build_commands import build_project
+            from build_system.build_commands import build_project
             return build_project(args)
         elif args.command == "test":
-            from test_commands import run_test_suite
+            from build_system.test_commands import run_test_suite
             return run_test_suite(args)
         elif args.command == "clean":
-            from clean_commands import clean_project
+            from build_system.clean_commands import clean_project
             return clean_project(args)
         elif args.command == "setup":
-            from setup_commands import setup_project
+            from build_system.setup_commands import setup_project
             return setup_project(args)
         elif args.command == "ci":
-            from ci_commands import run_ci
+            from build_system.ci_commands import run_ci
             return run_ci(args)
         else:
             print(f"Unknown command: {args.command}")
