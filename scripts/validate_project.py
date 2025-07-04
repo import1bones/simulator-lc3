@@ -23,7 +23,9 @@ def run_command(cmd, description="", cwd=None):
     print(f"Running: {' '.join(cmd) if isinstance(cmd, list) else cmd}")
 
     try:
-        result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, check=True)
+        result = subprocess.run(
+            cmd, cwd=cwd, capture_output=True, text=True, check=True
+        )
         print(f"✅ SUCCESS: {description}")
         return True, result.stdout
     except subprocess.CalledProcessError as e:
@@ -53,14 +55,28 @@ def test_project_structure():
     print(f"📁 Working from project root: {project_root}")
 
     expected_dirs = [
-        "scripts", "analysis", "data", "docs", "reports", "tests",
-        "state_machine", "mem", "type", "python_bindings", ".vscode"
+        "scripts",
+        "analysis",
+        "data",
+        "docs",
+        "reports",
+        "tests",
+        "state_machine",
+        "mem",
+        "type",
+        "python_bindings",
+        ".vscode",
     ]
 
     expected_files = [
-        "CMakeLists.txt", "Makefile", "main.cpp", "README.md",
-        "scripts/run_tests.py", "analysis/enhanced_isa_analysis.py",
-        "tests/test_basic.py", "docs/PROJECT_STRUCTURE.md"
+        "CMakeLists.txt",
+        "Makefile",
+        "main.cpp",
+        "README.md",
+        "scripts/run_tests.py",
+        "analysis/enhanced_isa_analysis.py",
+        "tests/test_basic.py",
+        "docs/PROJECT_STRUCTURE.md",
     ]
 
     missing_dirs = []
@@ -293,11 +309,17 @@ def clean_generated_files():
     # Remove auto-generated files from various locations
     patterns_and_dirs = [
         # Reports with timestamps
-        (project_root / "reports", ["enhanced_*_*.md", "enhanced_*_*.json", "*_[0-9]*.md", "*_[0-9]*.json"]),
+        (
+            project_root / "reports",
+            ["enhanced_*_*.md", "enhanced_*_*.json", "*_[0-9]*.md", "*_[0-9]*.json"],
+        ),
         # Data files with timestamps
         (project_root / "data", ["enhanced_*_*.json", "*_[0-9]*.json", "*_[0-9]*.csv"]),
         # Auto-generated docs
-        (project_root / "docs", ["COMPREHENSIVE_ANALYSIS_SUMMARY.md", "REPORTS_INDEX.md"]),
+        (
+            project_root / "docs",
+            ["COMPREHENSIVE_ANALYSIS_SUMMARY.md", "REPORTS_INDEX.md"],
+        ),
         # Auto-docs directory
         (project_root, ["auto-docs"]),
         # Root level generated files
@@ -315,6 +337,7 @@ def clean_generated_files():
                 if auto_docs_dir.exists():
                     try:
                         import shutil
+
                         shutil.rmtree(auto_docs_dir)
                         print(f"🗑️ Removed directory: {auto_docs_dir}")
                     except Exception as e:
@@ -353,7 +376,7 @@ def test_git_ignore():
 
     # Read .gitignore content
     try:
-        with open(gitignore_path, 'r') as f:
+        with open(gitignore_path, "r") as f:
             gitignore_content = f.read()
     except Exception as e:
         print(f"❌ Could not read .gitignore: {e}")
@@ -389,27 +412,34 @@ def test_git_ignore():
             cwd=project_root,
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
 
         # Look for problematic untracked files
         untracked_files = []
-        for line in result.stdout.strip().split('\n'):
-            if line.startswith('??'):
+        for line in result.stdout.strip().split("\n"):
+            if line.startswith("??"):
                 file_path = line[3:].strip()
                 # Check if it's an auto-generated file that should be ignored
-                if any(pattern in file_path for pattern in ['enhanced_', '_202', 'auto-docs']):
+                if any(
+                    pattern in file_path
+                    for pattern in ["enhanced_", "_202", "auto-docs"]
+                ):
                     untracked_files.append(file_path)
 
         if untracked_files:
             print(f"⚠️ Auto-generated files not ignored by git: {untracked_files}")
-            print("Consider running: git add .gitignore && git commit -m 'Update gitignore'")
+            print(
+                "Consider running: git add .gitignore && git commit -m 'Update gitignore'"
+            )
             # Don't fail for this - it's just a warning
         else:
             print("✅ No problematic untracked files found")
 
     except subprocess.CalledProcessError:
-        print("⚠️ Could not check git status (not a git repository or git not available)")
+        print(
+            "⚠️ Could not check git status (not a git repository or git not available)"
+        )
     except Exception as e:
         print(f"⚠️ Error checking git status: {e}")
 

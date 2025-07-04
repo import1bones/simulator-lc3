@@ -71,7 +71,7 @@ def test_new_feature(self):
     returncode, stdout, _ = self.run_simulator(
         input_data="new_command\nquit\n"
     )
-    
+
     assert returncode == 0
     assert "Expected output" in stdout
 ```

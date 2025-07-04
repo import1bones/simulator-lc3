@@ -4,11 +4,11 @@
 
 We have reorganized all test-related content to centralize it in the `tests` directory:
 
-1. **Created a centralized test runner**:  
+1. **Created a centralized test runner**:
    - Added `tests/test_runner.py` as the main test runner
    - Updated `build_system/test_commands.py` to delegate to this test runner
 
-2. **Improved test environment setup**:  
+2. **Improved test environment setup**:
    - Created `tests/test_environment_setup.py` for environment verification and setup
    - Updated `tests/conftest.py` to use the new environment setup
 
@@ -29,7 +29,7 @@ We have reorganized all test-related content to centralize it in the `tests` dir
 
 This reorganization provides several benefits:
 
-1. **Better separation of concerns**:  
+1. **Better separation of concerns**:
    - Test content is now properly isolated in the tests directory
    - Build system focuses only on build operations
 

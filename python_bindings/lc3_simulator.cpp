@@ -2,7 +2,7 @@
 #include "src/core/memory/register.h"
 #include "src/core/state_machine/state_machine.h"
 #include "src/core/types/opcode.h"
-#include "src/core/types/type.h"  
+#include "src/core/types/type.h"
 #include "src/core/types/trap_vector.h"
 #include <stdint.h>  // For uint16_t, uint8_t
 #include <pybind11/numpy.h>

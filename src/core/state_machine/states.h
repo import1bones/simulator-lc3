@@ -73,12 +73,12 @@ void state_56(const micro_instruction_t micro_inst);
 void state_57(const micro_instruction_t micro_inst);
 void state_58(const micro_instruction_t micro_inst);
 void state_59(const micro_instruction_t micro_inst);
-void state_60(const micro_instruction_t micro_inst); 
+void state_60(const micro_instruction_t micro_inst);
 void state_61(const micro_instruction_t micro_inst);
 void state_62(const micro_instruction_t micro_inst);
 void state_63(const micro_instruction_t micro_inst);
 
-typedef void (*state_function_ptr)(const micro_instruction_t micro_inst); 
+typedef void (*state_function_ptr)(const micro_instruction_t micro_inst);
 
 //define and inital state_function_ptr_array.
 //through a state function and change signa.

@@ -85,12 +85,12 @@ Contains project documentation:
   - `TEST_REORGANIZATION.md`: Test reorganization documentation
   - `BUILD_ARCHITECTURE_SUMMARY.md`: Build architecture documentation
   - Other development documentation
-  
+
 - `project/`: Project overview documentation
   - `PROJECT_OVERVIEW.md`: Project overview
   - `PROJECT_NAVIGATION.md`: Navigation guide
   - Other project documentation
-  
+
 - `ci/`: CI/CD documentation
   - `PIPELINE_INTEGRATION_GUIDE.md`: Pipeline integration guide
   - `GITHUB_ACTIONS_GUIDE.md`: GitHub Actions guide

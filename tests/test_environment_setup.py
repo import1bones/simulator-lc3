@@ -28,23 +28,23 @@ def get_test_programs_dir():
 
 def run_build_command(clean=False, python_bindings=True):
     """Run the build command to ensure simulator is compiled.
-    
+
     Args:
         clean: Whether to clean before building
         python_bindings: Whether to build Python bindings
-        
+
     Returns:
         True if build succeeds, False otherwise
     """
     try:
         cmd = [sys.executable, str(PROJECT_ROOT / "build.py"), "build"]
-        
+
         if clean:
             cmd.append("--clean")
-        
+
         if python_bindings:
             cmd.append("--python-bindings")
-        
+
         subprocess.run(cmd, check=True)
         return True
     except subprocess.CalledProcessError:
@@ -53,7 +53,7 @@ def run_build_command(clean=False, python_bindings=True):
 
 def verify_test_environment():
     """Verify that the test environment is set up correctly.
-    
+
     Returns:
         True if environment is valid, False otherwise
     """
@@ -63,10 +63,11 @@ def verify_test_environment():
         print("Build directory not found. Running build...")
         if not run_build_command():
             return False
-    
+
     # Check if Python bindings are available
     try:
         import lc3_simulator
+
         return True
     except ImportError:
         print("LC-3 simulator Python bindings not found.")
@@ -76,13 +77,13 @@ def verify_test_environment():
 
 def setup_test_environment():
     """Set up the test environment for LC-3 simulator tests.
-    
+
     This function is called by conftest.py to ensure proper setup.
     """
     # Verify environment
     if not verify_test_environment():
         pytest.fail("Failed to set up test environment")
-    
+
     # Add build directory to Python path for importing bindings
     build_dir = PROJECT_ROOT / "build"
     if build_dir.exists():

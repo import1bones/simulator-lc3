@@ -4,7 +4,7 @@ Clean up auto-generated files from the LC-3 simulator project.
 
 This script removes:
 - Auto-generated analysis reports with timestamps
-- Auto-generated data files with timestamps  
+- Auto-generated data files with timestamps
 - Auto-documentation directories
 - Build artifacts (optional)
 """
@@ -23,11 +23,17 @@ def clean_generated_files(project_root, include_build=False):
     # Remove auto-generated files from various locations
     patterns_and_dirs = [
         # Reports with timestamps
-        (project_root / "reports", ["enhanced_*_*.md", "enhanced_*_*.json", "*_[0-9]*.md", "*_[0-9]*.json"]),
+        (
+            project_root / "reports",
+            ["enhanced_*_*.md", "enhanced_*_*.json", "*_[0-9]*.md", "*_[0-9]*.json"],
+        ),
         # Data files with timestamps
         (project_root / "data", ["enhanced_*_*.json", "*_[0-9]*.json", "*_[0-9]*.csv"]),
         # Auto-generated docs (but keep static ones)
-        (project_root / "docs", ["COMPREHENSIVE_ANALYSIS_SUMMARY.md", "REPORTS_INDEX.md"]),
+        (
+            project_root / "docs",
+            ["COMPREHENSIVE_ANALYSIS_SUMMARY.md", "REPORTS_INDEX.md"],
+        ),
         # Root level generated files
         (project_root, ["enhanced_*_*.json", "enhanced_*_*.md"]),
     ]
@@ -45,7 +51,7 @@ def clean_generated_files(project_root, include_build=False):
     for base_dir, patterns in patterns_and_dirs:
         if not base_dir.exists():
             continue
-            
+
         for pattern in patterns:
             if pattern in ["auto-docs", "build"]:
                 # Handle directories
@@ -68,18 +74,28 @@ def clean_generated_files(project_root, include_build=False):
                         except Exception as e:
                             print(f"⚠️ Could not remove {file_path}: {e}")
 
-    print(f"🧹 Cleanup completed! Removed {files_removed} files and {dirs_removed} directories.")
+    print(
+        f"🧹 Cleanup completed! Removed {files_removed} files and {dirs_removed} directories."
+    )
     return files_removed + dirs_removed > 0
 
 
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(description="Clean auto-generated files from LC-3 simulator project")
-    parser.add_argument("--include-build", action="store_true", 
-                       help="Also remove build directory (forces rebuild)")
-    parser.add_argument("--dry-run", action="store_true",
-                       help="Show what would be removed without actually removing")
-    
+    parser = argparse.ArgumentParser(
+        description="Clean auto-generated files from LC-3 simulator project"
+    )
+    parser.add_argument(
+        "--include-build",
+        action="store_true",
+        help="Also remove build directory (forces rebuild)",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be removed without actually removing",
+    )
+
     args = parser.parse_args()
 
     # Get project root directory
@@ -93,15 +109,22 @@ def main():
         # For dry run, just show what would be removed
         print("Would remove auto-generated files matching these patterns:")
         patterns = [
-            "reports/enhanced_*_*.md", "reports/enhanced_*_*.json", 
-            "reports/*_[0-9]*.md", "reports/*_[0-9]*.json",
-            "data/enhanced_*_*.json", "data/*_[0-9]*.json", "data/*_[0-9]*.csv",
-            "docs/COMPREHENSIVE_ANALYSIS_SUMMARY.md", "docs/REPORTS_INDEX.md",
-            "enhanced_*_*.json", "enhanced_*_*.md", "auto-docs/"
+            "reports/enhanced_*_*.md",
+            "reports/enhanced_*_*.json",
+            "reports/*_[0-9]*.md",
+            "reports/*_[0-9]*.json",
+            "data/enhanced_*_*.json",
+            "data/*_[0-9]*.json",
+            "data/*_[0-9]*.csv",
+            "docs/COMPREHENSIVE_ANALYSIS_SUMMARY.md",
+            "docs/REPORTS_INDEX.md",
+            "enhanced_*_*.json",
+            "enhanced_*_*.md",
+            "auto-docs/",
         ]
         if args.include_build:
             patterns.append("build/")
-        
+
         for pattern in patterns:
             print(f"  - {pattern}")
         return 0

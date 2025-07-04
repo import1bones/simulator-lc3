@@ -23,11 +23,12 @@ except ImportError:
     def run_command(cmd, cwd=None, capture_output=False):
         """Run a shell command and return the result."""
         print(f"Running: {' '.join(cmd) if isinstance(cmd, list) else cmd}")
-        
+
         try:
             if capture_output:
-                result = subprocess.run(cmd, cwd=cwd, capture_output=True, 
-                                      text=True, check=True)
+                result = subprocess.run(
+                    cmd, cwd=cwd, capture_output=True, text=True, check=True
+                )
                 return result.stdout.strip()
             else:
                 subprocess.run(cmd, cwd=cwd, check=True)
@@ -44,7 +45,7 @@ def get_project_root():
 
 def run_test_suite(args):
     """Run the test suite for the LC-3 simulator.
-    
+
     Args:
         args: Command line arguments with the following attributes:
             - fast: Run tests in parallel
@@ -53,21 +54,21 @@ def run_test_suite(args):
             - integration: Run integration tests only
             - coverage: Generate coverage report
             - category: Run specific test category
-        
+
     Returns:
         0 on success, non-zero on error
     """
     project_root = get_project_root()
-    
+
     # Build pytest command
     pytest_cmd = ["python", "-m", "pytest"]
-    
+
     # Add options based on arguments
     if args.fast:
         pytest_cmd.append("-xvs")
     else:
         pytest_cmd.append("-v")
-    
+
     # Add test selection based on arguments
     if args.all:
         # Run all tests
@@ -82,12 +83,11 @@ def run_test_suite(args):
     else:
         # Default: run basic tests
         pytest_cmd.append("tests/test_basic.py")
-    
+
     # Add coverage options
     if args.coverage:
-        pytest_cmd.extend(["--cov=src", "--cov-report=html", 
-                           "--cov-report=term"])
-    
+        pytest_cmd.extend(["--cov=src", "--cov-report=html", "--cov-report=term"])
+
     # Run the tests
     try:
         run_command(pytest_cmd, cwd=project_root)
@@ -101,16 +101,18 @@ def run_test_suite(args):
 if __name__ == "__main__":
     # If called directly, provide a simple command-line interface
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Run LC-3 Simulator tests")
     parser.add_argument("--fast", action="store_true", help="Run tests in parallel")
     parser.add_argument("--all", action="store_true", help="Run all tests")
     parser.add_argument("--unit", action="store_true", help="Run unit tests only")
-    parser.add_argument("--integration", action="store_true", 
-                        help="Run integration tests only")
-    parser.add_argument("--coverage", action="store_true", 
-                        help="Generate coverage report")
+    parser.add_argument(
+        "--integration", action="store_true", help="Run integration tests only"
+    )
+    parser.add_argument(
+        "--coverage", action="store_true", help="Generate coverage report"
+    )
     parser.add_argument("--category", type=str, help="Run specific test category")
-    
+
     args = parser.parse_args()
     sys.exit(run_test_suite(args))
