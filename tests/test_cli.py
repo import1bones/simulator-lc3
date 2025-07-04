@@ -166,9 +166,9 @@ class TestCLI:
         assert returncode == 0
         assert "Memory[0x3000] = 0x1020" in stdout
 
-    def test_reset_command(self, verify_simulator_binary, sample_program_file):
+    def test_reset_command(self, sample_program_file):
         """Test the reset command."""
-        returncode, stdout, stderr = self.run_simulator(
+        returncode, stdout, _ = self.run_simulator(
             args=[str(sample_program_file), "-i"],
             input_data="step\nreset\nreg\nquit\n"
         )

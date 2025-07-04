@@ -13,32 +13,38 @@ This directory contains a comprehensive pytest test suite for the LC-3 simulator
 
 ### Test Categories
 
-1. **Basic Tests** (`test_basic.py`)
+1. **CLI Tests** (`test_cli.py`)
+   - Command-line interface functionality
+   - Interactive mode commands
+   - Program loading and execution
+   - Error handling in CLI context
+
+2. **Basic Tests** (`test_basic.py`)
    - Simulator initialization and reset
    - Register and memory access
    - Program loading
    - Basic execution control
 
-2. **Instruction Tests** (`test_instructions.py`)
+3. **Instruction Tests** (`test_instructions.py`)
    - Individual instruction implementations
    - Arithmetic instructions (ADD, AND, NOT)
    - Control flow instructions (BR, JMP, JSR)
    - Memory instructions (LD, LDI, LDR, ST, STI, STR, LEA)
    - TRAP instructions
 
-3. **Memory Tests** (`test_memory.py`)
+4. **Memory Tests** (`test_memory.py`)
    - Memory addressing modes
    - Memory protection
    - Boundary conditions
    - Memory patterns and stress tests
 
-4. **I/O Tests** (`test_io.py`)
+5. **I/O Tests** (`test_io.py`)
    - TRAP instruction functionality
    - Input/output operations
    - Character handling
    - Error conditions
 
-5. **Integration Tests** (`test_integration.py`)
+6. **Integration Tests** (`test_integration.py`)
    - Complete program execution
    - Complex algorithms
    - Performance tests

@@ -25,6 +25,7 @@ Welcome to the LC-3 Simulator documentation. This documentation provides compreh
 
 - [Test Configuration](development/TEST_CONFIGURATION_FIX.md) - Test configuration details
 - [Validation Process](development/VALIDATION_SUMMARY.md) - Validation methodology
+- [CLI Testing Framework](development/CLI_TESTING_FRAMEWORK.md) - Command-line interface testing
 
 ### Project Management
 

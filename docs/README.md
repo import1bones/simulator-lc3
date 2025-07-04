@@ -31,6 +31,13 @@ The documentation is organized into the following categories:
 - Pipeline simulation features
 - Integration guides
 - Implementation details
+- CLI testing framework
+
+### Testing Documentation
+
+- [CLI Testing Framework](development/CLI_TESTING_FRAMEWORK.md)
+- Test configuration and organization
+- Test categories and coverage
 
 ### CI/CD Documentation
 

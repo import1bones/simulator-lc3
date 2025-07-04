@@ -29,15 +29,17 @@ All detailed documentation is located in the `/docs` directory:
 
 ```
 simulator-lc3/
-├── src/                 # Source code
-│   ├── core/            # Core simulator components
-│   │   ├── memory/      # Memory subsystem
-│   │   ├── pipeline/    # Pipeline simulation
-│   │   ├── state_machine/ # LC-3 state machine
-│   │   └── types/       # Type definitions
-├── python_bindings/     # Python interface
-├── tests/               # Test suite
-└── docs/                # Documentation
+├── build.py            # Unified build system entry point
+├── mem/                # Memory subsystem
+├── state_machine/      # LC-3 state machine
+├── type/               # Type definitions
+├── build_system/       # Build system modules
+├── tests/              # Test suite with CLI testing
+├── docs/               # Documentation
+│   ├── development/    # Development documentation
+│   │   └── CLI_TESTING_FRAMEWORK.md  # CLI testing documentation
+│   └── project/        # Project documentation
+└── scripts/            # Utility scripts
 ```
 
 ## Features
@@ -46,6 +48,8 @@ simulator-lc3/
 - Integrated pipeline simulation with performance metrics
 - Memory management with proper addressing
 - I/O operations via TRAP instructions
+- Interactive CLI with support for debugging and inspection
+- Comprehensive testing framework including CLI tests
 - Comprehensive test suite with Python bindings
 
 ## Requirements
@@ -57,13 +61,22 @@ simulator-lc3/
 
 ## Testing
 
+The project uses a unified build system for testing:
+
 ```bash
 # Run all tests
-python -m pytest
+./build.py test --all
 
 # Run specific test categories
-python -m pytest tests/test_basic.py
+./build.py test --category basic
+./build.py test --category cli
+./build.py test --category instructions
+
+# Generate test coverage report
+./build.py test --coverage
 ```
+
+See [tests/README.md](tests/README.md) for more details on the test structure.
 
 ## License
 

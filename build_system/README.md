@@ -47,7 +47,13 @@ Options:
   --unit         Run unit tests only
   --integration  Run integration tests only
   --coverage     Generate coverage report
-  --category CATEGORY  Run specific test category
+  --category CATEGORY  Run specific test category (e.g., cli, basic, instructions)
+```
+
+To specifically test the simulator-lc3 CLI:
+
+```bash
+./build.py test --category cli
 ```
 
 ### Setting Up the Environment
@@ -92,6 +98,9 @@ Options:
   - `test_runner.py`: Main test runner implementation
   - `test_environment_setup.py`: Test environment configuration
   - `test_utils.py`: Test utilities and helpers
+  - `test_cli.py`: Command-line interface tests
+  - `test_basic.py`: Basic simulator functionality tests
+  - `test_instructions.py`: Instruction execution tests
 
 ## Integration with CI
 

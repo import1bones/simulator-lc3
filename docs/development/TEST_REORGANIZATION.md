@@ -12,11 +12,16 @@ We have reorganized all test-related content to centralize it in the `tests` dir
    - Created `tests/test_environment_setup.py` for environment verification and setup
    - Updated `tests/conftest.py` to use the new environment setup
 
-3. **Updated documentation**:
+3. **Added CLI Testing Framework**:
+   - Created `tests/test_cli.py` for comprehensive CLI testing
+   - Created fixtures for testing simulator CLI behavior
+   - Documented the CLI testing approach in `docs/development/CLI_TESTING_FRAMEWORK.md`
+
+4. **Updated documentation**:
    - Enhanced `tests/README.md` with information about the new test structure
    - Updated `build_system/README.md` to reference the new test organization
 
-4. **Main build script updates**:
+5. **Main build script updates**:
    - Updated `build.py` to use the proper import paths for build system modules
    - Removed unnecessary imports and updated module references
 
@@ -53,6 +58,7 @@ simulator-lc3/
 │   ├── test_runner.py              # Main test runner implementation
 │   ├── test_environment_setup.py   # Test environment setup
 │   ├── test_utils.py               # Test utilities
+│   ├── test_cli.py                 # CLI testing framework
 │   ├── conftest.py                 # pytest configuration
 │   └── test_*.py                   # Individual test files
 └── ...

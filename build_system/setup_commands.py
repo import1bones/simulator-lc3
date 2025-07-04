@@ -32,12 +32,12 @@ def setup_project(args):
         # Install from requirements.txt if it exists
         requirements = read_requirements()
         if requirements:
-            run_command([sys.executable, "-m", "pip", "install", "-r", 
-                         str(project_root / "requirements.txt")])
+            run_command([sys.executable, "-m", "pip", "install", "-r",
+                        str(project_root / "requirements.txt")])
         else:
             # Install minimal dependencies
-            run_command([sys.executable, "-m", "pip", "install", 
-                         "pytest", "pytest-cov", "pybind11"])
+            run_command([sys.executable, "-m", "pip", "install",
+                        "pytest", "pytest-cov", "pytest-html", "pybind11"])
         
         print("Python dependencies installed successfully.")
     except subprocess.CalledProcessError as e:
