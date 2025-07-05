@@ -231,15 +231,15 @@ def test_test_execution():
     if not build_dir.exists():
         build_dir.mkdir(exist_ok=True)
 
-    # Set up Python paths
-    python_paths = setup_python_paths(build_dir)
-    python_path_str = ":".join(python_paths)
+    # # Set up Python paths
+    # python_paths = setup_python_paths(build_dir)
+    # python_path_str = ":".join(python_paths)
 
-    if "PYTHONPATH" in env:
-        env["PYTHONPATH"] = f"{python_path_str}:{env['PYTHONPATH']}"
-    else:
-        env["PYTHONPATH"] = python_path_str
-    print(f"📌 Set PYTHONPATH to: {python_path_str}")
+    # if "PYTHONPATH" in env:
+    #     env["PYTHONPATH"] = f"{python_path_str}:{env['PYTHONPATH']}"
+    # else:
+    #     env["PYTHONPATH"] = python_path_str
+    # print(f"📌 Set PYTHONPATH to: {python_path_str}")
 
     success = True
 
