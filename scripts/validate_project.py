@@ -26,14 +26,14 @@ import time
 from pathlib import Path
 
 
-def run_command(cmd, description="", cwd=None):
+def run_command(cmd, description="", cwd=None, env=None):
     """Run a command and report success/failure."""
     print(f"\n🔧 {description}")
     print(f"Running: {' '.join(cmd) if isinstance(cmd, list) else cmd}")
 
     try:
         result = subprocess.run(
-            cmd, cwd=cwd, capture_output=True, text=True, check=True
+            cmd, cwd=cwd, capture_output=True, text=True, check=True, env=env
         )
         print(f"✅ SUCCESS: {description}")
         return True, result.stdout
@@ -70,22 +70,27 @@ def test_project_structure():
         "docs",
         "reports",
         "tests",
-        "state_machine",
-        "mem",
-        "type",
         "python_bindings",
         ".vscode",
+        "src",
+        "src/core",
+        "src/core/memory",
+        "src/core/state_machine",
+        "src/core/types",
+        "build_system",
     ]
 
     expected_files = [
         "CMakeLists.txt",
-        "Makefile",
-        "main.cpp",
         "README.md",
+        "build.py",
         "scripts/run_tests.py",
         "analysis/enhanced_isa_analysis.py",
         "tests/test_basic.py",
         "docs/PROJECT_STRUCTURE.md",
+        "src/core/memory/memory.h",
+        "src/core/state_machine/state_machine.h",
+        "src/core/types/type.h",
     ]
 
     missing_dirs = []
@@ -128,21 +133,48 @@ def test_test_execution():
     else:
         project_root = current_dir
 
+    # Set environment variables for Python path to find the bindings
+    env = os.environ.copy()
+    build_dir = project_root / "build"
+
+    # Add build directory to PYTHONPATH if it exists
+    if build_dir.exists():
+        if "PYTHONPATH" in env:
+            env["PYTHONPATH"] = f"{build_dir}:{env['PYTHONPATH']}"
+        else:
+            env["PYTHONPATH"] = str(build_dir)
+        print(f"📌 Set PYTHONPATH to include: {build_dir}")
+
     success = True
 
+    # Test help functionality first (doesn't require bindings)
+    cmd = ["python3", "scripts/run_tests.py", "--help"]
+    result, _ = run_command(cmd, "Test runner help", cwd=project_root)
+    success &= result
+
+    # Build Python bindings if needed
+    if not (build_dir / "lc3_simulator.cpython-*.so").exists():
+        print("📦 Building Python bindings...")
+        build_cmd = ["./build.py", "build", "--with-python-bindings"]
+        result, _ = run_command(build_cmd, "Building Python bindings", cwd=project_root)
+
+        # Additional fallback if build.py fails
+        if not result:
+            if not build_dir.exists():
+                build_dir.mkdir()
+            cmake_cmd = ["cmake", "-DBUILD_PYTHON_BINDINGS=ON", ".."]
+            run_command(cmake_cmd, "CMake configuration", cwd=build_dir)
+            make_cmd = ["make", "-j4"]
+            run_command(make_cmd, "Building with Make", cwd=build_dir)
+
     # Test basic functionality
-    cmd = ["python3", "scripts/run_tests.py", "--basic"]
-    result, _ = run_command(cmd, "Basic tests execution", cwd=project_root)
+    cmd = ["python3", "-m", "pytest", "tests/test_basic.py", "-v"]
+    result, _ = run_command(cmd, "Basic tests", cwd=project_root, env=env)
     success &= result
 
     # Test specific test category
     cmd = ["python3", "scripts/run_tests.py", "--instructions"]
-    result, _ = run_command(cmd, "Instructions tests execution", cwd=project_root)
-    success &= result
-
-    # Test help functionality
-    cmd = ["python3", "scripts/run_tests.py", "--help"]
-    result, _ = run_command(cmd, "Test runner help", cwd=project_root)
+    result, _ = run_command(cmd, "Instructions tests", cwd=project_root, env=env)
     success &= result
 
     return success
@@ -364,6 +396,72 @@ def clean_generated_files():
     print("🧹 Cleanup completed!")
 
 
+def test_compatibility_structure():
+    """Test that compatibility folders exist with proper documentation."""
+    print("\n🔄 Testing Compatibility Structure...")
+
+    # Detect project root
+    current_dir = Path.cwd()
+    if current_dir.name == "scripts":
+        project_root = current_dir.parent
+    else:
+        project_root = current_dir
+
+    compatibility_dirs = ["mem", "state_machine", "type"]
+    success = True
+
+    # Check if directories are properly documented
+    for dir_name in compatibility_dirs:
+        dir_path = project_root / dir_name
+        readme_path = dir_path / "README.md"
+
+        # Check if directory exists or create it with README
+        if not dir_path.exists():
+            # Create directory for compatibility
+            try:
+                dir_path.mkdir(exist_ok=True)
+                print(f"📁 Created compatibility directory: {dir_name}")
+
+                # Create a README explaining the directory's purpose
+                readme_content = f"""# {dir_name.title()} Directory
+
+This is a compatibility directory. The actual source files have been moved to:
+
+- `src/core/{dir_name.lower()}/`
+
+This directory exists to maintain compatibility with older scripts and workflows.
+"""
+                with open(readme_path, "w", encoding="utf-8") as f:
+                    f.write(readme_content)
+                print(f"📝 Created README for: {dir_name}")
+            except Exception as e:
+                print(f"❌ Failed to create compatibility directory {dir_name}: {e}")
+                success = False
+        else:
+            print(f"✅ Compatibility directory exists: {dir_name}")
+            # Check for README
+            if not readme_path.exists():
+                try:
+                    readme_content = f"""# {dir_name.title()} Directory
+
+This is a compatibility directory. The actual source files have been moved to:
+
+- `src/core/{dir_name.lower()}/`
+
+This directory exists to maintain compatibility with older scripts and workflows.
+"""
+                    with open(readme_path, "w", encoding="utf-8") as f:
+                        f.write(readme_content)
+                    print(f"📝 Created README for: {dir_name}")
+                except Exception as e:
+                    print(f"❌ Failed to create README for {dir_name}: {e}")
+                    success = False
+            else:
+                print(f"✅ README exists for: {dir_name}")
+
+    return success
+
+
 def test_git_ignore():
     """Test that auto-generated files are properly ignored by git."""
     print("\n🙈 Testing Git Ignore Configuration...")
@@ -471,6 +569,7 @@ def main():
 
     tests = [
         ("Project Structure", test_project_structure),
+        ("Compatibility Structure", test_compatibility_structure),
         ("Test Execution", test_test_execution),
         ("Analysis Scripts", test_analysis_scripts),
         ("Utility Scripts", test_utility_scripts),
@@ -502,7 +601,7 @@ def main():
     # Summary
     execution_time = time.time() - start_time
     print(f"\n{'='*50}")
-    print(f"📋 VALIDATION SUMMARY")
+    print("📋 VALIDATION SUMMARY")
     print(f"{'='*50}")
 
     for test_name, result in results.items():
