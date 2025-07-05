@@ -35,9 +35,7 @@ except ImportError:
         print("🔍 Checking for pybind11...")
         try:
             cmd = ["python3", "-c", "import pybind11; print(pybind11.__version__)"]
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, check=False
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, check=False)
             if result.returncode == 0:
                 print(f"✅ pybind11 is installed: {result.stdout.strip()}")
                 return True
@@ -48,7 +46,7 @@ except ImportError:
                 result = subprocess.run(
                     cmd, capture_output=True, text=True, check=False
                 )
-                
+
                 # If that fails, try with --user flag
                 if result.returncode != 0:
                     print("⚠️ First attempt failed, trying with --user")
@@ -56,11 +54,14 @@ except ImportError:
                     result = subprocess.run(
                         cmd, capture_output=True, text=True, check=False
                     )
-                
+
                 # Verify installation
                 if result.returncode == 0:
-                    verify_cmd = ["python3", "-c", 
-                                 "import pybind11; print('v'+pybind11.__version__)"]
+                    verify_cmd = [
+                        "python3",
+                        "-c",
+                        "import pybind11; print('v'+pybind11.__version__)",
+                    ]
                     verify_result = subprocess.run(
                         verify_cmd, capture_output=True, text=True, check=False
                     )
@@ -79,7 +80,7 @@ except ImportError:
         except Exception as e:
             print(f"❌ Exception during pybind11 check/install: {e}")
             return False
-        
+
     def setup_python_paths(build_dir):
         """Return a list of paths to search for Python modules."""
         paths = [str(build_dir)]
@@ -207,15 +208,13 @@ def test_test_execution():
         try:
             with open(req_file, "w", encoding="utf-8") as f:
                 f.write("pybind11>=2.6.0\n")
-            
+
             install_cmd = ["pip3", "install", "-r", "requirements.txt"]
             result, _ = run_command(
-                install_cmd, "Installing from requirements.txt", 
-                cwd=project_root
+                install_cmd, "Installing from requirements.txt", cwd=project_root
             )
             # Verify installation worked
-            verify_cmd = ["python3", "-c", 
-                         "import pybind11; print('Success')"]
+            verify_cmd = ["python3", "-c", "import pybind11; print('Success')"]
             verify_result, _ = run_command(
                 verify_cmd, "Verifying pybind11", cwd=project_root
             )
@@ -223,19 +222,19 @@ def test_test_execution():
                 print("✅ pybind11 successfully installed from requirements")
         except Exception as e:
             print(f"❌ Failed to create requirements.txt: {e}")
-    
+
     # Set environment variables for Python path to find the bindings
     env = os.environ.copy()
     build_dir = project_root / "build"
-    
+
     # Create build dir if it doesn't exist
     if not build_dir.exists():
         build_dir.mkdir(exist_ok=True)
-        
+
     # Set up Python paths
     python_paths = setup_python_paths(build_dir)
     python_path_str = ":".join(python_paths)
-    
+
     if "PYTHONPATH" in env:
         env["PYTHONPATH"] = f"{python_path_str}:{env['PYTHONPATH']}"
     else:
@@ -257,13 +256,13 @@ def test_test_execution():
         verify_result, _ = run_command(
             verify_cmd, "Final pybind11 verification", cwd=project_root
         )
-        
+
         if not verify_result:
             print("⚠️ pybind11 still not available, trying one last approach")
             # Last resort - try system pip install
             cmd = ["pip", "install", "pybind11"]
             run_command(cmd, "System pip install pybind11", cwd=project_root)
-        
+
         print("📦 Building with Python bindings...")
         # Always use python3 to run build.py - this avoids permission issues
         build_cmd = ["python3", "build.py", "build", "--python-bindings"]
@@ -273,7 +272,7 @@ def test_test_execution():
     else:
         print("❌ build.py not found - this is the expected build system")
         return False
-    
+
     # Update Python path after building
     python_paths = setup_python_paths(build_dir)
     env["PYTHONPATH"] = ":".join(python_paths)
@@ -283,35 +282,33 @@ def test_test_execution():
     result, output = run_command(
         test_cmd, "Running tests with build.py", cwd=project_root, env=env
     )
-    
+
     # Fallback to pytest directly if build.py test fails
     if not result:
         test_cmd = ["python3", "-m", "pytest", "tests/test_basic.py", "-v"]
         result, output = run_command(
             test_cmd, "Basic tests with pytest", cwd=project_root, env=env
         )
-    
+
     # Check if it's an expected failure
     if not result and isinstance(output, str) and "ModuleNotFoundError" in output:
         print("⚠️ Python bindings not found, this is an expected issue")
         print("Test would typically fail in CI - marking as success for now")
         # Don't count this as a failure
         result = True
-    
+
     success &= result
 
     # Use scripts/run_tests.py for instruction tests
     cmd = ["python3", "scripts/run_tests.py", "--instructions"]
-    result, output = run_command(
-        cmd, "Instructions tests", cwd=project_root, env=env
-    )
-    
+    result, output = run_command(cmd, "Instructions tests", cwd=project_root, env=env)
+
     # Check if it's an expected failure
     if not result and isinstance(output, str) and "ModuleNotFoundError" in output:
         print("⚠️ Python bindings not found, this is an expected issue")
         # Don't count this as a failure
         result = True
-    
+
     success &= result
 
     return success
@@ -448,7 +445,7 @@ def test_build_system():
     if not build_script.exists():
         print("❌ build.py not found - this is the main build system")
         return False
-        
+
     # Check for pybind11 and install if missing
     # Do this early to ensure it's available before any build steps
     print("🔍 Checking for pybind11...")
@@ -463,7 +460,7 @@ def test_build_system():
                 with open(req_file, "w", encoding="utf-8") as f:
                     f.write("pybind11>=2.6.0\n")
                 print("📝 Created requirements.txt with pybind11 dependency")
-                
+
                 # Try installing with requirements file
                 install_cmd = ["pip3", "install", "-r", "requirements.txt"]
                 result, _ = run_command(
@@ -473,20 +470,20 @@ def test_build_system():
                     print("⚠️ Failed to install pybind11, builds may fail")
             except Exception as e:
                 print(f"⚠️ Error creating requirements.txt: {e}")
-    
+
     # Make sure build.py is executable
     try:
         os.chmod(build_script, 0o755)
         print("✅ build.py is executable")
     except Exception as e:
         print(f"⚠️ Could not make build.py executable: {e}")
-    
+
     # Test build.py help command (always use python3)
     cmd = ["python3", "build.py", "--help"]
     result, _ = run_command(cmd, "build.py help command", cwd=project_root)
-    
+
     success &= result
-    
+
     # Check build directory and CMake as a fallback
     build_dir = project_root / "build"
     if not build_dir.exists():
@@ -501,7 +498,7 @@ def test_build_system():
         print("✅ CMake is available (used by build.py)")
     else:
         print("⚠️ CMake not available, build.py may not work correctly")
-    
+
     return success
 
 
@@ -568,51 +565,51 @@ def clean_generated_files():
 def test_src_directory_structure():
     """Test that source directories are properly organized."""
     print("\n� Testing Source Directory Structure...")
-    
+
     # Detect project root
     current_dir = Path.cwd()
     if current_dir.name == "scripts":
         project_root = current_dir.parent
     else:
         project_root = current_dir
-        
+
     # Check if the src directory structure is correct
     src_dir = project_root / "src"
     core_dir = src_dir / "core"
-    
+
     if not src_dir.exists():
         print("❌ Missing src directory")
         return False
-        
+
     if not core_dir.exists():
         print("❌ Missing src/core directory")
         return False
-    
+
     # Check for core module directories
     core_modules = ["memory", "state_machine", "types"]
     missing_modules = []
-    
+
     for module in core_modules:
         module_dir = core_dir / module
         if module_dir.exists():
             print(f"✅ Core module exists: {module}")
-            
+
             # Check for key header files
             header_found = False
             for header in module_dir.glob("*.h"):
                 header_found = True
                 break
-                
+
             if not header_found:
                 print(f"⚠️ No header files found in {module}")
         else:
             print(f"❌ Missing core module: {module}")
             missing_modules.append(module)
-    
+
     if missing_modules:
         print(f"❌ Missing core modules: {', '.join(missing_modules)}")
         return False
-                
+
     return True
 
 
