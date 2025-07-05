@@ -35,16 +35,49 @@ except ImportError:
         print("🔍 Checking for pybind11...")
         try:
             cmd = ["python3", "-c", "import pybind11; print(pybind11.__version__)"]
-            result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, check=False
+            )
             if result.returncode == 0:
-                print(f"✅ pybind11 is installed")
+                print(f"✅ pybind11 is installed: {result.stdout.strip()}")
                 return True
             else:
-                print("⚠️ Installing pybind11...")
+                print("⚠️ pybind11 not found. Installing...")
+                # Try installing with pip3 first
                 cmd = ["pip3", "install", "pybind11"]
-                result = subprocess.run(cmd, capture_output=True, text=True, check=False)
-                return result.returncode == 0
-        except Exception:
+                result = subprocess.run(
+                    cmd, capture_output=True, text=True, check=False
+                )
+                
+                # If that fails, try with --user flag
+                if result.returncode != 0:
+                    print("⚠️ First attempt failed, trying with --user")
+                    cmd = ["pip3", "install", "--user", "pybind11"]
+                    result = subprocess.run(
+                        cmd, capture_output=True, text=True, check=False
+                    )
+                
+                # Verify installation
+                if result.returncode == 0:
+                    verify_cmd = ["python3", "-c", 
+                                 "import pybind11; print('v'+pybind11.__version__)"]
+                    verify_result = subprocess.run(
+                        verify_cmd, capture_output=True, text=True, check=False
+                    )
+                    if verify_result.returncode == 0:
+                        ver = verify_result.stdout.strip()
+                        print(f"✅ pybind11 installed: {ver}")
+                        return True
+                    else:
+                        print("❌ pybind11 installation verification failed")
+                        return False
+                else:
+                    print("❌ Failed to install pybind11")
+                    print(f"stdout: {result.stdout}")
+                    print(f"stderr: {result.stderr}")
+                    return False
+        except Exception as e:
+            print(f"❌ Exception during pybind11 check/install: {e}")
             return False
         
     def setup_python_paths(build_dir):
@@ -165,8 +198,31 @@ def test_test_execution():
     else:
         project_root = current_dir
 
-    # Make sure pybind11 is installed
-    ensure_pybind11()
+    # Make sure pybind11 is installed - this is critical for the build
+    print("🔍 Installing pybind11 (required for Python bindings)...")
+    if not ensure_pybind11():
+        print("⚠️ Could not install pybind11 - CI build will likely fail")
+        # Try another approach - create requirements and install
+        req_file = project_root / "requirements.txt"
+        try:
+            with open(req_file, "w", encoding="utf-8") as f:
+                f.write("pybind11>=2.6.0\n")
+            
+            install_cmd = ["pip3", "install", "-r", "requirements.txt"]
+            result, _ = run_command(
+                install_cmd, "Installing from requirements.txt", 
+                cwd=project_root
+            )
+            # Verify installation worked
+            verify_cmd = ["python3", "-c", 
+                         "import pybind11; print('Success')"]
+            verify_result, _ = run_command(
+                verify_cmd, "Verifying pybind11", cwd=project_root
+            )
+            if verify_result:
+                print("✅ pybind11 successfully installed from requirements")
+        except Exception as e:
+            print(f"❌ Failed to create requirements.txt: {e}")
     
     # Set environment variables for Python path to find the bindings
     env = os.environ.copy()
@@ -196,9 +252,21 @@ def test_test_execution():
     # Build using the modern build.py system
     build_script = project_root / "build.py"
     if build_script.exists():
+        # Explicitly verify pybind11 is available before building
+        verify_cmd = ["python3", "-c", "import pybind11; print('Success')"]
+        verify_result, _ = run_command(
+            verify_cmd, "Final pybind11 verification", cwd=project_root
+        )
+        
+        if not verify_result:
+            print("⚠️ pybind11 still not available, trying one last approach")
+            # Last resort - try system pip install
+            cmd = ["pip", "install", "pybind11"]
+            run_command(cmd, "System pip install pybind11", cwd=project_root)
+        
         print("📦 Building with Python bindings...")
         # Always use python3 to run build.py - this avoids permission issues
-        build_cmd = ["python3", "build.py", "build"]
+        build_cmd = ["python3", "build.py", "build", "--python-bindings"]
         result, _ = run_command(
             build_cmd, "Building with python3 build.py", cwd=project_root
         )
@@ -375,12 +443,19 @@ def test_build_system():
 
     success = True
 
+    # Check for build.py which is the main build system
+    build_script = project_root / "build.py"
+    if not build_script.exists():
+        print("❌ build.py not found - this is the main build system")
+        return False
+        
     # Check for pybind11 and install if missing
+    # Do this early to ensure it's available before any build steps
     print("🔍 Checking for pybind11...")
     if ensure_pybind11():
         print("✅ pybind11 is available")
     else:
-        print("⚠️ Could not verify pybind11, build may fail")
+        print("⚠️ Could not install pybind11 automatically")
         # Create requirements.txt if it doesn't exist
         req_file = project_root / "requirements.txt"
         if not req_file.exists():
@@ -391,15 +466,13 @@ def test_build_system():
                 
                 # Try installing with requirements file
                 install_cmd = ["pip3", "install", "-r", "requirements.txt"]
-                run_command(install_cmd, "Installing dependencies", cwd=project_root)
+                result, _ = run_command(
+                    install_cmd, "Installing dependencies", cwd=project_root
+                )
+                if not result:
+                    print("⚠️ Failed to install pybind11, builds may fail")
             except Exception as e:
                 print(f"⚠️ Error creating requirements.txt: {e}")
-
-    # Check for build.py which is the main build system
-    build_script = project_root / "build.py"
-    if not build_script.exists():
-        print("❌ build.py not found - this is the main build system")
-        return False
     
     # Make sure build.py is executable
     try:
