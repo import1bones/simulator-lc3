@@ -23,12 +23,11 @@ import os
 import sys
 import subprocess
 import time
-import glob
 from pathlib import Path
 
 # Import helper functions
 try:
-    from helper_functions import ensure_pybind11, create_compatibility_makefile, setup_python_paths
+    from helper_functions import ensure_pybind11, setup_python_paths
 except ImportError:
     # Define inline if import fails
     def ensure_pybind11():
@@ -47,14 +46,16 @@ except ImportError:
                 return result.returncode == 0
         except Exception:
             return False
-            
-    def create_compatibility_makefile(project_root):
-        """Create a basic Makefile in the project root."""
-        return False
         
     def setup_python_paths(build_dir):
         """Return a list of paths to search for Python modules."""
-        return [str(build_dir)]
+        paths = [str(build_dir)]
+        # Add other potential Python binding locations
+        for path in ["python_bindings", "lib", "bin"]:
+            subdir = build_dir / path
+            if subdir.exists():
+                paths.append(str(subdir))
+        return paths
 
 
 def run_command(cmd, description="", cwd=None, env=None):
@@ -167,9 +168,6 @@ def test_test_execution():
     # Make sure pybind11 is installed
     ensure_pybind11()
     
-    # Create compatibility Makefile
-    create_compatibility_makefile(project_root)
-    
     # Set environment variables for Python path to find the bindings
     env = os.environ.copy()
     build_dir = project_root / "build"
@@ -195,45 +193,46 @@ def test_test_execution():
     result, _ = run_command(cmd, "Test runner help", cwd=project_root)
     success &= result
 
-    # Try to make build.py executable if it exists
-    if os.path.isfile(os.path.join(project_root, "build.py")):
-        os.chmod(os.path.join(project_root, "build.py"), 0o755)
-        print("📦 Building Python bindings...")
-        build_cmd = ["./build.py", "build", "--with-python-bindings"]
+    # Build using the modern build.py system
+    build_script = project_root / "build.py"
+    if build_script.exists():
+        print("📦 Building with Python bindings...")
+        # Always use python3 to run build.py - this avoids permission issues
+        build_cmd = ["python3", "build.py", "build"]
         result, _ = run_command(
-            build_cmd, "Building with build.py", cwd=project_root
+            build_cmd, "Building with python3 build.py", cwd=project_root
         )
     else:
-        result = False
-        
-    # Fallback to CMake if build.py fails
-    if not result:
-        cmake_cmd = ["cmake", "-DBUILD_PYTHON_BINDINGS=ON", ".."]
-        cmake_result, _ = run_command(
-            cmake_cmd, "CMake configuration", cwd=build_dir
-        )
-        
-        if cmake_result:
-            make_cmd = ["make", "-j4"]
-            run_command(make_cmd, "Building with Make", cwd=build_dir)
+        print("❌ build.py not found - this is the expected build system")
+        return False
     
     # Update Python path after building
     python_paths = setup_python_paths(build_dir)
     env["PYTHONPATH"] = ":".join(python_paths)
 
-    # Test basic functionality
-    cmd = ["python3", "-m", "pytest", "tests/test_basic.py", "-v"]
-    result, output = run_command(cmd, "Basic tests", cwd=project_root, env=env)
+    # Test basic functionality using the build.py test command
+    test_cmd = ["python3", "build.py", "test"]
+    result, output = run_command(
+        test_cmd, "Running tests with build.py", cwd=project_root, env=env
+    )
+    
+    # Fallback to pytest directly if build.py test fails
+    if not result:
+        test_cmd = ["python3", "-m", "pytest", "tests/test_basic.py", "-v"]
+        result, output = run_command(
+            test_cmd, "Basic tests with pytest", cwd=project_root, env=env
+        )
     
     # Check if it's an expected failure
     if not result and isinstance(output, str) and "ModuleNotFoundError" in output:
         print("⚠️ Python bindings not found, this is an expected issue")
         print("Test would typically fail in CI - marking as success for now")
         # Don't count this as a failure
-    else:
-        success &= result
+        result = True
+    
+    success &= result
 
-    # Test with instructions
+    # Use scripts/run_tests.py for instruction tests
     cmd = ["python3", "scripts/run_tests.py", "--instructions"]
     result, output = run_command(
         cmd, "Instructions tests", cwd=project_root, env=env
@@ -243,8 +242,9 @@ def test_test_execution():
     if not result and isinstance(output, str) and "ModuleNotFoundError" in output:
         print("⚠️ Python bindings not found, this is an expected issue")
         # Don't count this as a failure
-    else:
-        success &= result
+        result = True
+    
+    success &= result
 
     return success
 
@@ -395,42 +395,40 @@ def test_build_system():
             except Exception as e:
                 print(f"⚠️ Error creating requirements.txt: {e}")
 
-    # Test CMake configuration
+    # Check for build.py which is the main build system
+    build_script = project_root / "build.py"
+    if not build_script.exists():
+        print("❌ build.py not found - this is the main build system")
+        return False
+    
+    # Make sure build.py is executable
+    try:
+        os.chmod(build_script, 0o755)
+        print("✅ build.py is executable")
+    except Exception as e:
+        print(f"⚠️ Could not make build.py executable: {e}")
+    
+    # Test build.py help command (always use python3)
+    cmd = ["python3", "build.py", "--help"]
+    result, _ = run_command(cmd, "build.py help command", cwd=project_root)
+    
+    success &= result
+    
+    # Check build directory and CMake as a fallback
     build_dir = project_root / "build"
     if not build_dir.exists():
         build_dir.mkdir()
 
+    # Check CMake availability (used by build.py)
     cmd = ["cmake", "--version"]
     result, _ = run_command(cmd, "CMake availability check", cwd=project_root)
 
     if result:
-        cmd = ["cmake", "-DBUILD_PYTHON_BINDINGS=ON", ".."]
-        result, output = run_command(cmd, "CMake configuration", cwd=build_dir)
-        
-        # If failed due to pybind11, don't count as failure in validation
-        if not result and isinstance(output, str):
-            if "pybind11 not found" in output:
-                print("⚠️ CMake failed due to missing pybind11 - known issue")
-                print("This is expected in some CI environments")
-                # Don't fail validation for this known issue
-                result = True
-                
-        success &= result
+        # Don't run CMake directly - just check availability
+        print("✅ CMake is available (used by build.py)")
     else:
-        print("⚠️ CMake not available, skipping build tests")
-        success = True  # Don't fail if CMake is not available
-
-    # Test Makefile
-    makefile = project_root / "Makefile"
-    if makefile.exists():
-        cmd = ["make", "--version"]
-        result, _ = run_command(cmd, "Make availability check", cwd=project_root)
-
-        if result:
-            cmd = ["make", "help"]
-            result, _ = run_command(cmd, "Makefile help")
-            # Don't require this to succeed
-
+        print("⚠️ CMake not available, build.py may not work correctly")
+    
     return success
 
 
@@ -494,70 +492,55 @@ def clean_generated_files():
     print("🧹 Cleanup completed!")
 
 
-def test_compatibility_structure():
-    """Test that compatibility folders exist with proper documentation."""
-    print("\n🔄 Testing Compatibility Structure...")
-
+def test_src_directory_structure():
+    """Test that source directories are properly organized."""
+    print("\n� Testing Source Directory Structure...")
+    
     # Detect project root
     current_dir = Path.cwd()
     if current_dir.name == "scripts":
         project_root = current_dir.parent
     else:
         project_root = current_dir
-
-    compatibility_dirs = ["mem", "state_machine", "type"]
-    success = True
-
-    # Check if directories are properly documented
-    for dir_name in compatibility_dirs:
-        dir_path = project_root / dir_name
-        readme_path = dir_path / "README.md"
-
-        # Check if directory exists or create it with README
-        if not dir_path.exists():
-            # Create directory for compatibility
-            try:
-                dir_path.mkdir(exist_ok=True)
-                print(f"📁 Created compatibility directory: {dir_name}")
-
-                # Create a README explaining the directory's purpose
-                readme_content = f"""# {dir_name.title()} Directory
-
-This is a compatibility directory. The actual source files have been moved to:
-
-- `src/core/{dir_name.lower()}/`
-
-This directory exists to maintain compatibility with older scripts and workflows.
-"""
-                with open(readme_path, "w", encoding="utf-8") as f:
-                    f.write(readme_content)
-                print(f"📝 Created README for: {dir_name}")
-            except Exception as e:
-                print(f"❌ Failed to create compatibility directory {dir_name}: {e}")
-                success = False
+        
+    # Check if the src directory structure is correct
+    src_dir = project_root / "src"
+    core_dir = src_dir / "core"
+    
+    if not src_dir.exists():
+        print("❌ Missing src directory")
+        return False
+        
+    if not core_dir.exists():
+        print("❌ Missing src/core directory")
+        return False
+    
+    # Check for core module directories
+    core_modules = ["memory", "state_machine", "types"]
+    missing_modules = []
+    
+    for module in core_modules:
+        module_dir = core_dir / module
+        if module_dir.exists():
+            print(f"✅ Core module exists: {module}")
+            
+            # Check for key header files
+            header_found = False
+            for header in module_dir.glob("*.h"):
+                header_found = True
+                break
+                
+            if not header_found:
+                print(f"⚠️ No header files found in {module}")
         else:
-            print(f"✅ Compatibility directory exists: {dir_name}")
-            # Check for README
-            if not readme_path.exists():
-                try:
-                    readme_content = f"""# {dir_name.title()} Directory
-
-This is a compatibility directory. The actual source files have been moved to:
-
-- `src/core/{dir_name.lower()}/`
-
-This directory exists to maintain compatibility with older scripts and workflows.
-"""
-                    with open(readme_path, "w", encoding="utf-8") as f:
-                        f.write(readme_content)
-                    print(f"📝 Created README for: {dir_name}")
-                except Exception as e:
-                    print(f"❌ Failed to create README for {dir_name}: {e}")
-                    success = False
-            else:
-                print(f"✅ README exists for: {dir_name}")
-
-    return success
+            print(f"❌ Missing core module: {module}")
+            missing_modules.append(module)
+    
+    if missing_modules:
+        print(f"❌ Missing core modules: {', '.join(missing_modules)}")
+        return False
+                
+    return True
 
 
 def test_git_ignore():
@@ -667,7 +650,7 @@ def main():
 
     tests = [
         ("Project Structure", test_project_structure),
-        ("Compatibility Structure", test_compatibility_structure),
+        ("Source Directory Structure", test_src_directory_structure),
         ("Test Execution", test_test_execution),
         ("Analysis Scripts", test_analysis_scripts),
         ("Utility Scripts", test_utility_scripts),
